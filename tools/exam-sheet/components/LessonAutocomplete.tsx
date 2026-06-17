@@ -4,12 +4,8 @@ import {
   LessonSuggestion,
   useLessonSuggestions,
 } from "../hooks/useLessonSuggestions";
-import {
-  ds,
-  formatObjectivesCount,
-  getLevelLabel,
-  ui,
-} from "../ui/design-system";
+import { ds, ui } from "../ui/design-system";
+import { getUILabels, getLevelLabelI18n, formatObjectivesCountI18n } from "../i18n";
 
 type Props = {
   value: string;
@@ -38,11 +34,12 @@ export function LessonAutocomplete({
     return isOpen && value.trim().length > 0 && suggestions.length > 0;
   }, [isOpen, suggestions.length, value]);
 
+  const L = getUILabels(track);
   return (
     <div style={wrapperStyle}>
       <input
         type="text"
-        placeholder="عنوان الدرس"
+        placeholder={L.fieldLessonPh}
         value={value}
         onFocus={() => setIsOpen(true)}
         onBlur={() => {
@@ -57,7 +54,7 @@ export function LessonAutocomplete({
 
       {shouldShowSuggestions && (
         <div style={popoverStyle}>
-          <div style={popoverHeaderStyle}>الدروس المرجعية</div>
+          <div style={popoverHeaderStyle}>{L.suggestionsHeader}</div>
 
           <div style={suggestionsListStyle}>
             {suggestions.map((suggestion) => (
@@ -75,17 +72,18 @@ export function LessonAutocomplete({
                   <div style={suggestionTextBlockStyle}>
                     <div style={suggestionLabelStyle}>{suggestion.label}</div>
                     <div style={suggestionMetaStyle}>
-                      <span>{getLevelLabel(suggestion.levelId)}</span>
-                      <span>{suggestion.defaultDurationHours}س</span>
+                      <span>{getLevelLabelI18n(suggestion.levelId, track)}</span>
+                      <span>{suggestion.defaultDurationHours}{L.durationSuffix}</span>
                       <span>
-                        {formatObjectivesCount(
-                          suggestion.defaultObjectives.length
+                        {formatObjectivesCountI18n(
+                          suggestion.defaultObjectives.length,
+                          track
                         )}
                       </span>
                     </div>
                   </div>
 
-                  <span style={ui.badgePrimary}>مرجع</span>
+                  <span style={ui.badgePrimary}>{L.badgeCatalog}</span>
                 </div>
               </button>
             ))}

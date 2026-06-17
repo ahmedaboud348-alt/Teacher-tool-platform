@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { ExamSheetDocumentModel } from "../types/exam-sheet-document";
-import { ds, getTrackLabel } from "../ui/design-system";
+import { ds } from "../ui/design-system";
+import { getUILabels, getTrackLabelI18n, formatTermI18n, formatDurationI18n } from "../i18n";
 
 type Props = {
   documentModel: ExamSheetDocumentModel | null;
@@ -17,7 +18,6 @@ export function PreviewPanel({ documentModel }: Props) {
               <h3 style={documentTitleStyle}>جذاذة الفرض المحروس</h3>
             </div>
           </div>
-
           <div style={emptyStateStyle}>
             تعذر بناء المعاينة من المعطيات الحالية.
           </div>
@@ -26,47 +26,46 @@ export function PreviewPanel({ documentModel }: Props) {
     );
   }
 
-  const isRtl = documentModel.meta.track === "general";
+  const track = documentModel.meta.track;
+  const isRtl = track === "general";
+  const L = getUILabels(track);
 
   return (
     <aside
       dir={isRtl ? "rtl" : "ltr"}
-      style={{
-        ...previewShellStyle,
-        textAlign: isRtl ? "right" : "left",
-      }}
+      style={{ ...previewShellStyle, textAlign: isRtl ? "right" : "left" }}
     >
       <article style={documentSheetStyle}>
         <header style={documentHeaderStyle}>
           <div>
-            <div style={documentEyebrowStyle}>معاينة الوثيقة</div>
+            <div style={documentEyebrowStyle}>{L.previewEyebrow}</div>
             <h3 style={documentTitleStyle}>
-              {documentModel.meta.title || "جذاذة الفرض المحروس"}
+              {documentModel.meta.title || L.previewDefault}
             </h3>
           </div>
 
           <div style={documentMetaBadgeStyle}>
-            <span>المسار</span>
-            <strong>{getTrackLabel(documentModel.meta.track)}</strong>
+            <span>{L.previewTrackLabel}</span>
+            <strong>{getTrackLabelI18n(track)}</strong>
           </div>
         </header>
 
         {documentModel.sections.includes("metadata") && (
           <section style={sectionStyle}>
-            <SectionTitle title="المعطيات الأساسية" />
+            <SectionTitle title={L.metaSection} />
 
             <div style={metadataGridStyle}>
-              <MetadataItem label="المؤسسة" value={documentModel.meta.institutionName} />
-              <MetadataItem label="الأستاذ" value={documentModel.meta.teacherName} />
-              <MetadataItem label="المادة" value={documentModel.meta.subjectLabel} />
-              <MetadataItem label="المستوى" value={documentModel.meta.levelLabel} />
-              <MetadataItem label="الدورة" value={formatTerm(documentModel.meta.term)} />
+              <MetadataItem label={L.metaInstitution} value={documentModel.meta.institutionName} />
+              <MetadataItem label={L.metaTeacher} value={documentModel.meta.teacherName} />
+              <MetadataItem label={L.metaSubject} value={documentModel.meta.subjectLabel} />
+              <MetadataItem label={L.metaLevel} value={documentModel.meta.levelLabel} />
+              <MetadataItem label={L.metaTerm} value={formatTermI18n(documentModel.meta.term, track)} />
               <MetadataItem
-                label="مدة الفرض"
-                value={formatDuration(documentModel.meta.examDurationHours)}
+                label={L.metaDuration}
+                value={formatDurationI18n(documentModel.meta.examDurationHours, track)}
               />
               <MetadataItem
-                label="نقطة الفرض"
+                label={L.metaTotal}
                 value={formatNumber(documentModel.meta.totalPoints)}
               />
             </div>
@@ -75,7 +74,7 @@ export function PreviewPanel({ documentModel }: Props) {
 
         {documentModel.sections.includes("lessons") && (
           <section style={sectionStyle}>
-            <SectionTitle title="الدروس المعتمدة" />
+            <SectionTitle title={L.previewLessons} />
 
             <div style={lessonsListStyle}>
               {documentModel.lessons.map((lesson, index) => (
@@ -86,14 +85,14 @@ export function PreviewPanel({ documentModel }: Props) {
                       <div>
                         <div style={lessonTitleStyle}>{lesson.label}</div>
                         <div style={lessonMetaStyle}>
-                          المدة: {formatDuration(lesson.hours)}
+                          {L.lessonDurationPrefix} {formatDurationI18n(lesson.hours, track)}
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <div style={objectivesBlockStyle}>
-                    <div style={objectivesTitleStyle}>الأهداف</div>
+                    <div style={objectivesTitleStyle}>{L.objectivesTitlePrev}</div>
 
                     {lesson.objectives.length > 0 ? (
                       <ul style={objectivesListStyle}>
@@ -107,9 +106,7 @@ export function PreviewPanel({ documentModel }: Props) {
                         ))}
                       </ul>
                     ) : (
-                      <div style={objectivesEmptyStyle}>
-                        لا توجد أهداف لهذا الدرس بعد.
-                      </div>
+                      <div style={objectivesEmptyStyle}>{L.objectivesEmptyPrev}</div>
                     )}
                   </div>
                 </div>
@@ -120,15 +117,15 @@ export function PreviewPanel({ documentModel }: Props) {
 
         {documentModel.sections.includes("allocation-table") && (
           <section style={sectionStyle}>
-            <SectionTitle title="جدول التخصيص" />
+            <SectionTitle title={L.tableSection} />
 
             <div style={tableWrapperStyle}>
               <table style={tableStyle}>
                 <thead>
                   <tr>
-                    <th style={{ ...headerCellStyle, ...lessonColumnStyle }}>الدرس</th>
-                    <th style={headerCellStyle}>النسبة %</th>
-                    <th style={headerCellStyle}>النقطة</th>
+                    <th style={{ ...headerCellStyle, ...lessonColumnStyle }}>{L.thLesson}</th>
+                    <th style={headerCellStyle}>{L.thPercent}</th>
+                    <th style={headerCellStyle}>{L.thNote}</th>
 
                     {documentModel.allocation.table.columns.map((column) => (
                       <th key={column.skillId} style={headerCellStyle}>
@@ -176,7 +173,7 @@ export function PreviewPanel({ documentModel }: Props) {
 
                 <tfoot>
                   <tr>
-                    <td style={{ ...footerCellStyle, ...lessonNameCellStyle }}>المجموع</td>
+                    <td style={{ ...footerCellStyle, ...lessonNameCellStyle }}>{L.tfTotal}</td>
                     <td style={footerCellStyle}>100%</td>
                     <td style={footerCellStyle}>
                       {formatNumber(documentModel.allocation.table.footer.grandTotal)}
@@ -196,7 +193,7 @@ export function PreviewPanel({ documentModel }: Props) {
 
         {documentModel.sections.includes("skills-summary") && (
           <section style={sectionStyle}>
-            <SectionTitle title="مجاميع المهارات" />
+            <SectionTitle title={L.skillsPreviewSection} />
 
             <div style={skillTotalsListStyle}>
               {documentModel.allocation.skillTotals.map((skillTotal) => (
@@ -295,13 +292,6 @@ function formatAdjustment(value: number): string {
   return `${sign}${formatNumber(Math.abs(value))}`;
 }
 
-function formatDuration(value: number): string {
-  return `${formatNumber(value)}س`;
-}
-
-function formatTerm(term: "first" | "second"): string {
-  return term === "second" ? "الدورة الثانية" : "الدورة الأولى";
-}
 
 const previewShellStyle: CSSProperties = {
   alignSelf: "start",

@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { useExamSheetPdfExport } from "../hooks/useExamSheetPdfExport";
 import { ExamSheetDocumentModel } from "../types/exam-sheet-document";
+import { getUILabels } from "../i18n";
 
 type Props = {
   documentModel: ExamSheetDocumentModel | null;
@@ -22,6 +23,7 @@ export function ExportPdfButton({ documentModel }: Props) {
   const isGenerating = exportState.status === "generating";
   const hasError = exportState.status === "error";
   const isDisabled = !documentModel || isGenerating;
+  const L = getUILabels(documentModel?.meta.track ?? "general");
 
   return (
     <div style={wrapStyle}>
@@ -37,12 +39,12 @@ export function ExportPdfButton({ documentModel }: Props) {
         {isGenerating ? (
           <>
             <SpinnerIcon />
-            جارٍ التصدير...
+            {L.exporting}
           </>
         ) : (
           <>
             <PdfIcon />
-            تصدير PDF
+            {L.exportPdf}
           </>
         )}
       </button>

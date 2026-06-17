@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { ExamSheetDraft } from "../types/exam-sheet-draft";
 import { ds, ui } from "../ui/design-system";
+import { getUILabels } from "../i18n";
 
 type Props = {
   draft: ExamSheetDraft;
@@ -11,14 +12,15 @@ type Props = {
 };
 
 export function ExamMetadataSection({ draft, updateMeta }: Props) {
+  const L = getUILabels(draft.meta.track);
   return (
     <section style={ui.sectionPanel}>
       <div style={headerStyle}>
-        <h2 style={titleStyle}>المعطيات الأساسية</h2>
+        <h2 style={titleStyle}>{L.metaSection}</h2>
       </div>
 
       <div style={gridStyle}>
-        <FieldBlock label="عنوان الوثيقة" fullWidth>
+        <FieldBlock label={L.fieldTitle} fullWidth>
           <input
             type="text"
             value={draft.meta.title}
@@ -27,7 +29,7 @@ export function ExamMetadataSection({ draft, updateMeta }: Props) {
           />
         </FieldBlock>
 
-        <FieldBlock label="المؤسسة">
+        <FieldBlock label={L.fieldInstitution}>
           <input
             type="text"
             value={draft.meta.institutionName}
@@ -36,7 +38,7 @@ export function ExamMetadataSection({ draft, updateMeta }: Props) {
           />
         </FieldBlock>
 
-        <FieldBlock label="الدورة">
+        <FieldBlock label={L.fieldTerm}>
           <SelectWrap>
             <select
               value={draft.meta.term}
@@ -48,14 +50,14 @@ export function ExamMetadataSection({ draft, updateMeta }: Props) {
               }
               style={ui.select}
             >
-              <option value="first">الدورة الأولى</option>
-              <option value="second">الدورة الثانية</option>
+              <option value="first">{L.termFirst}</option>
+              <option value="second">{L.termSecond}</option>
             </select>
           </SelectWrap>
         </FieldBlock>
 
-        <FieldBlock label="مدة الفرض">
-          <UnitInput unit="س">
+        <FieldBlock label={L.fieldDuration}>
+          <UnitInput unit={L.durationUnit}>
             <input
               type="number"
               value={draft.meta.examDurationHours}
@@ -67,7 +69,7 @@ export function ExamMetadataSection({ draft, updateMeta }: Props) {
           </UnitInput>
         </FieldBlock>
 
-        <FieldBlock label="نقطة الفرض">
+        <FieldBlock label={L.fieldTotal}>
           <input
             type="number"
             value={draft.meta.totalPoints}
@@ -76,7 +78,7 @@ export function ExamMetadataSection({ draft, updateMeta }: Props) {
           />
         </FieldBlock>
 
-        <FieldBlock label="درجة التقريب">
+        <FieldBlock label={L.fieldRounding}>
           <input
             type="number"
             value={draft.meta.roundingStep}
