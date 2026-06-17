@@ -11,7 +11,8 @@ import { LessonsSection } from "./LessonsSection";
 import { SkillsSection } from "./SkillsSection";
 import { PreviewPanel } from "./PreviewPanel";
 import { ExportPdfButton } from "./ExportPdfButton";
-import { ds, getLevelLabel, getTrackLabel, ui } from "../ui/design-system";
+import { ds, ui } from "../ui/design-system";
+import { getUILabels, getLevelLabelI18n, getTrackLabelI18n } from "../i18n";
 
 type Props = {
   draft: ExamSheetDraft;
@@ -65,12 +66,16 @@ export function ExamSheetWorkspace({
   removeSkill,
   documentModel,
 }: Props) {
+  const track = draft.meta.track;
+  const L = getUILabels(track);
+  const dir = track === "general" ? "rtl" : "ltr";
+
   return (
-    <div style={ui.pageShell("rtl")}>
+    <div style={ui.pageShell(dir)}>
       <div style={ui.appBar}>
         <div style={ui.appBarInner}>
-          <div style={appBarBrandStyle}>منصة الأدوات التربوية</div>
-          <div style={appBarPageStyle}>جذاذة الفرض المحروس</div>
+          <div style={appBarBrandStyle}>{L.brand}</div>
+          <div style={appBarPageStyle}>{L.toolTitle}</div>
         </div>
       </div>
 
@@ -78,18 +83,18 @@ export function ExamSheetWorkspace({
         <div style={ui.pageFrame}>
           <header style={heroStyle}>
             <div style={heroContentStyle}>
-              <div style={heroEyebrowStyle}>إعداد الوثيقة</div>
+              <div style={heroEyebrowStyle}>{L.docSetup}</div>
               <h1 style={heroTitleStyle}>
-                {draft.meta.title || "جذاذة الفرض المحروس"}
+                {draft.meta.title || L.toolTitle}
               </h1>
             </div>
 
             <div style={heroBadgesStyle}>
               <span style={ui.badgeNeutral}>
-                المستوى: {getLevelLabel(draft.meta.levelId)}
+                {L.levelBadge} {getLevelLabelI18n(draft.meta.levelId, track)}
               </span>
               <span style={ui.badgeNeutral}>
-                المسار: {getTrackLabel(draft.meta.track)}
+                {L.trackBadge} {getTrackLabelI18n(track)}
               </span>
             </div>
           </header>

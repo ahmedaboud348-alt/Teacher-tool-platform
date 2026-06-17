@@ -519,7 +519,7 @@ function fmtDuration(hours: number, track: "general" | "international" = "genera
 }
 
 function fmtTerm(term: "first" | "second", track: "general" | "international" = "general"): string {
-  if (track === "international") return term === "second" ? "2ème session" : "1ère session";
+  if (track === "international") return term === "second" ? "2ème semestre" : "1er semestre";
   return term === "second" ? "الدورة الثانية" : "الدورة الأولى";
 }
 
@@ -562,7 +562,7 @@ function getLabels(track: "general" | "international") {
       lessonDurationPfx:  "Durée :",
       objectivesTitle:    "Objectifs",
       objectivesEmpty:    "Aucun objectif pour cette leçon.",
-      allocationSection:  "Tableau d'allocation",
+      allocationSection:  "Tableau de spécification",
       thLesson:           "Leçon",
       thPercent:          "% Cours",
       thNote:             "Note",

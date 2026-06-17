@@ -1,8 +1,10 @@
-import { ExamSheetDraftLesson } from "../types/exam-sheet-draft";
-import { ds, formatObjectivesCount, ui } from "../ui/design-system";
+import { ExamSheetDraftLesson, ExamTrack } from "../types/exam-sheet-draft";
+import { ds, ui } from "../ui/design-system";
+import { getUILabels, formatObjectivesCountI18n } from "../i18n";
 
 type Props = {
   lesson: ExamSheetDraftLesson;
+  track: ExamTrack;
   addObjective: (lessonId: string) => void;
   updateObjective: (
     lessonId: string,
@@ -14,17 +16,19 @@ type Props = {
 
 export function ObjectivesEditor({
   lesson,
+  track,
   addObjective,
   updateObjective,
   removeObjective,
 }: Props) {
+  const L = getUILabels(track);
   return (
     <div style={wrapperStyle}>
       <div style={headerStyle}>
         <div style={titleBlockStyle}>
-          <div style={titleStyle}>الأهداف</div>
+          <div style={titleStyle}>{L.objectivesTitle}</div>
           <div style={metaStyle}>
-            {formatObjectivesCount(lesson.objectives.length)}
+            {formatObjectivesCountI18n(lesson.objectives.length, track)}
           </div>
         </div>
 
@@ -33,7 +37,7 @@ export function ObjectivesEditor({
           onClick={() => addObjective(lesson.id)}
           style={ui.buttonSecondary}
         >
-          إضافة هدف
+          {L.addObjective}
         </button>
       </div>
 
@@ -46,7 +50,7 @@ export function ObjectivesEditor({
               <input
                 type="text"
                 value={objective.text}
-                placeholder="نص الهدف"
+                placeholder={L.objectivePh}
                 onChange={(event) =>
                   updateObjective(lesson.id, objective.id, event.target.value)
                 }
@@ -59,13 +63,13 @@ export function ObjectivesEditor({
               onClick={() => removeObjective(lesson.id, objective.id)}
               style={ui.buttonDanger}
             >
-              حذف
+              {L.removeBtn}
             </button>
           </div>
         ))}
 
         {lesson.objectives.length === 0 && (
-          <div style={emptyStyle}>لا توجد أهداف لهذا الدرس بعد.</div>
+          <div style={emptyStyle}>{L.objectivesEmpty}</div>
         )}
       </div>
     </div>

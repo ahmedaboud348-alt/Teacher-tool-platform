@@ -4,6 +4,7 @@ import { LessonSuggestion } from "../hooks/useLessonSuggestions";
 import { LessonAutocomplete } from "./LessonAutocomplete";
 import { ObjectivesEditor } from "./ObjectivesEditor";
 import { ds, ui } from "../ui/design-system";
+import { getUILabels } from "../i18n";
 
 type Props = {
   draft: ExamSheetDraft;
@@ -33,13 +34,14 @@ export function LessonsSection({
   updateObjective,
   removeObjective,
 }: Props) {
+  const L = getUILabels(draft.meta.track);
   return (
     <section style={ui.sectionPanel}>
       <div style={sectionHeaderStyle}>
-        <h2 style={sectionTitleStyle}>الدروس المعتمدة</h2>
+        <h2 style={sectionTitleStyle}>{L.lessonsSection}</h2>
 
         <button type="button" onClick={addLesson} style={ui.buttonSecondary}>
-          إضافة درس
+          {L.addLesson}
         </button>
       </div>
 
@@ -52,7 +54,7 @@ export function LessonsSection({
 
                 <div>
                   <div style={lessonTitleStyle}>
-                    {lesson.label || "درس جديد"}
+                    {lesson.label || L.lessonDefault}
                   </div>
 
                   <div style={lessonMetaRowStyle}>
@@ -63,7 +65,7 @@ export function LessonsSection({
                           : ui.badgeNeutral
                       }
                     >
-                      {lesson.source === "catalog" ? "مرجع" : "مخصص"}
+                      {lesson.source === "catalog" ? L.badgeCatalog : L.badgeCustom}
                     </span>
                   </div>
                 </div>
@@ -74,13 +76,13 @@ export function LessonsSection({
                 onClick={() => removeLesson(lesson.id)}
                 style={ui.buttonDanger}
               >
-                حذف
+                {L.removeBtn}
               </button>
             </div>
 
             <div style={fieldsGridStyle}>
               <div style={fieldStyle}>
-                <label style={labelStyle}>عنوان الدرس</label>
+                <label style={labelStyle}>{L.fieldLesson}</label>
 
                 <LessonAutocomplete
                   value={lesson.label}
@@ -99,7 +101,7 @@ export function LessonsSection({
               </div>
 
               <div style={durationFieldStyle}>
-                <label style={labelStyle}>المدة</label>
+                <label style={labelStyle}>{L.fieldLessonDuration}</label>
 
                 <div style={unitWrapStyle}>
                   <div style={unitFieldStyle}>
@@ -115,7 +117,7 @@ export function LessonsSection({
                       style={unitInputStyle}
                     />
                   </div>
-                  <span style={unitBadgeStyle}>س</span>
+                  <span style={unitBadgeStyle}>{L.durationUnit}</span>
                 </div>
               </div>
             </div>
@@ -123,6 +125,7 @@ export function LessonsSection({
             <div style={objectivesWrapStyle}>
               <ObjectivesEditor
                 lesson={lesson}
+                track={draft.meta.track}
                 addObjective={addObjective}
                 updateObjective={updateObjective}
                 removeObjective={removeObjective}

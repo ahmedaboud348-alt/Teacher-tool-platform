@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { ExamSheetDraft, ExamSheetDraftSkill } from "../types/exam-sheet-draft";
 import { ds, ui } from "../ui/design-system";
+import { getUILabels } from "../i18n";
 
 type Props = {
   draft: ExamSheetDraft;
@@ -15,13 +16,14 @@ export function SkillsSection({
   updateSkill,
   removeSkill,
 }: Props) {
+  const L = getUILabels(draft.meta.track);
   return (
     <section style={ui.sectionPanel}>
       <div style={sectionHeaderStyle}>
-        <h2 style={sectionTitleStyle}>المهارات</h2>
+        <h2 style={sectionTitleStyle}>{L.skillsSection}</h2>
 
         <button type="button" onClick={addSkill} style={ui.buttonSecondary}>
-          إضافة مهارة
+          {L.addSkill}
         </button>
       </div>
 
@@ -32,7 +34,7 @@ export function SkillsSection({
               <div style={skillIdentityStyle}>
                 <div style={skillIndexStyle}>{index + 1}</div>
                 <div style={skillNamePreviewStyle}>
-                  {skill.label || "مهارة جديدة"}
+                  {skill.label || L.skillDefault}
                 </div>
               </div>
 
@@ -41,17 +43,17 @@ export function SkillsSection({
                 onClick={() => removeSkill(skill.id)}
                 style={ui.buttonDanger}
               >
-                حذف
+                {L.removeBtn}
               </button>
             </div>
 
             <div style={fieldsGridStyle}>
               <div style={fieldStyle}>
-                <label style={labelStyle}>اسم المهارة</label>
+                <label style={labelStyle}>{L.fieldSkillName}</label>
                 <input
                   type="text"
                   value={skill.label}
-                  placeholder="عنوان المهارة"
+                  placeholder={L.fieldSkillPh}
                   onChange={(e) =>
                     updateSkill(skill.id, { label: e.target.value })
                   }
@@ -60,7 +62,7 @@ export function SkillsSection({
               </div>
 
               <div style={percentageFieldStyle}>
-                <label style={labelStyle}>النسبة</label>
+                <label style={labelStyle}>{L.fieldSkillPct}</label>
 
                 <div style={unitWrapStyle}>
                   <div style={unitFieldStyle}>
