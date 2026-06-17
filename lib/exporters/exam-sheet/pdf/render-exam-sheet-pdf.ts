@@ -10,6 +10,14 @@ import {
 import { createElement } from "react";
 import { ExamSheetDocumentModel } from "../../../../tools/exam-sheet/types/exam-sheet-document";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const ArabicReshaper = require("arabic-reshaper");
+
+function ar(text: string | undefined | null): string {
+  if (!text) return "—";
+  return ArabicReshaper.convertArabic(text);
+}
+
 // ─── Font Registration ────────────────────────────────────────────────────────
 
 Font.register({
@@ -78,7 +86,7 @@ const s = StyleSheet.create({
   },
 
   pageHeaderEyebrow: {
-    fontSize: 7,
+    fontSize: 8,
     fontWeight: 600,
     color: "#94A3B8",
     marginBottom: 4,
@@ -246,7 +254,7 @@ const s = StyleSheet.create({
   },
 
   objectivesTitle: {
-    fontSize: 7,
+    fontSize: 8,
     fontWeight: 800,
     color: C.textMuted,
     textAlign: "right",
@@ -261,7 +269,7 @@ const s = StyleSheet.create({
   },
 
   objectiveBullet: {
-    fontSize: 8,
+    fontSize: 9,
     fontWeight: 800,
     color: C.primary500,
     marginTop: 1,
@@ -270,7 +278,7 @@ const s = StyleSheet.create({
 
   objectiveText: {
     flex: 1,
-    fontSize: 8,
+    fontSize: 9,
     fontWeight: 400,
     color: C.textSecondary,
     textAlign: "right",
@@ -278,7 +286,7 @@ const s = StyleSheet.create({
   },
 
   objectivesEmpty: {
-    fontSize: 8,
+    fontSize: 9,
     color: C.textMuted,
     textAlign: "right",
   },
@@ -319,7 +327,7 @@ const s = StyleSheet.create({
   },
 
   thSubText: {
-    fontSize: 6,
+    fontSize: 8,
     fontWeight: 600,
     color: "#93C5FD",
     textAlign: "center",
@@ -539,20 +547,20 @@ function SectionHeader({ title }: { title: string }) {
     View,
     { style: s.sectionHeader },
     createElement(View, { style: s.sectionDot }),
-    createElement(Text, { style: s.sectionTitle }, title)
+    createElement(Text, { style: s.sectionTitle }, ar(title))
   );
 }
 
 function MetadataSection({ doc }: { doc: ExamSheetDocumentModel }) {
   const { meta } = doc;
   const items = [
-    { label: "المؤسسة",      value: meta.institutionName },
-    { label: "الأستاذ",      value: meta.teacherName },
-    { label: "المادة",       value: meta.subjectLabel },
-    { label: "المستوى",      value: meta.levelLabel || getLevelLabel("") },
-    { label: "الدورة",     value: fmtTerm(meta.term) },
-    { label: "مدة الفرض",  value: fmtDuration(meta.examDurationHours) },
-    { label: "نقطة الفرض", value: fmt(meta.totalPoints) },
+    { label: ar("المؤسسة"),      value: ar(meta.institutionName) },
+    { label: ar("الأستاذ"),      value: ar(meta.teacherName) },
+    { label: ar("المادة"),       value: ar(meta.subjectLabel) },
+    { label: ar("المستوى"),      value: ar(meta.levelLabel || getLevelLabel("")) },
+    { label: ar("الدورة"),       value: ar(fmtTerm(meta.term)) },
+    { label: ar("مدة الفرض"),    value: fmtDuration(meta.examDurationHours) },
+    { label: ar("نقطة الفرض"),   value: fmt(meta.totalPoints) },
   ];
 
   return createElement(
@@ -598,14 +606,14 @@ function LessonsSection({ doc }: { doc: ExamSheetDocumentModel }) {
             createElement(
               View,
               { style: s.lessonInfo },
-              createElement(Text, { style: s.lessonTitle }, lesson.label || `درس ${index + 1}`),
-              createElement(Text, { style: s.lessonDuration }, `المدة: ${fmtDuration(lesson.hours)}`)
+              createElement(Text, { style: s.lessonTitle }, ar(lesson.label || `درس ${index + 1}`)),
+              createElement(Text, { style: s.lessonDuration }, ar(`المدة: ${fmtDuration(lesson.hours)}`))
             )
           ),
           createElement(
             View,
             { style: s.objectivesArea },
-            createElement(Text, { style: s.objectivesTitle }, "الأهداف"),
+            createElement(Text, { style: s.objectivesTitle }, ar("الأهداف")),
             (lesson.objectives || []).filter(Boolean).length > 0
               ? createElement(
                   View,
@@ -615,11 +623,11 @@ function LessonsSection({ doc }: { doc: ExamSheetDocumentModel }) {
                       View,
                       { key: obj.id, style: s.objectiveRow, wrap: false },
                       createElement(Text, { style: s.objectiveBullet }, "•"),
-                      createElement(Text, { style: s.objectiveText }, obj.text || "—")
+                      createElement(Text, { style: s.objectiveText }, ar(obj.text || "—"))
                     )
                   )
                 )
-              : createElement(Text, { style: s.objectivesEmpty }, "لا توجد أهداف لهذا الدرس.")
+              : createElement(Text, { style: s.objectivesEmpty }, ar("لا توجد أهداف لهذا الدرس."))
           )
         )
       )
@@ -649,14 +657,14 @@ function AllocationTableSection({ doc }: { doc: ExamSheetDocumentModel }) {
       createElement(
         View,
         { style: s.tableHeadRow },
-        createElement(View, { style: s.thLesson }, createElement(Text, { style: { ...s.thText, textAlign: "right" } }, "الدرس")),
-        createElement(View, { style: s.th }, createElement(Text, { style: s.thText }, "النسبة %")),
-        createElement(View, { style: s.th }, createElement(Text, { style: s.thText }, "النقطة")),
+        createElement(View, { style: s.thLesson }, createElement(Text, { style: { ...s.thText, textAlign: "right" } }, ar("الدرس"))),
+        createElement(View, { style: s.th }, createElement(Text, { style: s.thText }, ar("النسبة %"))),
+        createElement(View, { style: s.th }, createElement(Text, { style: s.thText }, ar("النقطة"))),
         ...safeColumns.map((col) =>
           createElement(
             View,
             { key: col.skillId, style: s.th },
-            createElement(Text, { style: s.thText }, col.skillLabel),
+            createElement(Text, { style: s.thText }, ar(col.skillLabel)),
             createElement(Text, { style: s.thSubText }, `${fmt(col.percentage)}%`)
           )
         )
@@ -665,7 +673,7 @@ function AllocationTableSection({ doc }: { doc: ExamSheetDocumentModel }) {
         createElement(
           View,
           { key: row.lessonId, style: i % 2 === 0 ? s.tdRowEven : s.tdRowOdd, wrap: false },
-          createElement(View, { style: s.tdLesson }, createElement(Text, { style: s.tdLessonText }, row.lessonLabel)),
+          createElement(View, { style: s.tdLesson }, createElement(Text, { style: s.tdLessonText }, ar(row.lessonLabel))),
           createElement(View, { style: s.td }, createElement(Text, { style: s.tdText }, `${fmt(row.lessonPercentage)}%`)),
           createElement(
             View,
@@ -692,7 +700,7 @@ function AllocationTableSection({ doc }: { doc: ExamSheetDocumentModel }) {
       createElement(
         View,
         { style: s.tfRow, wrap: false },
-        createElement(View, { style: s.tfLesson }, createElement(Text, { style: { ...s.tfText, textAlign: "right" } }, "المجموع")),
+        createElement(View, { style: s.tfLesson }, createElement(Text, { style: { ...s.tfText, textAlign: "right" } }, ar("المجموع"))),
         createElement(View, { style: s.tf }, createElement(Text, { style: s.tfText }, "100%")),
         createElement(View, { style: s.tf }, createElement(Text, { style: s.tfText }, fmt(safeFooter.grandTotal))),
         ...(safeFooter.skillTotals || []).map((val, i) =>
@@ -719,11 +727,11 @@ function SkillsSummarySection({ doc }: { doc: ExamSheetDocumentModel }) {
           createElement(
             View,
             { style: s.skillCardTop },
-            createElement(Text, { style: s.skillCardLabel }, skill.skillLabel),
+            createElement(Text, { style: s.skillCardLabel }, ar(skill.skillLabel)),
             createElement(Text, { style: s.skillCardPct }, `${fmt(skill.percentage)}%`)
           ),
           createElement(Text, { style: s.skillCardValue }, fmt(skill.value)),
-          createElement(Text, { style: s.skillCardUnit }, "نقطة")
+          createElement(Text, { style: s.skillCardUnit }, ar("نقطة"))
         )
       )
     )
@@ -762,14 +770,14 @@ function ExamSheetPdfDocument({ doc }: { doc: ExamSheetDocumentModel }) {
         createElement(
           View,
           { style: s.pageHeaderLeft },
-          createElement(Text, { style: s.pageHeaderEyebrow }, "جذاذة الفرض المحروس"),
-          createElement(Text, { style: s.pageHeaderTitle }, doc.meta.title || "جذاذة الفرض المحروس")
+          createElement(Text, { style: s.pageHeaderEyebrow }, ar("جذاذة الفرض المحروس")),
+          createElement(Text, { style: s.pageHeaderTitle }, ar(doc.meta.title || "جذاذة الفرض المحروس"))
         ),
         createElement(
           View,
           { style: s.pageHeaderBadge },
-          createElement(Text, { style: s.pageHeaderBadgeLabel }, "المسار / المستوى"),
-          createElement(Text, { style: s.pageHeaderBadgeValue }, `${getTrackLabel(doc.meta.track)} — ${levelLabel}`)
+          createElement(Text, { style: s.pageHeaderBadgeLabel }, ar("المسار / المستوى")),
+          createElement(Text, { style: s.pageHeaderBadgeValue }, ar(`${getTrackLabel(doc.meta.track)} — ${levelLabel}`))
         )
       ),
 
@@ -786,7 +794,7 @@ function ExamSheetPdfDocument({ doc }: { doc: ExamSheetDocumentModel }) {
       createElement(
         View,
         { style: s.pageFooter, fixed: true },
-        createElement(Text, { style: s.footerLeft }, `${doc.meta.institutionName || "—"} — ${doc.meta.subjectLabel}`),
+        createElement(Text, { style: s.footerLeft }, ar(`${doc.meta.institutionName || "—"} — ${doc.meta.subjectLabel}`)),
         createElement(View, { style: s.footerDivider }),
         createElement(
           Text,
