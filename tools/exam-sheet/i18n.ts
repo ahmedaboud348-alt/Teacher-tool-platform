@@ -15,8 +15,8 @@ export function getUILabels(track: ExamTrack) {
       fieldTitle:      "Titre du document",
       fieldInstitution:"Établissement",
       fieldTerm:       "Session",
-      termFirst:       "1ère session",
-      termSecond:      "2ème session",
+      termFirst:       "1er semestre",
+      termSecond:      "2ème semestre",
       fieldDuration:   "Durée",
       durationUnit:    "h",
       fieldTotal:      "Note totale",
@@ -67,7 +67,7 @@ export function getUILabels(track: ExamTrack) {
       lessonDurationPrefix: "Durée :",
       objectivesTitlePrev: "Objectifs",
       objectivesEmptyPrev: "Aucun objectif pour cette leçon.",
-      tableSection:    "Tableau d'allocation",
+      tableSection:    "Tableau de spécification",
       thLesson:        "Leçon",
       thPercent:       "% Cours",
       thNote:          "Note",
@@ -194,7 +194,7 @@ export function formatObjectivesCountI18n(count: number, track: ExamTrack): stri
 
 export function formatTermI18n(term: "first" | "second", track: ExamTrack): string {
   if (track === "international") {
-    return term === "second" ? "2ème session" : "1ère session";
+    return term === "second" ? "2ème semestre" : "1er semestre";
   }
   return term === "second" ? "الدورة الثانية" : "الدورة الأولى";
 }
