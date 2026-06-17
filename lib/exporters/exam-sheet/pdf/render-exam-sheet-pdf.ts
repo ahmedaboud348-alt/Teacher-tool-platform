@@ -10,12 +10,8 @@ import {
 import { createElement } from "react";
 import { ExamSheetDocumentModel } from "../../../../tools/exam-sheet/types/exam-sheet-document";
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const ArabicReshaper = require("arabic-reshaper");
-
 function ar(text: string | undefined | null): string {
-  if (!text) return "—";
-  return ArabicReshaper.convertArabic(text);
+  return text || "—";
 }
 
 // ─── Font Registration ────────────────────────────────────────────────────────
