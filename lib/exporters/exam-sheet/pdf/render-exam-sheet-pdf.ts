@@ -23,9 +23,9 @@ function ar(text: string | undefined | null): string {
 Font.register({
   family: "Cairo",
   fonts: [
-    { src: "/fonts/Cairo-Regular.ttf", fontWeight: 400 },
-    { src: "/fonts/Cairo-Bold.ttf", fontWeight: 700 },
-    { src: "/fonts/Cairo-ExtraBold.ttf", fontWeight: 800 },
+    { src: "/fonts/Cairo-Variable.ttf", fontWeight: 400 },
+    { src: "/fonts/Cairo-Variable.ttf", fontWeight: 700 },
+    { src: "/fonts/Cairo-Variable.ttf", fontWeight: 800 },
   ],
 });
 
