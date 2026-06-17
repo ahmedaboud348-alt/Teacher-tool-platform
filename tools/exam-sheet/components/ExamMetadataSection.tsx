@@ -1,0 +1,215 @@
+import type { CSSProperties, ReactNode } from "react";
+import { ExamSheetDraft } from "../types/exam-sheet-draft";
+import { ds, ui } from "../ui/design-system";
+
+type Props = {
+  draft: ExamSheetDraft;
+  updateMeta: <K extends keyof ExamSheetDraft["meta"]>(
+    key: K,
+    value: ExamSheetDraft["meta"][K]
+  ) => void;
+};
+
+export function ExamMetadataSection({ draft, updateMeta }: Props) {
+  return (
+    <section style={ui.sectionPanel}>
+      <div style={headerStyle}>
+        <h2 style={titleStyle}>المعطيات الأساسية</h2>
+      </div>
+
+      <div style={gridStyle}>
+        <FieldBlock label="عنوان الوثيقة" fullWidth>
+          <input
+            type="text"
+            value={draft.meta.title}
+            onChange={(e) => updateMeta("title", e.target.value)}
+            style={ui.input}
+          />
+        </FieldBlock>
+
+        <FieldBlock label="المؤسسة">
+          <input
+            type="text"
+            value={draft.meta.institutionName}
+            onChange={(e) => updateMeta("institutionName", e.target.value)}
+            style={ui.input}
+          />
+        </FieldBlock>
+
+        <FieldBlock label="الدورة">
+          <SelectWrap>
+            <select
+              value={draft.meta.term}
+              onChange={(e) =>
+                updateMeta(
+                  "term",
+                  e.target.value as ExamSheetDraft["meta"]["term"]
+                )
+              }
+              style={ui.select}
+            >
+              <option value="first">الدورة الأولى</option>
+              <option value="second">الدورة الثانية</option>
+            </select>
+          </SelectWrap>
+        </FieldBlock>
+
+        <FieldBlock label="مدة الفرض">
+          <UnitInput unit="س">
+            <input
+              type="number"
+              value={draft.meta.examDurationHours}
+              onChange={(e) =>
+                updateMeta("examDurationHours", Number(e.target.value))
+              }
+              style={unitInputStyle}
+            />
+          </UnitInput>
+        </FieldBlock>
+
+        <FieldBlock label="نقطة الفرض">
+          <input
+            type="number"
+            value={draft.meta.totalPoints}
+            onChange={(e) => updateMeta("totalPoints", Number(e.target.value))}
+            style={ui.input}
+          />
+        </FieldBlock>
+
+        <FieldBlock label="درجة التقريب">
+          <input
+            type="number"
+            value={draft.meta.roundingStep}
+            onChange={(e) => updateMeta("roundingStep", Number(e.target.value))}
+            style={ui.input}
+          />
+        </FieldBlock>
+      </div>
+    </section>
+  );
+}
+
+function FieldBlock({
+  label,
+  children,
+  fullWidth = false,
+}: {
+  label: string;
+  children: ReactNode;
+  fullWidth?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        ...fieldStyle,
+        ...(fullWidth ? fullWidthStyle : null),
+      }}
+    >
+      <label style={labelStyle}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function UnitInput({
+  unit,
+  children,
+}: {
+  unit: string;
+  children: ReactNode;
+}) {
+  return (
+    <div style={unitWrapStyle}>
+      <div style={unitFieldStyle}>{children}</div>
+      <span style={unitBadgeStyle}>{unit}</span>
+    </div>
+  );
+}
+
+function SelectWrap({ children }: { children: ReactNode }) {
+  return (
+    <div style={selectWrapStyle}>
+      {children}
+      <span style={selectArrowStyle}>▾</span>
+    </div>
+  );
+}
+
+const headerStyle: CSSProperties = {
+  marginBottom: ds.spacing[4],
+};
+
+const titleStyle: CSSProperties = {
+  ...ds.typography.h2,
+  color: ds.colors.textPrimary,
+  margin: 0,
+};
+
+const gridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(260px, 1fr))",
+  gap: ds.spacing[3],
+  alignItems: "start",
+};
+
+const fieldStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: ds.spacing[2],
+  minWidth: 0,
+};
+
+const fullWidthStyle: CSSProperties = {
+  gridColumn: "1 / -1",
+};
+
+const labelStyle: CSSProperties = {
+  ...ds.typography.label,
+  color: ds.colors.textSecondary,
+};
+
+const selectWrapStyle: CSSProperties = {
+  position: "relative",
+  minWidth: 0,
+};
+
+const selectArrowStyle: CSSProperties = {
+  position: "absolute",
+  insetInlineEnd: 12,
+  top: "50%",
+  transform: "translateY(-50%)",
+  ...ds.typography.label,
+  color: ds.colors.textMuted,
+  pointerEvents: "none",
+};
+
+const unitWrapStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "stretch",
+  gap: ds.spacing[2],
+  minWidth: 0,
+};
+
+const unitFieldStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+};
+
+const unitInputStyle: CSSProperties = {
+  ...ui.input,
+  textAlign: "center",
+};
+
+const unitBadgeStyle: CSSProperties = {
+  minWidth: 46,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "0 12px",
+  borderRadius: ds.radius.md,
+  backgroundColor: ds.colors.bgSubtle,
+  border: `1px solid ${ds.colors.borderStrong}`,
+  ...ds.typography.label,
+  color: ds.colors.textSecondary,
+  boxSizing: "border-box",
+};
