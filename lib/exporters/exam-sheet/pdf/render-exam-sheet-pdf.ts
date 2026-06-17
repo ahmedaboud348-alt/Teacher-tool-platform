@@ -514,16 +514,24 @@ function fmtAdj(value: number): string {
   return `${value > 0 ? "+" : "-"}${fmt(Math.abs(value))}`;
 }
 
-// ✅ الرقم أولاً ثم الوحدة — يعمل بشكل صحيح مع Cairo و RTL
-function fmtDuration(hours: number): string {
-  return `${fmt(hours)} س`;
+function fmtDuration(hours: number, track: "general" | "international" = "general"): string {
+  return track === "international" ? `${fmt(hours)} h` : `${fmt(hours)} س`;
 }
 
-function fmtTerm(term: "first" | "second"): string {
+function fmtTerm(term: "first" | "second", track: "general" | "international" = "general"): string {
+  if (track === "international") return term === "second" ? "2ème session" : "1ère session";
   return term === "second" ? "الدورة الثانية" : "الدورة الأولى";
 }
 
-function getLevelLabel(levelId: string): string {
+function getLevelLabel(levelId: string, track: "general" | "international" = "general"): string {
+  if (track === "international") {
+    switch (levelId) {
+      case "1ac": return "1ère année collège";
+      case "2ac": return "2ème année collège";
+      case "3ac": return "3ème année collège";
+      default:    return levelId;
+    }
+  }
   switch (levelId) {
     case "1ac": return "الأولى إعدادي";
     case "2ac": return "الثانية إعدادي";
@@ -533,45 +541,111 @@ function getLevelLabel(levelId: string): string {
 }
 
 function getTrackLabel(track: "general" | "international"): string {
-  return track === "general" ? "العام" : "الدولي";
+  return track === "general" ? "العام" : "Internationale";
+}
+
+function getLabels(track: "general" | "international") {
+  if (track === "international") {
+    return {
+      headerEyebrow:      "Fiche d'évaluation",
+      defaultTitle:       "Fiche d'évaluation",
+      badgeLabel:         "Filière / Niveau",
+      metaSection:        "Informations générales",
+      metaInstitution:    "Établissement",
+      metaTeacher:        "Professeur(e)",
+      metaSubject:        "Matière",
+      metaLevel:          "Niveau",
+      metaTerm:           "Session",
+      metaDuration:       "Durée",
+      metaTotal:          "Note totale",
+      lessonsSection:     "Leçons concernées",
+      lessonDurationPfx:  "Durée :",
+      objectivesTitle:    "Objectifs",
+      objectivesEmpty:    "Aucun objectif pour cette leçon.",
+      allocationSection:  "Tableau d'allocation",
+      thLesson:           "Leçon",
+      thPercent:          "% Cours",
+      thNote:             "Note",
+      tfTotal:            "Total",
+      skillsSection:      "Récapitulatif des compétences",
+      skillUnit:          "pts",
+    };
+  }
+  return {
+    headerEyebrow:      "جذاذة الفرض المحروس",
+    defaultTitle:       "جذاذة الفرض المحروس",
+    badgeLabel:         "المسار / المستوى",
+    metaSection:        "المعطيات الأساسية",
+    metaInstitution:    "المؤسسة",
+    metaTeacher:        "الأستاذ",
+    metaSubject:        "المادة",
+    metaLevel:          "المستوى",
+    metaTerm:           "الدورة",
+    metaDuration:       "مدة الفرض",
+    metaTotal:          "نقطة الفرض",
+    lessonsSection:     "الدروس المعتمدة",
+    lessonDurationPfx:  "المدة:",
+    objectivesTitle:    "الأهداف",
+    objectivesEmpty:    "لا توجد أهداف لهذا الدرس.",
+    allocationSection:  "جدول التخصيص",
+    thLesson:           "الدرس",
+    thPercent:          "النسبة %",
+    thNote:             "النقطة",
+    tfTotal:            "المجموع",
+    skillsSection:      "مجاميع المهارات",
+    skillUnit:          "نقط",
+  };
+}
+
+function getAlign(track: "general" | "international") {
+  const rtl = track === "general";
+  return {
+    flexRow:    (rtl ? "row-reverse" : "row") as "row-reverse" | "row",
+    textAlign:  (rtl ? "right"       : "left") as "right" | "left",
+    alignItems: (rtl ? "flex-end"    : "flex-start") as "flex-end" | "flex-start",
+  };
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function SectionHeader({ title }: { title: string }) {
+function SectionHeader({ title, track }: { title: string; track: "general" | "international" }) {
+  const a = getAlign(track);
   return createElement(
     View,
-    { style: s.sectionHeader },
+    { style: { ...s.sectionHeader, flexDirection: a.flexRow } },
     createElement(View, { style: s.sectionDot }),
-    createElement(Text, { style: s.sectionTitle }, ar(title))
+    createElement(Text, { style: { ...s.sectionTitle, textAlign: a.textAlign } }, ar(title))
   );
 }
 
 function MetadataSection({ doc }: { doc: ExamSheetDocumentModel }) {
   const { meta } = doc;
+  const track = meta.track;
+  const L = getLabels(track);
+  const a = getAlign(track);
   const items = [
-    { label: ar("المؤسسة"),      value: ar(meta.institutionName) },
-    { label: ar("الأستاذ"),      value: ar(meta.teacherName) },
-    { label: ar("المادة"),       value: ar(meta.subjectLabel) },
-    { label: ar("المستوى"),      value: ar(meta.levelLabel || getLevelLabel("")) },
-    { label: ar("الدورة"),       value: ar(fmtTerm(meta.term)) },
-    { label: ar("مدة الفرض"),    value: fmtDuration(meta.examDurationHours) },
-    { label: ar("نقطة الفرض"),   value: fmt(meta.totalPoints) },
+    { label: L.metaInstitution, value: ar(meta.institutionName) },
+    { label: L.metaTeacher,     value: ar(meta.teacherName) },
+    { label: L.metaSubject,     value: ar(meta.subjectLabel) },
+    { label: L.metaLevel,       value: ar(meta.levelLabel || getLevelLabel("", track)) },
+    { label: L.metaTerm,        value: ar(fmtTerm(meta.term, track)) },
+    { label: L.metaDuration,    value: fmtDuration(meta.examDurationHours, track) },
+    { label: L.metaTotal,       value: fmt(meta.totalPoints) },
   ];
 
   return createElement(
     View,
     { style: s.section },
-    createElement(SectionHeader, { title: "المعطيات الأساسية" }),
+    createElement(SectionHeader, { title: L.metaSection, track }),
     createElement(
       View,
-      { style: s.metaGrid },
+      { style: { ...s.metaGrid, flexDirection: a.flexRow } },
       ...items.map(({ label, value }) =>
         createElement(
           View,
-          { key: label, style: s.metaItem },
-          createElement(Text, { style: s.metaLabel }, label),
-          createElement(Text, { style: s.metaValue }, value || "—")
+          { key: label, style: { ...s.metaItem, alignItems: a.alignItems } },
+          createElement(Text, { style: { ...s.metaLabel, textAlign: a.textAlign } }, label),
+          createElement(Text, { style: { ...s.metaValue, textAlign: a.textAlign } }, value || "—")
         )
       )
     )
@@ -580,10 +654,13 @@ function MetadataSection({ doc }: { doc: ExamSheetDocumentModel }) {
 
 function LessonsSection({ doc }: { doc: ExamSheetDocumentModel }) {
   const lessons = (doc.lessons || []).filter(Boolean);
+  const track = doc.meta.track;
+  const L = getLabels(track);
+  const a = getAlign(track);
   return createElement(
     View,
     { style: s.section },
-    createElement(SectionHeader, { title: "الدروس المعتمدة" }),
+    createElement(SectionHeader, { title: L.lessonsSection, track }),
     createElement(
       View,
       { style: s.lessonsList },
@@ -593,7 +670,7 @@ function LessonsSection({ doc }: { doc: ExamSheetDocumentModel }) {
           { key: lesson.id, style: s.lessonCard, wrap: false },
           createElement(
             View,
-            { style: s.lessonCardTop },
+            { style: { ...s.lessonCardTop, flexDirection: a.flexRow } },
             createElement(
               View,
               { style: s.lessonNumberStrip },
@@ -601,15 +678,15 @@ function LessonsSection({ doc }: { doc: ExamSheetDocumentModel }) {
             ),
             createElement(
               View,
-              { style: s.lessonInfo },
-              createElement(Text, { style: s.lessonTitle }, ar(lesson.label || `درس ${index + 1}`)),
-              createElement(Text, { style: s.lessonDuration }, ar(`المدة: ${fmtDuration(lesson.hours)}`))
+              { style: { ...s.lessonInfo, alignItems: a.alignItems } },
+              createElement(Text, { style: { ...s.lessonTitle, textAlign: a.textAlign } }, ar(lesson.label || `Leçon ${index + 1}`)),
+              createElement(Text, { style: { ...s.lessonDuration, textAlign: a.textAlign } }, `${L.lessonDurationPfx} ${fmtDuration(lesson.hours, track)}`)
             )
           ),
           createElement(
             View,
             { style: s.objectivesArea },
-            createElement(Text, { style: s.objectivesTitle }, ar("الأهداف")),
+            createElement(Text, { style: { ...s.objectivesTitle, textAlign: a.textAlign } }, L.objectivesTitle),
             (lesson.objectives || []).filter(Boolean).length > 0
               ? createElement(
                   View,
@@ -617,13 +694,13 @@ function LessonsSection({ doc }: { doc: ExamSheetDocumentModel }) {
                   ...(lesson.objectives || []).filter(Boolean).map((obj) =>
                     createElement(
                       View,
-                      { key: obj.id, style: s.objectiveRow, wrap: false },
+                      { key: obj.id, style: { ...s.objectiveRow, flexDirection: a.flexRow }, wrap: false },
                       createElement(Text, { style: s.objectiveBullet }, "•"),
-                      createElement(Text, { style: s.objectiveText }, ar(obj.text || "—"))
+                      createElement(Text, { style: { ...s.objectiveText, textAlign: a.textAlign } }, ar(obj.text || "—"))
                     )
                   )
                 )
-              : createElement(Text, { style: s.objectivesEmpty }, ar("لا توجد أهداف لهذا الدرس."))
+              : createElement(Text, { style: { ...s.objectivesEmpty, textAlign: a.textAlign } }, L.objectivesEmpty)
           )
         )
       )
@@ -642,20 +719,23 @@ function AllocationTableSection({ doc }: { doc: ExamSheetDocumentModel }) {
   const safeColumns = (columns || []).filter(Boolean);
   const safeRows    = (rows || []).filter(Boolean);
   const safeFooter  = footer || { skillTotals: [], grandTotal: 0 };
+  const track = doc.meta.track;
+  const L = getLabels(track);
+  const a = getAlign(track);
 
   return createElement(
     View,
     { style: s.section, wrap: false },
-    createElement(SectionHeader, { title: "جدول التخصيص" }),
+    createElement(SectionHeader, { title: L.allocationSection, track }),
     createElement(
       View,
       { style: s.tableOuter },
       createElement(
         View,
-        { style: s.tableHeadRow },
-        createElement(View, { style: s.thLesson }, createElement(Text, { style: { ...s.thText, textAlign: "right" } }, ar("الدرس"))),
-        createElement(View, { style: s.th }, createElement(Text, { style: s.thText }, ar("النسبة %"))),
-        createElement(View, { style: s.th }, createElement(Text, { style: s.thText }, ar("النقطة"))),
+        { style: { ...s.tableHeadRow, flexDirection: a.flexRow } },
+        createElement(View, { style: s.thLesson }, createElement(Text, { style: { ...s.thText, textAlign: a.textAlign } }, L.thLesson)),
+        createElement(View, { style: s.th }, createElement(Text, { style: s.thText }, L.thPercent)),
+        createElement(View, { style: s.th }, createElement(Text, { style: s.thText }, L.thNote)),
         ...safeColumns.map((col) =>
           createElement(
             View,
@@ -668,8 +748,8 @@ function AllocationTableSection({ doc }: { doc: ExamSheetDocumentModel }) {
       ...safeRows.map((row, i) =>
         createElement(
           View,
-          { key: row.lessonId, style: i % 2 === 0 ? s.tdRowEven : s.tdRowOdd, wrap: false },
-          createElement(View, { style: s.tdLesson }, createElement(Text, { style: s.tdLessonText }, ar(row.lessonLabel))),
+          { key: row.lessonId, style: { ...(i % 2 === 0 ? s.tdRowEven : s.tdRowOdd), flexDirection: a.flexRow }, wrap: false },
+          createElement(View, { style: s.tdLesson }, createElement(Text, { style: { ...s.tdLessonText, textAlign: a.textAlign } }, ar(row.lessonLabel))),
           createElement(View, { style: s.td }, createElement(Text, { style: s.tdText }, `${fmt(row.lessonPercentage)}%`)),
           createElement(
             View,
@@ -695,8 +775,8 @@ function AllocationTableSection({ doc }: { doc: ExamSheetDocumentModel }) {
       ),
       createElement(
         View,
-        { style: s.tfRow, wrap: false },
-        createElement(View, { style: s.tfLesson }, createElement(Text, { style: { ...s.tfText, textAlign: "right" } }, ar("المجموع"))),
+        { style: { ...s.tfRow, flexDirection: a.flexRow }, wrap: false },
+        createElement(View, { style: s.tfLesson }, createElement(Text, { style: { ...s.tfText, textAlign: a.textAlign } }, L.tfTotal)),
         createElement(View, { style: s.tf }, createElement(Text, { style: s.tfText }, "100%")),
         createElement(View, { style: s.tf }, createElement(Text, { style: s.tfText }, fmt(safeFooter.grandTotal))),
         ...(safeFooter.skillTotals || []).map((val, i) =>
@@ -709,25 +789,28 @@ function AllocationTableSection({ doc }: { doc: ExamSheetDocumentModel }) {
 
 function SkillsSummarySection({ doc }: { doc: ExamSheetDocumentModel }) {
   const skillTotals = (doc.allocation.skillTotals || []).filter(Boolean);
+  const track = doc.meta.track;
+  const L = getLabels(track);
+  const a = getAlign(track);
   return createElement(
     View,
     { style: s.section, wrap: false },
-    createElement(SectionHeader, { title: "مجاميع المهارات" }),
+    createElement(SectionHeader, { title: L.skillsSection, track }),
     createElement(
       View,
-      { style: s.skillsRow },
+      { style: { ...s.skillsRow, flexDirection: a.flexRow } },
       ...skillTotals.map((skill) =>
         createElement(
           View,
-          { key: skill.skillId, style: s.skillCard, wrap: false },
+          { key: skill.skillId, style: { ...s.skillCard, alignItems: a.alignItems }, wrap: false },
           createElement(
             View,
-            { style: s.skillCardTop },
-            createElement(Text, { style: s.skillCardLabel }, ar(skill.skillLabel)),
+            { style: { ...s.skillCardTop, flexDirection: a.flexRow } },
+            createElement(Text, { style: { ...s.skillCardLabel, textAlign: a.textAlign } }, ar(skill.skillLabel)),
             createElement(Text, { style: s.skillCardPct }, `${fmt(skill.percentage)}%`)
           ),
-          createElement(Text, { style: s.skillCardValue }, fmt(skill.value)),
-          createElement(Text, { style: s.skillCardUnit }, ar("نقط"))
+          createElement(Text, { style: { ...s.skillCardValue, textAlign: a.textAlign } }, fmt(skill.value)),
+          createElement(Text, { style: { ...s.skillCardUnit, textAlign: a.textAlign } }, L.skillUnit)
         )
       )
     )
@@ -735,9 +818,12 @@ function SkillsSummarySection({ doc }: { doc: ExamSheetDocumentModel }) {
 }
 
 function ExamSheetPdfDocument({ doc }: { doc: ExamSheetDocumentModel }) {
-  const isRtl      = doc.meta.track === "general";
+  const track      = doc.meta.track;
+  const isRtl      = track === "general";
   const direction  = isRtl ? "rtl" : "ltr";
-  const levelLabel = doc.meta.levelLabel || getLevelLabel("");
+  const levelLabel = doc.meta.levelLabel || getLevelLabel("", track);
+  const L          = getLabels(track);
+  const a          = getAlign(track);
 
   const sectionMap: Record<string, () => ReturnType<typeof createElement>> = {
     "metadata":         () => createElement(MetadataSection,        { doc }),
@@ -749,7 +835,7 @@ function ExamSheetPdfDocument({ doc }: { doc: ExamSheetDocumentModel }) {
   return createElement(
     Document,
     {
-      title:    doc.meta.title || "جذاذة الفرض المحروس",
+      title:    doc.meta.title || L.defaultTitle,
       author:   doc.meta.teacherName,
       subject:  doc.meta.subjectLabel,
       language: isRtl ? "ar" : "fr",
@@ -762,18 +848,18 @@ function ExamSheetPdfDocument({ doc }: { doc: ExamSheetDocumentModel }) {
 
       createElement(
         View,
-        { style: s.pageHeaderBand },
+        { style: { ...s.pageHeaderBand, flexDirection: a.flexRow } },
         createElement(
           View,
-          { style: s.pageHeaderLeft },
-          createElement(Text, { style: s.pageHeaderEyebrow }, ar("جذاذة الفرض المحروس")),
-          createElement(Text, { style: s.pageHeaderTitle }, ar(doc.meta.title || "جذاذة الفرض المحروس"))
+          { style: { ...s.pageHeaderLeft, alignItems: a.alignItems } },
+          createElement(Text, { style: { ...s.pageHeaderEyebrow, textAlign: a.textAlign } }, L.headerEyebrow),
+          createElement(Text, { style: { ...s.pageHeaderTitle, textAlign: a.textAlign } }, ar(doc.meta.title || L.defaultTitle))
         ),
         createElement(
           View,
           { style: s.pageHeaderBadge },
-          createElement(Text, { style: s.pageHeaderBadgeLabel }, ar("المسار / المستوى")),
-          createElement(Text, { style: s.pageHeaderBadgeValue }, ar(`${getTrackLabel(doc.meta.track)} — ${levelLabel}`))
+          createElement(Text, { style: s.pageHeaderBadgeLabel }, L.badgeLabel),
+          createElement(Text, { style: s.pageHeaderBadgeValue }, ar(`${getTrackLabel(track)} — ${levelLabel}`))
         )
       ),
 
@@ -789,8 +875,8 @@ function ExamSheetPdfDocument({ doc }: { doc: ExamSheetDocumentModel }) {
 
       createElement(
         View,
-        { style: s.pageFooter, fixed: true },
-        createElement(Text, { style: s.footerLeft }, ar(`${doc.meta.institutionName || "—"} — ${doc.meta.subjectLabel}`)),
+        { style: { ...s.pageFooter, flexDirection: a.flexRow }, fixed: true },
+        createElement(Text, { style: s.footerLeft }, `${doc.meta.institutionName || "—"} — ${doc.meta.subjectLabel}`),
         createElement(View, { style: s.footerDivider }),
         createElement(
           Text,
