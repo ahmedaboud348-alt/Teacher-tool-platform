@@ -26,19 +26,19 @@ Font.registerHyphenationCallback((word) => [word]);
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 
 const C = {
-  primary500: "#1D3FAE",
-  primary600: "#17358F",
-  primary700: "#122C77",
-  primary50:  "#EEF3FF",
-  primary100: "#DCE7FF",
-  primary200: "#BED0FF",
+  primary500: "#0F766E",
+  primary600: "#0C625C",
+  primary700: "#0A524D",
+  primary50:  "#F0FDF9",
+  primary100: "#CCFBF1",
+  primary200: "#99F6E4",
 
   bgWhite:  "#FFFFFF",
-  bgSubtle: "#F8FAFD",
-  bgMuted:  "#F1F5FB",
+  bgSubtle: "#F8FDFB",
+  bgMuted:  "#F0FAF7",
 
-  borderLight:  "#E2E8F4",
-  borderMedium: "#C7D3E8",
+  borderLight:  "#D1FAE5",
+  borderMedium: "#A7F3D0",
 
   textPrimary:   "#0F172A",
   textSecondary: "#334155",
@@ -550,10 +550,9 @@ function MetadataSection({ doc }: { doc: ExamSheetDocumentModel }) {
     { label: "الأستاذ",      value: meta.teacherName },
     { label: "المادة",       value: meta.subjectLabel },
     { label: "المستوى",      value: meta.levelLabel || getLevelLabel("") },
-    { label: "الدورة",       value: fmtTerm(meta.term) },
-    { label: "مدة الفرض",    value: fmtDuration(meta.examDurationHours) },
-    { label: "نقطة الفرض",   value: fmt(meta.totalPoints) },
-    { label: "درجة التقريب", value: fmt(meta.roundingStep) },
+    { label: "الدورة",     value: fmtTerm(meta.term) },
+    { label: "مدة الفرض",  value: fmtDuration(meta.examDurationHours) },
+    { label: "نقطة الفرض", value: fmt(meta.totalPoints) },
   ];
 
   return createElement(
@@ -628,6 +627,12 @@ function LessonsSection({ doc }: { doc: ExamSheetDocumentModel }) {
   );
 }
 
+const SITUATION_LABELS = ["الوضعية المشكلة", "Situation-problème"];
+
+function isSituationSkill(label: string): boolean {
+  return SITUATION_LABELS.includes(label);
+}
+
 function AllocationTableSection({ doc }: { doc: ExamSheetDocumentModel }) {
   const { columns, rows, footer } = doc.allocation.table;
   const safeColumns = (columns || []).filter(Boolean);
@@ -670,16 +675,18 @@ function AllocationTableSection({ doc }: { doc: ExamSheetDocumentModel }) {
               ? createElement(Text, { style: { ...s.tdAdj, color: row.lessonAdjustment > 0 ? C.success : C.danger } }, fmtAdj(row.lessonAdjustment))
               : null
           ),
-          ...(row.skillCells || []).filter(Boolean).map((cell) =>
-            createElement(
+          ...(row.skillCells || []).filter(Boolean).map((cell, ci) => {
+            const colLabel = safeColumns[ci]?.skillLabel ?? "";
+            const isSituation = isSituationSkill(colLabel);
+            return createElement(
               View,
               { key: `${row.lessonId}-${cell.skillId}`, style: s.td },
-              createElement(Text, { style: s.tdText }, fmt(cell.value)),
-              cell.adjustment !== 0
+              createElement(Text, { style: s.tdText }, isSituation ? "—" : fmt(cell.value)),
+              (!isSituation && cell.adjustment !== 0)
                 ? createElement(Text, { style: { ...s.tdAdj, color: cell.adjustment > 0 ? C.success : C.danger } }, fmtAdj(cell.adjustment))
                 : null
-            )
-          )
+            );
+          })
         )
       ),
       createElement(
