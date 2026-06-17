@@ -1,6 +1,8 @@
-import type { CSSProperties } from "react";
+"use client";
+
+import { useState, type CSSProperties } from "react";
 import { ExamTrack } from "../types/exam-sheet-draft";
-import { ds, getLevelLabel, ui } from "../ui/design-system";
+import { ds, getLevelLabel } from "../ui/design-system";
 
 type Props = {
   selectedLevelId: string;
@@ -8,198 +10,388 @@ type Props = {
   onBack: () => void;
 };
 
-export function TrackSelectionStep({
-  selectedLevelId,
-  onSelectTrack,
-  onBack,
-}: Props) {
+export function TrackSelectionStep({ selectedLevelId, onSelectTrack, onBack }: Props) {
+  const [hovered, setHovered] = useState<ExamTrack | null>(null);
+
   return (
-    <section dir="rtl" style={ui.pageShell("rtl")}>
-      <div style={ui.appBar}>
-        <div style={ui.appBarInner}>
-          <div style={appBarBrandStyle}>منصة الأدوات التربوية</div>
-          <div style={appBarPageStyle}>اختيار المسار</div>
-        </div>
-      </div>
+    <section dir="rtl" style={pageStyle}>
 
-      <div style={pageBodyStyle}>
-        <div style={ui.pageFrame}>
-          <div style={{ ...ui.panel, padding: ds.spacing[7] }}>
-            <div style={headerStyle}>
-              <div>
-                <div style={eyebrowStyle}>جذاذة الفرض المحروس</div>
-                <h1 style={titleStyle}>اختيار المسار</h1>
-              </div>
-
-              <button type="button" style={ui.buttonSecondary} onClick={onBack}>
-                تغيير المستوى
-              </button>
-            </div>
-
-            <div style={contextStyle}>
-              <span style={contextLabelStyle}>المستوى</span>
-              <strong style={contextValueStyle}>
-                {getLevelLabel(selectedLevelId)}
-              </strong>
-            </div>
-
-            <div style={gridStyle}>
-              <button
-                type="button"
-                style={{ ...cardStyle, ...generalCardStyle }}
-                onClick={() => onSelectTrack("general")}
-              >
-                <div style={cardHeaderStyle}>
-                  <span style={ui.badgePrimary}>المسار المعتمد</span>
-                </div>
-
-                <div style={cardTitleStyle}>المسار العام</div>
-                <div style={cardMetaStyle}>مناسب للعمل باللغة العربية</div>
-
-                <div style={{ ...cardFooterStyle, ...generalFooterStyle }}>
-                  الدخول إلى الأداة
-                </div>
-              </button>
-
-              <button
-                type="button"
-                style={{ ...cardStyle, ...internationalCardStyle }}
-                onClick={() => onSelectTrack("international")}
-              >
-                <div style={cardHeaderStyle}>
-                  <span style={ui.badgeAccent}>جاهز للتوسع</span>
-                </div>
-
-                <div style={cardTitleStyle}>المسار الدولي</div>
-                <div style={cardMetaStyle}>تهيئة مستقلة قابلة للتوسع</div>
-
-                <div style={{ ...cardFooterStyle, ...internationalFooterStyle }}>
-                  الدخول إلى الأداة
-                </div>
-              </button>
+      {/* ── App Bar ── */}
+      <nav style={appBarStyle}>
+        <div style={appBarInnerStyle}>
+          <div style={brandWrapStyle}>
+            <div style={logoMarkStyle}>م</div>
+            <div>
+              <div style={brandNameStyle}>منصة الأدوات التربوية</div>
+              <div style={brandSubStyle}>أدوات رقمية للأساتذة</div>
             </div>
           </div>
+          <button type="button" style={backBtnStyle} onClick={onBack}>
+            ← تغيير المستوى
+          </button>
+        </div>
+      </nav>
+
+      {/* ── Hero ── */}
+      <div style={heroWrapStyle}>
+        <div style={heroBgPatternStyle} />
+        <div style={heroInnerStyle}>
+          <div style={levelPillStyle} className="hero-eyebrow">
+            {getLevelLabel(selectedLevelId)}
+          </div>
+          <h1 style={heroTitleStyle} className="hero-title">
+            اختر مسارك الدراسي
+          </h1>
+          <p style={heroDescStyle} className="hero-desc">
+            الوثيقة تُنشأ بلغة ومحتوى المسار الذي تختاره
+          </p>
+        </div>
+        <div style={heroCurveStyle} />
+      </div>
+
+      {/* ── Cards ── */}
+      <div style={bodyStyle}>
+        <div style={cardsWrapStyle}>
+
+          {/* General Track */}
+          <button
+            type="button"
+            className="track-card"
+            style={{
+              ...cardBaseStyle,
+              ...generalCardStyle,
+              ...(hovered === "general" ? generalHoveredStyle : {}),
+            }}
+            onMouseEnter={() => setHovered("general")}
+            onMouseLeave={() => setHovered(null)}
+            onClick={() => onSelectTrack("general")}
+          >
+            <div style={cardPatternStyle} />
+            <div style={generalIconBoxStyle}>📘</div>
+            <div style={{ ...trackBadgeStyle, ...generalBadgeStyle }}>
+              المسار الرسمي
+            </div>
+            <div style={trackTitleStyle}>المسار العام</div>
+            <div style={trackDescStyle}>
+              الوثيقة باللغة العربية — الاتجاه من اليمين لليسار — مطابق للمنهج الرسمي
+            </div>
+            <div style={{ ...ctaRowStyle, ...generalCtaStyle }}>
+              <span>الدخول إلى الأداة</span>
+              <span>←</span>
+            </div>
+          </button>
+
+          {/* International Track */}
+          <button
+            type="button"
+            className="track-card"
+            style={{
+              ...cardBaseStyle,
+              ...intlCardStyle,
+              ...(hovered === "international" ? intlHoveredStyle : {}),
+            }}
+            onMouseEnter={() => setHovered("international")}
+            onMouseLeave={() => setHovered(null)}
+            onClick={() => onSelectTrack("international")}
+          >
+            <div style={{ ...cardPatternStyle, backgroundImage: "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)" }} />
+            <div style={intlIconBoxStyle}>📗</div>
+            <div style={{ ...trackBadgeStyle, ...intlBadgeStyle }}>
+              Filière Internationale
+            </div>
+            <div style={{ ...trackTitleStyle, color: "#fff" }}>
+              المسار الدولي
+            </div>
+            <div style={{ ...trackDescStyle, color: "rgba(255,255,255,0.65)" }}>
+              Le document en français — de gauche à droite — conforme au programme officiel
+            </div>
+            <div style={{ ...ctaRowStyle, ...intlCtaStyle }}>
+              <span>Accéder à l&apos;outil</span>
+              <span>→</span>
+            </div>
+          </button>
+
         </div>
       </div>
     </section>
   );
 }
 
-const pageBodyStyle: CSSProperties = {
-  paddingTop: ds.spacing[6],
+/* ── Styles ── */
+
+const pageStyle: CSSProperties = {
+  minHeight: "100vh",
+  backgroundColor: ds.colors.bgPage,
+  fontFamily: "Cairo, system-ui, sans-serif",
 };
 
-const appBarBrandStyle = {
-  ...ds.typography.meta,
-  color: ds.colors.textPrimary,
-  fontWeight: 800,
+const appBarStyle: CSSProperties = {
+  position: "sticky",
+  top: 0,
+  zIndex: 40,
+  backgroundColor: "rgba(255,255,255,0.96)",
+  backdropFilter: "blur(16px)",
+  borderBottom: "1px solid rgba(124,58,237,0.10)",
+  boxShadow: "0 1px 0 rgba(124,58,237,0.06), 0 4px 16px rgba(0,0,0,0.04)",
 };
 
-const appBarPageStyle = {
-  ...ds.typography.meta,
-  color: ds.colors.textMuted,
-};
-
-const headerStyle: CSSProperties = {
+const appBarInnerStyle: CSSProperties = {
+  maxWidth: ds.layout.maxWidth,
+  margin: "0 auto",
+  padding: "0 24px",
+  height: 64,
   display: "flex",
-  alignItems: "flex-start",
+  alignItems: "center",
   justifyContent: "space-between",
-  gap: ds.spacing[4],
 };
 
-const eyebrowStyle: CSSProperties = {
-  ...ds.typography.meta,
-  color: ds.colors.textMuted,
-  marginBottom: ds.spacing[2],
+const brandWrapStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
 };
 
-const titleStyle: CSSProperties = {
-  ...ds.typography.h1,
+const logoMarkStyle: CSSProperties = {
+  width: 36,
+  height: 36,
+  borderRadius: 10,
+  background: "linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "#fff",
+  fontWeight: 900,
+  fontSize: 18,
+  boxShadow: "0 4px 12px rgba(124,58,237,0.35)",
+  flexShrink: 0,
+};
+
+const brandNameStyle: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 800,
   color: ds.colors.textPrimary,
+  lineHeight: 1.2,
+};
+
+const brandSubStyle: CSSProperties = {
+  fontSize: 11,
+  fontWeight: 500,
+  color: ds.colors.textMuted,
+  lineHeight: 1,
+};
+
+const backBtnStyle: CSSProperties = {
+  fontSize: 13,
+  fontWeight: 700,
+  color: ds.colors.primary600,
+  backgroundColor: ds.colors.primary100,
+  border: `1.5px solid ${ds.colors.primary200}`,
+  borderRadius: 10,
+  padding: "8px 16px",
+  cursor: "pointer",
+  transition: "background-color 150ms ease",
+};
+
+/* Hero */
+const heroWrapStyle: CSSProperties = {
+  position: "relative",
+  background: "linear-gradient(140deg, #3B0764 0%, #6D28D9 55%, #7C3AED 100%)",
+  paddingTop: 72,
+  paddingBottom: 120,
+  paddingLeft: 24,
+  paddingRight: 24,
+  overflow: "hidden",
+};
+
+const heroBgPatternStyle: CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)",
+  backgroundSize: "28px 28px",
+  pointerEvents: "none",
+};
+
+const heroInnerStyle: CSSProperties = {
+  position: "relative",
+  zIndex: 1,
+  maxWidth: 600,
+  margin: "0 auto",
+  textAlign: "center",
+};
+
+const levelPillStyle: CSSProperties = {
+  display: "inline-block",
+  fontSize: 13,
+  fontWeight: 800,
+  color: "#7C3AED",
+  backgroundColor: "rgba(255,255,255,0.92)",
+  borderRadius: 999,
+  padding: "6px 18px",
+  marginBottom: 20,
+};
+
+const heroTitleStyle: CSSProperties = {
+  fontSize: 44,
+  fontWeight: 900,
+  color: "#FFFFFF",
+  lineHeight: 1.15,
+  margin: "0 0 14px",
+};
+
+const heroDescStyle: CSSProperties = {
+  fontSize: 15,
+  color: "rgba(255,255,255,0.65)",
+  lineHeight: 1.7,
   margin: 0,
 };
 
-const contextStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: ds.spacing[3],
-  marginTop: ds.spacing[5],
-  marginBottom: ds.spacing[6],
-  padding: "10px 12px",
-  borderRadius: ds.radius.md,
-  backgroundColor: ds.colors.bgSubtle,
-  border: `1px solid ${ds.colors.borderSoft}`,
+const heroCurveStyle: CSSProperties = {
+  position: "absolute",
+  bottom: -2,
+  left: 0,
+  right: 0,
+  height: 60,
+  backgroundColor: ds.colors.bgPage,
+  borderRadius: "60% 60% 0 0 / 100% 100% 0 0",
 };
 
-const contextLabelStyle: CSSProperties = {
-  ...ds.typography.label,
-  color: ds.colors.textMuted,
+/* Body */
+const bodyStyle: CSSProperties = {
+  padding: "0 24px 64px",
+  marginTop: -40,
+  position: "relative",
+  zIndex: 2,
 };
 
-const contextValueStyle: CSSProperties = {
-  ...ds.typography.body,
-  fontWeight: 800,
-  color: ds.colors.textPrimary,
-};
-
-const gridStyle: CSSProperties = {
+const cardsWrapStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-  gap: ds.spacing[4],
+  gap: 20,
+  maxWidth: 760,
+  margin: "0 auto",
 };
 
-const cardStyle: CSSProperties = {
-  minHeight: 228,
-  padding: ds.spacing[6],
-  borderRadius: ds.radius.xl,
+/* Cards */
+const cardBaseStyle: CSSProperties = {
+  position: "relative",
+  borderRadius: 20,
+  padding: "28px 28px 0",
+  minHeight: 300,
   display: "flex",
   flexDirection: "column",
   alignItems: "stretch",
-  textAlign: "right",
   cursor: "pointer",
+  overflow: "hidden",
+  border: "none",
+  transition: "transform 180ms cubic-bezier(0.4,0,0.2,1), box-shadow 180ms cubic-bezier(0.4,0,0.2,1)",
+  textAlign: "right",
   boxSizing: "border-box",
-  boxShadow: ds.shadow.sm,
+};
+
+const cardPatternStyle: CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  backgroundImage: "radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px)",
+  backgroundSize: "20px 20px",
+  pointerEvents: "none",
 };
 
 const generalCardStyle: CSSProperties = {
-  backgroundColor: ds.colors.primary50,
+  backgroundColor: "#fff",
+  boxShadow: "0 4px 16px rgba(124,58,237,0.08), 0 0 0 1.5px rgba(124,58,237,0.12)",
+};
+
+const generalHoveredStyle: CSSProperties = {
+  transform: "translateY(-6px)",
+  boxShadow: "0 24px 56px rgba(124,58,237,0.20), 0 0 0 2px rgba(124,58,237,0.40)",
+};
+
+const intlCardStyle: CSSProperties = {
+  background: "linear-gradient(145deg, #1E1B4B 0%, #312E81 100%)",
+  boxShadow: "0 4px 16px rgba(30,27,75,0.25)",
+};
+
+const intlHoveredStyle: CSSProperties = {
+  transform: "translateY(-6px)",
+  boxShadow: "0 24px 56px rgba(30,27,75,0.40)",
+};
+
+const generalIconBoxStyle: CSSProperties = {
+  fontSize: 40,
+  marginBottom: 12,
+  position: "relative",
+  zIndex: 1,
+};
+
+const intlIconBoxStyle: CSSProperties = {
+  ...generalIconBoxStyle,
+};
+
+const trackBadgeStyle: CSSProperties = {
+  display: "inline-block",
+  fontSize: 11,
+  fontWeight: 800,
+  borderRadius: 8,
+  padding: "4px 12px",
+  marginBottom: 10,
+  position: "relative",
+  zIndex: 1,
+  letterSpacing: "0.04em",
+};
+
+const generalBadgeStyle: CSSProperties = {
+  color: ds.colors.primary700,
+  backgroundColor: ds.colors.primary100,
   border: `1px solid ${ds.colors.primary200}`,
 };
 
-const internationalCardStyle: CSSProperties = {
-  backgroundColor: ds.colors.accent50,
-  border: `1px solid ${ds.colors.accent200}`,
+const intlBadgeStyle: CSSProperties = {
+  color: "#FB923C",
+  backgroundColor: "rgba(251,146,60,0.15)",
+  border: "1px solid rgba(251,146,60,0.30)",
 };
 
-const cardHeaderStyle: CSSProperties = {
-  marginBottom: ds.spacing[5],
-};
-
-const cardTitleStyle: CSSProperties = {
-  fontSize: 28,
-  lineHeight: 1.2,
-  fontWeight: 800,
+const trackTitleStyle: CSSProperties = {
+  fontSize: 26,
+  fontWeight: 900,
   color: ds.colors.textPrimary,
+  lineHeight: 1.15,
+  marginBottom: 10,
+  position: "relative",
+  zIndex: 1,
 };
 
-const cardMetaStyle: CSSProperties = {
-  marginTop: ds.spacing[2],
-  ...ds.typography.body,
+const trackDescStyle: CSSProperties = {
+  fontSize: 13,
+  fontWeight: 400,
   color: ds.colors.textSecondary,
+  lineHeight: 1.7,
+  flex: 1,
+  position: "relative",
+  zIndex: 1,
 };
 
-const cardFooterStyle: CSSProperties = {
-  marginTop: "auto",
-  paddingTop: ds.spacing[5],
-  borderTop: `1px solid rgba(15, 23, 42, 0.08)`,
-  ...ds.typography.meta,
+const ctaRowStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  padding: "16px 0",
+  marginTop: 20,
+  fontSize: 13,
   fontWeight: 800,
+  position: "relative",
+  zIndex: 1,
+  borderTop: "1px solid",
 };
 
-const generalFooterStyle: CSSProperties = {
+const generalCtaStyle: CSSProperties = {
   color: ds.colors.primary600,
+  borderTopColor: ds.colors.primary200,
 };
 
-const internationalFooterStyle: CSSProperties = {
-  color: ds.colors.accent600,
+const intlCtaStyle: CSSProperties = {
+  color: "#FB923C",
+  borderTopColor: "rgba(251,146,60,0.25)",
+  textAlign: "left",
+  flexDirection: "row-reverse" as const,
 };

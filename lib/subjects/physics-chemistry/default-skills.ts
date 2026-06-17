@@ -11,7 +11,7 @@ const GENERAL_TRACK_DEFAULT_SKILLS: PhysicsChemistryDefaultSkill[] = [
 ];
 
 const INTERNATIONAL_TRACK_DEFAULT_SKILLS: PhysicsChemistryDefaultSkill[] = [
-  { label: "Restitution", percentage: 40, order: 1 },
+  { label: "Connaissance", percentage: 40, order: 1 },
   { label: "Application", percentage: 40, order: 2 },
   { label: "Situation-problème", percentage: 20, order: 3 },
 ];
