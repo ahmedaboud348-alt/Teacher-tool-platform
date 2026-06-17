@@ -74,7 +74,10 @@ export function ExamSheetWorkspace({
     <div style={ui.pageShell(dir)}>
       <div style={ui.appBar}>
         <div style={ui.appBarInner}>
-          <div style={appBarBrandStyle}>{L.brand}</div>
+          <div style={appBarBrandStyle}>
+            <span style={brandDotStyle} />
+            {L.brand}
+          </div>
           <div style={appBarPageStyle}>{L.toolTitle}</div>
         </div>
       </div>
@@ -137,10 +140,22 @@ const pageBodyStyle = {
   paddingTop: ds.spacing[6],
 };
 
+const brandDotStyle = {
+  width: 8,
+  height: 8,
+  borderRadius: "50%",
+  backgroundColor: ds.colors.primary500,
+  display: "inline-block",
+  flexShrink: 0,
+};
+
 const appBarBrandStyle = {
   ...ds.typography.meta,
   color: ds.colors.textPrimary,
   fontWeight: 800,
+  display: "flex",
+  alignItems: "center",
+  gap: ds.spacing[2],
 };
 
 const appBarPageStyle = {
@@ -164,9 +179,14 @@ const heroContentStyle = {
 };
 
 const heroEyebrowStyle = {
-  ...ds.typography.meta,
+  ...ds.typography.small,
   color: ds.colors.primary600,
-  marginBottom: ds.spacing[2],
+  backgroundColor: ds.colors.primary100,
+  border: `1px solid ${ds.colors.primary200}`,
+  borderRadius: ds.radius.pill,
+  padding: "3px 10px",
+  display: "inline-block",
+  marginBottom: ds.spacing[3],
 };
 
 const heroTitleStyle = {

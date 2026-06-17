@@ -2,27 +2,27 @@ import type { CSSProperties } from "react";
 
 export const ds = {
   colors: {
-    primary50: "#EEF3FF",
-    primary100: "#DCE7FF",
-    primary200: "#BED0FF",
-    primary500: "#1D3FAE",
-    primary600: "#17358F",
-    primary700: "#122C77",
+    primary50: "#F5F3FF",
+    primary100: "#EDE9FE",
+    primary200: "#DDD6FE",
+    primary500: "#7C3AED",
+    primary600: "#6D28D9",
+    primary700: "#5B21B6",
 
-    accent50: "#ECFDF8",
-    accent100: "#D6FAF1",
-    accent200: "#AEEFE2",
-    accent500: "#0F766E",
-    accent600: "#0C625C",
+    accent50: "#FFF7ED",
+    accent100: "#FFEDD5",
+    accent200: "#FED7AA",
+    accent500: "#EA580C",
+    accent600: "#C2410C",
 
-    bgPage: "#F2F6FB",
+    bgPage: "#F7F6FB",
     bgPanel: "#FFFFFF",
-    bgSubtle: "#F8FAFD",
-    bgMuted: "#F5F8FC",
+    bgSubtle: "#FAF9FD",
+    bgMuted: "#F4F2FA",
 
-    borderSoft: "#DCE5F0",
-    borderMuted: "#E7EDF5",
-    borderStrong: "#C7D3E2",
+    borderSoft: "#E5E0F5",
+    borderMuted: "#EEEBF8",
+    borderStrong: "#D4CCF0",
 
     textPrimary: "#0F172A",
     textSecondary: "#334155",
@@ -132,11 +132,11 @@ export const ui = {
     top: 0,
     zIndex: 30,
     minHeight: ds.layout.appBarHeight,
-    backgroundColor: "rgba(255,255,255,0.92)",
-    backdropFilter: "blur(10px)",
+    backgroundColor: "rgba(255,255,255,0.95)",
+    backdropFilter: "blur(12px)",
     borderBottom: `1px solid ${ds.colors.borderSoft}`,
     boxSizing: "border-box",
-    boxShadow: "0 4px 16px rgba(15, 23, 42, 0.04)",
+    boxShadow: "0 2px 12px rgba(124, 58, 237, 0.06)",
   } satisfies CSSProperties,
 
   appBarInner: {
@@ -216,7 +216,7 @@ export const ui = {
     cursor: "pointer",
     transition: "all 160ms ease",
     boxSizing: "border-box",
-    boxShadow: "0 10px 22px rgba(29, 63, 174, 0.16)",
+    boxShadow: "0 8px 20px rgba(124, 58, 237, 0.22)",
   } satisfies CSSProperties,
 
   buttonSecondary: {

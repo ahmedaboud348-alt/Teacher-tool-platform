@@ -17,139 +17,168 @@ export function TrackSelectionStep({
     <section dir="rtl" style={ui.pageShell("rtl")}>
       <div style={ui.appBar}>
         <div style={ui.appBarInner}>
-          <div style={appBarBrandStyle}>منصة الأدوات التربوية</div>
-          <div style={appBarPageStyle}>اختيار المسار</div>
+          <div style={brandStyle}>
+            <span style={brandDotStyle} />
+            منصة الأدوات التربوية
+          </div>
+          <div style={appBarPageStyle}>جذاذة الفرض المحروس</div>
         </div>
       </div>
 
       <div style={pageBodyStyle}>
         <div style={ui.pageFrame}>
-          <div style={{ ...ui.panel, padding: ds.spacing[7] }}>
-            <div style={headerStyle}>
-              <div>
-                <div style={eyebrowStyle}>جذاذة الفرض المحروس</div>
-                <h1 style={titleStyle}>اختيار المسار</h1>
-              </div>
 
-              <button type="button" style={ui.buttonSecondary} onClick={onBack}>
-                تغيير المستوى
-              </button>
-            </div>
-
-            <div style={contextStyle}>
-              <span style={contextLabelStyle}>المستوى</span>
-              <strong style={contextValueStyle}>
-                {getLevelLabel(selectedLevelId)}
-              </strong>
-            </div>
-
-            <div style={gridStyle}>
-              <button
-                type="button"
-                style={{ ...cardStyle, ...generalCardStyle }}
-                onClick={() => onSelectTrack("general")}
-              >
-                <div style={cardHeaderStyle}>
-                  <span style={ui.badgePrimary}>المسار المعتمد</span>
-                </div>
-
-                <div style={cardTitleStyle}>المسار العام</div>
-                <div style={cardMetaStyle}>مناسب للعمل باللغة العربية</div>
-
-                <div style={{ ...cardFooterStyle, ...generalFooterStyle }}>
-                  الدخول إلى الأداة
-                </div>
-              </button>
-
-              <button
-                type="button"
-                style={{ ...cardStyle, ...internationalCardStyle }}
-                onClick={() => onSelectTrack("international")}
-              >
-                <div style={cardHeaderStyle}>
-                  <span style={ui.badgeAccent}>جاهز للتوسع</span>
-                </div>
-
-                <div style={cardTitleStyle}>المسار الدولي</div>
-                <div style={cardMetaStyle}>تهيئة مستقلة قابلة للتوسع</div>
-
-                <div style={{ ...cardFooterStyle, ...internationalFooterStyle }}>
-                  الدخول إلى الأداة
-                </div>
-              </button>
+          <div style={heroSectionStyle}>
+            <div style={heroLabelStyle}>جذاذة الفرض المحروس</div>
+            <h1 style={heroTitleStyle}>اختر المسار الدراسي</h1>
+            <div style={levelContextStyle}>
+              <span style={levelContextLabelStyle}>المستوى المختار:</span>
+              <span style={levelContextValueStyle}>{getLevelLabel(selectedLevelId)}</span>
+              <button type="button" style={changeBtn} onClick={onBack}>تغيير</button>
             </div>
           </div>
+
+          <div style={gridStyle}>
+            {/* General Track */}
+            <button
+              type="button"
+              style={generalCardStyle}
+              onClick={() => onSelectTrack("general")}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 20px 48px rgba(124,58,237,0.18)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 24px rgba(124,58,237,0.10)";
+              }}
+            >
+              <div style={cardBadgeRow}>
+                <span style={primaryBadge}>المسار المعتمد</span>
+              </div>
+              <div style={cardIconStyle}>📘</div>
+              <div style={cardTitleStyle}>المسار العام</div>
+              <div style={cardDescStyle}>الوثيقة باللغة العربية — الاتجاه من اليمين لليسار</div>
+              <div style={generalFooterStyle}>الدخول إلى الأداة ←</div>
+            </button>
+
+            {/* International Track */}
+            <button
+              type="button"
+              style={internationalCardStyle}
+              onClick={() => onSelectTrack("international")}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 20px 48px rgba(234,88,12,0.14)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 24px rgba(234,88,12,0.08)";
+              }}
+            >
+              <div style={cardBadgeRow}>
+                <span style={accentBadge}>المسار الدولي</span>
+              </div>
+              <div style={cardIconStyle}>📗</div>
+              <div style={cardTitleStyle}>Filière Internationale</div>
+              <div style={cardDescStyle}>Document en français — de gauche à droite</div>
+              <div style={internationalFooterStyle}>Accéder à l&apos;outil →</div>
+            </button>
+          </div>
+
         </div>
       </div>
     </section>
   );
 }
 
-const pageBodyStyle: CSSProperties = {
-  paddingTop: ds.spacing[6],
-};
+const pageBodyStyle: CSSProperties = { paddingTop: ds.spacing[7] };
 
-const appBarBrandStyle = {
+const brandStyle: CSSProperties = {
   ...ds.typography.meta,
   color: ds.colors.textPrimary,
   fontWeight: 800,
-};
-
-const appBarPageStyle = {
-  ...ds.typography.meta,
-  color: ds.colors.textMuted,
-};
-
-const headerStyle: CSSProperties = {
   display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
-  gap: ds.spacing[4],
+  alignItems: "center",
+  gap: ds.spacing[2],
 };
 
-const eyebrowStyle: CSSProperties = {
+const brandDotStyle: CSSProperties = {
+  width: 8,
+  height: 8,
+  borderRadius: "50%",
+  backgroundColor: ds.colors.primary500,
+  display: "inline-block",
+};
+
+const appBarPageStyle: CSSProperties = {
   ...ds.typography.meta,
   color: ds.colors.textMuted,
-  marginBottom: ds.spacing[2],
 };
 
-const titleStyle: CSSProperties = {
+const heroSectionStyle: CSSProperties = {
+  textAlign: "center",
+  marginBottom: ds.spacing[8],
+};
+
+const heroLabelStyle: CSSProperties = {
+  display: "inline-block",
+  ...ds.typography.small,
+  color: ds.colors.primary600,
+  backgroundColor: ds.colors.primary100,
+  border: `1px solid ${ds.colors.primary200}`,
+  borderRadius: ds.radius.pill,
+  padding: "4px 14px",
+  marginBottom: ds.spacing[4],
+};
+
+const heroTitleStyle: CSSProperties = {
   ...ds.typography.h1,
   color: ds.colors.textPrimary,
-  margin: 0,
+  margin: `0 0 ${ds.spacing[4]}px`,
 };
 
-const contextStyle: CSSProperties = {
+const levelContextStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   gap: ds.spacing[3],
-  marginTop: ds.spacing[5],
-  marginBottom: ds.spacing[6],
-  padding: "10px 12px",
-  borderRadius: ds.radius.md,
-  backgroundColor: ds.colors.bgSubtle,
+  padding: "8px 16px",
+  borderRadius: ds.radius.pill,
+  backgroundColor: ds.colors.bgMuted,
   border: `1px solid ${ds.colors.borderSoft}`,
 };
 
-const contextLabelStyle: CSSProperties = {
+const levelContextLabelStyle: CSSProperties = {
   ...ds.typography.label,
   color: ds.colors.textMuted,
 };
 
-const contextValueStyle: CSSProperties = {
+const levelContextValueStyle: CSSProperties = {
   ...ds.typography.body,
   fontWeight: 800,
   color: ds.colors.textPrimary,
 };
 
+const changeBtn: CSSProperties = {
+  ...ds.typography.label,
+  color: ds.colors.primary600,
+  background: "none",
+  border: "none",
+  cursor: "pointer",
+  padding: 0,
+  textDecoration: "underline",
+};
+
 const gridStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-  gap: ds.spacing[4],
+  gap: ds.spacing[5],
+  maxWidth: 700,
+  margin: "0 auto",
 };
 
-const cardStyle: CSSProperties = {
-  minHeight: 228,
+const baseCardStyle: CSSProperties = {
+  minHeight: 260,
   padding: ds.spacing[6],
   borderRadius: ds.radius.xl,
   display: "flex",
@@ -158,48 +187,80 @@ const cardStyle: CSSProperties = {
   textAlign: "right",
   cursor: "pointer",
   boxSizing: "border-box",
-  boxShadow: ds.shadow.sm,
+  transition: "transform 160ms ease, box-shadow 160ms ease",
+  border: "none",
 };
 
 const generalCardStyle: CSSProperties = {
-  backgroundColor: ds.colors.primary50,
-  border: `1px solid ${ds.colors.primary200}`,
+  ...baseCardStyle,
+  background: `linear-gradient(135deg, ${ds.colors.primary50} 0%, #EDE9FE 100%)`,
+  boxShadow: "0 8px 24px rgba(124,58,237,0.10)",
 };
 
 const internationalCardStyle: CSSProperties = {
-  backgroundColor: ds.colors.accent50,
+  ...baseCardStyle,
+  background: `linear-gradient(135deg, ${ds.colors.accent50} 0%, #FFEDD5 100%)`,
+  boxShadow: "0 8px 24px rgba(234,88,12,0.08)",
+};
+
+const cardBadgeRow: CSSProperties = { marginBottom: ds.spacing[4] };
+
+const primaryBadge: CSSProperties = {
+  display: "inline-block",
+  padding: "4px 12px",
+  borderRadius: ds.radius.pill,
+  fontSize: 11,
+  fontWeight: 800,
+  backgroundColor: ds.colors.primary100,
+  color: ds.colors.primary700,
+  border: `1px solid ${ds.colors.primary200}`,
+};
+
+const accentBadge: CSSProperties = {
+  display: "inline-block",
+  padding: "4px 12px",
+  borderRadius: ds.radius.pill,
+  fontSize: 11,
+  fontWeight: 800,
+  backgroundColor: ds.colors.accent100,
+  color: ds.colors.accent600,
   border: `1px solid ${ds.colors.accent200}`,
 };
 
-const cardHeaderStyle: CSSProperties = {
-  marginBottom: ds.spacing[5],
+const cardIconStyle: CSSProperties = {
+  fontSize: 36,
+  marginBottom: ds.spacing[3],
 };
 
 const cardTitleStyle: CSSProperties = {
-  fontSize: 28,
-  lineHeight: 1.2,
+  fontSize: 24,
   fontWeight: 800,
   color: ds.colors.textPrimary,
+  lineHeight: 1.2,
+  marginBottom: ds.spacing[2],
 };
 
-const cardMetaStyle: CSSProperties = {
-  marginTop: ds.spacing[2],
+const cardDescStyle: CSSProperties = {
   ...ds.typography.body,
   color: ds.colors.textSecondary,
-};
-
-const cardFooterStyle: CSSProperties = {
-  marginTop: "auto",
-  paddingTop: ds.spacing[5],
-  borderTop: `1px solid rgba(15, 23, 42, 0.08)`,
-  ...ds.typography.meta,
-  fontWeight: 800,
+  flex: 1,
 };
 
 const generalFooterStyle: CSSProperties = {
+  marginTop: ds.spacing[5],
+  paddingTop: ds.spacing[4],
+  borderTop: `1px solid rgba(124,58,237,0.15)`,
+  ...ds.typography.meta,
+  fontWeight: 800,
   color: ds.colors.primary600,
 };
 
 const internationalFooterStyle: CSSProperties = {
+  marginTop: ds.spacing[5],
+  paddingTop: ds.spacing[4],
+  borderTop: `1px solid rgba(234,88,12,0.15)`,
+  ...ds.typography.meta,
+  fontWeight: 800,
   color: ds.colors.accent600,
+  textAlign: "left",
 };
