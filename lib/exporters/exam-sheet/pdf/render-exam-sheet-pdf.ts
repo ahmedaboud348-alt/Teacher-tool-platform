@@ -86,14 +86,14 @@ const s = StyleSheet.create({
   },
 
   pageHeaderEyebrow: {
-    fontSize: 8,
+    fontSize: 11,
     fontWeight: 600,
     color: "#94A3B8",
     marginBottom: 4,
   },
 
   pageHeaderTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 800,
     color: C.textWhite,
     textAlign: "right",
@@ -110,7 +110,7 @@ const s = StyleSheet.create({
   },
 
   pageHeaderBadgeLabel: {
-    fontSize: 7,
+    fontSize: 10,
     fontWeight: 600,
     color: "#93C5FD",
     marginBottom: 2,
@@ -118,7 +118,7 @@ const s = StyleSheet.create({
   },
 
   pageHeaderBadgeValue: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 800,
     color: C.textWhite,
     textAlign: "center",
@@ -156,7 +156,7 @@ const s = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 800,
     color: C.primary600,
     textAlign: "right",
@@ -180,14 +180,14 @@ const s = StyleSheet.create({
   },
 
   metaLabel: {
-    fontSize: 8,
+    fontSize: 11,
     fontWeight: 700,
     color: C.textMuted,
     textAlign: "right",
   },
 
   metaValue: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 700,
     color: C.textPrimary,
     textAlign: "right",
@@ -218,7 +218,7 @@ const s = StyleSheet.create({
   },
 
   lessonNumber: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 800,
     color: C.primary600,
   },
@@ -232,7 +232,7 @@ const s = StyleSheet.create({
   },
 
   lessonTitle: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 800,
     color: C.textPrimary,
     textAlign: "right",
@@ -240,7 +240,7 @@ const s = StyleSheet.create({
   },
 
   lessonDuration: {
-    fontSize: 8,
+    fontSize: 11,
     fontWeight: 600,
     color: C.textMuted,
     textAlign: "right",
@@ -254,7 +254,7 @@ const s = StyleSheet.create({
   },
 
   objectivesTitle: {
-    fontSize: 8,
+    fontSize: 11,
     fontWeight: 800,
     color: C.textMuted,
     textAlign: "right",
@@ -269,7 +269,7 @@ const s = StyleSheet.create({
   },
 
   objectiveBullet: {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: 800,
     color: C.primary500,
     marginTop: 1,
@@ -278,7 +278,7 @@ const s = StyleSheet.create({
 
   objectiveText: {
     flex: 1,
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: 400,
     color: C.textSecondary,
     textAlign: "right",
@@ -286,7 +286,7 @@ const s = StyleSheet.create({
   },
 
   objectivesEmpty: {
-    fontSize: 9,
+    fontSize: 11,
     color: C.textMuted,
     textAlign: "right",
   },
@@ -319,7 +319,7 @@ const s = StyleSheet.create({
   },
 
   thText: {
-    fontSize: 8,
+    fontSize: 11,
     fontWeight: 800,
     color: C.textWhite,
     textAlign: "center",
@@ -327,7 +327,7 @@ const s = StyleSheet.create({
   },
 
   thSubText: {
-    fontSize: 8,
+    fontSize: 10,
     fontWeight: 600,
     color: "#93C5FD",
     textAlign: "center",
@@ -363,7 +363,7 @@ const s = StyleSheet.create({
   },
 
   tdLessonText: {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: 700,
     color: C.textPrimary,
     textAlign: "right",
@@ -371,14 +371,14 @@ const s = StyleSheet.create({
   },
 
   tdText: {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: 600,
     color: C.textPrimary,
     textAlign: "center",
   },
 
   tdAdj: {
-    fontSize: 6,
+    fontSize: 9,
     fontWeight: 700,
     textAlign: "center",
     marginTop: 1,
@@ -406,7 +406,7 @@ const s = StyleSheet.create({
   },
 
   tfText: {
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: 800,
     color: C.textWhite,
     textAlign: "center",
@@ -435,14 +435,14 @@ const s = StyleSheet.create({
   },
 
   skillCardLabel: {
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: 800,
     color: C.textSecondary,
     textAlign: "right",
   },
 
   skillCardPct: {
-    fontSize: 8,
+    fontSize: 10,
     fontWeight: 700,
     color: C.textMuted,
     backgroundColor: C.primary100,
@@ -452,7 +452,7 @@ const s = StyleSheet.create({
   },
 
   skillCardValue: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: 800,
     color: C.primary500,
     textAlign: "right",
@@ -460,7 +460,7 @@ const s = StyleSheet.create({
   },
 
   skillCardUnit: {
-    fontSize: 8,
+    fontSize: 11,
     fontWeight: 600,
     color: C.textMuted,
     textAlign: "right",
@@ -478,13 +478,13 @@ const s = StyleSheet.create({
   },
 
   footerLeft: {
-    fontSize: 7,
+    fontSize: 10,
     fontWeight: 600,
     color: C.textMuted,
   },
 
   footerRight: {
-    fontSize: 7,
+    fontSize: 10,
     fontWeight: 800,
     color: C.primary500,
   },
