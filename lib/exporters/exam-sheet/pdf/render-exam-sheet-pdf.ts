@@ -727,7 +727,7 @@ function SkillsSummarySection({ doc }: { doc: ExamSheetDocumentModel }) {
             createElement(Text, { style: s.skillCardPct }, `${fmt(skill.percentage)}%`)
           ),
           createElement(Text, { style: s.skillCardValue }, fmt(skill.value)),
-          createElement(Text, { style: s.skillCardUnit }, ar("نقطة"))
+          createElement(Text, { style: s.skillCardUnit }, ar("نقط"))
         )
       )
     )
