@@ -36,7 +36,7 @@ export function LessonsSection({
 }: Props) {
   const L = getUILabels(draft.meta.track);
   return (
-    <section style={ui.sectionPanel}>
+    <section style={{ ...ui.sectionPanel, borderInlineStart: `3px solid ${ds.colors.primary500}` }}>
       <div style={sectionHeaderStyle}>
         <h2 style={sectionTitleStyle}>{L.lessonsSection}</h2>
 

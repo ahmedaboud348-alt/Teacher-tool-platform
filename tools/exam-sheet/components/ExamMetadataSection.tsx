@@ -14,7 +14,7 @@ type Props = {
 export function ExamMetadataSection({ draft, updateMeta }: Props) {
   const L = getUILabels(draft.meta.track);
   return (
-    <section style={ui.sectionPanel}>
+    <section style={sectionStyle}>
       <div style={headerStyle}>
         <h2 style={titleStyle}>{L.metaSection}</h2>
       </div>
@@ -137,8 +137,16 @@ function SelectWrap({ children }: { children: ReactNode }) {
   );
 }
 
+const sectionStyle: CSSProperties = {
+  ...ui.sectionPanel,
+  borderInlineStart: `3px solid ${ds.colors.primary500}`,
+};
+
 const headerStyle: CSSProperties = {
   marginBottom: ds.spacing[4],
+  display: "flex",
+  alignItems: "center",
+  gap: ds.spacing[3],
 };
 
 const titleStyle: CSSProperties = {

@@ -1,0 +1,117 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Cairo', 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #F7F6FB;
+}
+
+/* Focus rings */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid #7C3AED;
+  outline-offset: 0;
+  border-color: #7C3AED !important;
+}
+
+/* Card entrance animation */
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Shimmer for level number watermark */
+@keyframes shimmer {
+  0%, 100% { opacity: 0.06; }
+  50% { opacity: 0.10; }
+}
+
+/* Number in cards */
+.level-watermark {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Hero text entrance */
+.hero-eyebrow {
+  animation: fadeUp 0.5s ease both;
+}
+.hero-title {
+  animation: fadeUp 0.5s 0.1s ease both;
+}
+.hero-desc {
+  animation: fadeUp 0.5s 0.2s ease both;
+}
+
+/* Level cards stagger */
+.level-card:nth-child(1) { animation: cardEnter 0.45s 0.25s ease both; }
+.level-card:nth-child(2) { animation: cardEnter 0.45s 0.35s ease both; }
+.level-card:nth-child(3) { animation: cardEnter 0.45s 0.45s ease both; }
+
+/* Track cards */
+.track-card:nth-child(1) { animation: cardEnter 0.45s 0.30s ease both; }
+.track-card:nth-child(2) { animation: cardEnter 0.45s 0.42s ease both; }
+
+/* Section panels */
+.section-panel-animate {
+  animation: fadeUp 0.4s ease both;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #DDD6FE;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7C3AED;
+}
+
+/* Selection color */
+::selection {
+  background: #DDD6FE;
+  color: #5B21B6;
+}

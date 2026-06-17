@@ -323,7 +323,7 @@ const documentHeaderStyle: CSSProperties = {
 
 const documentEyebrowStyle: CSSProperties = {
   ...ds.typography.meta,
-  color: ds.colors.primary600,
+  color: ds.colors.textMuted,
   marginBottom: ds.spacing[1],
 };
 
@@ -355,12 +355,12 @@ const sectionStyle: CSSProperties = {
 const sectionHeaderWrapStyle: CSSProperties = {
   marginBottom: ds.spacing[3],
   paddingBottom: ds.spacing[2],
-  borderBottom: `1px solid ${ds.colors.primary200}`,
+  borderBottom: `1px solid ${ds.colors.borderStrong}`,
 };
 
 const sectionTitleStyle: CSSProperties = {
   ...ds.typography.section,
-  color: ds.colors.primary600,
+  color: ds.colors.textPrimary,
   margin: 0,
 };
 
@@ -418,8 +418,9 @@ const lessonIndexStyle: CSSProperties = {
   minWidth: 26,
   height: 26,
   borderRadius: ds.radius.pill,
-  backgroundColor: ds.colors.primary100,
-  color: ds.colors.primary500,
+  backgroundColor: ds.colors.bgMuted,
+  color: ds.colors.textSecondary,
+  border: `1px solid ${ds.colors.borderStrong}`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -470,7 +471,7 @@ const objectiveItemStyle: CSSProperties = {
 };
 
 const objectiveBulletStyle: CSSProperties = {
-  color: ds.colors.primary500,
+  color: ds.colors.textMuted,
   fontWeight: 800,
   lineHeight: 1.6,
 };
@@ -505,8 +506,8 @@ const headerCellStyle: CSSProperties = {
   padding: "12px 10px",
   borderBottom: `2px solid ${ds.colors.borderStrong}`,
   borderInlineStart: `1px solid ${ds.colors.borderSoft}`,
-  backgroundColor: ds.colors.primary50,
-  color: ds.colors.primary700,
+  backgroundColor: ds.colors.bgMuted,
+  color: ds.colors.textSecondary,
   fontWeight: 800,
   textAlign: "center",
   verticalAlign: "middle",
@@ -621,7 +622,7 @@ const skillTotalPercentageStyle: CSSProperties = {
 const skillTotalValueStyle: CSSProperties = {
   fontSize: 22,
   fontWeight: 800,
-  color: ds.colors.primary500,
+  color: ds.colors.textPrimary,
   fontVariantNumeric: "tabular-nums",
   lineHeight: 1,
 };
