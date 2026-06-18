@@ -5,6 +5,7 @@ import {
   Text,
   View,
   Font,
+  Image,
   StyleSheet,
   pdf,
 } from "@react-pdf/renderer";
@@ -65,24 +66,24 @@ const s = StyleSheet.create({
   /* ─ Official header ─ */
   offRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 5 },
   offSide: { alignItems: "center", width: 130 },
-  offTxt: { fontFamily: "Cairo", fontSize: 7.5, color: C.muted, textAlign: "center" },
+  offTxt: { fontFamily: "Cairo", fontSize: 8, color: C.muted, textAlign: "center" },
   offBold: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navy, textAlign: "center" },
-  logo: { width: 38, height: 38, borderRadius: 19, backgroundColor: C.navy, justifyContent: "center", alignItems: "center", marginBottom: 2 },
-  logoTxt: { fontFamily: "Cairo", fontSize: 15, fontWeight: 900, color: C.white },
+  logo: { width: 38, height: 38, borderRadius: 19, backgroundColor: C.gold, justifyContent: "center", alignItems: "center", marginBottom: 2 },
+  logoTxt: { fontFamily: "Cairo", fontSize: 15, fontWeight: 900, color: C.navy },
 
   /* ─ Title banner ─ */
   banner: { backgroundColor: C.navy, borderRadius: 4, paddingTop: 7, paddingBottom: 7, alignItems: "center", marginBottom: 6 },
   bannerFr: { fontFamily: "Cairo", fontSize: 15, fontWeight: 900, color: C.white, textAlign: "center" },
   bannerAr: { fontFamily: "Cairo", fontSize: 13, fontWeight: 700, color: C.goldLight, textAlign: "center" },
-  bannerSub: { fontFamily: "Cairo", fontSize: 7, color: "#93B8D8", textAlign: "center", marginTop: 2 },
+  bannerSub: { fontFamily: "Cairo", fontSize: 7.5, color: "#93B8D8", textAlign: "center", marginTop: 2 },
   goldBar: { height: 3, backgroundColor: C.gold, marginBottom: 8 },
 
   /* ─ Info strip ─ */
   infoRow: { flexDirection: "row", border: `1 solid ${C.border}`, borderRadius: 3, marginBottom: 8 },
   infoCell: { flex: 1, flexDirection: "row", alignItems: "center", paddingTop: 5, paddingBottom: 5, paddingLeft: 8, paddingRight: 8, borderRight: `1 solid ${C.borderIn}` },
   infoCellL: { flex: 1, flexDirection: "row", alignItems: "center", paddingTop: 5, paddingBottom: 5, paddingLeft: 8, paddingRight: 8 },
-  infoLbl: { fontFamily: "Cairo", fontSize: 7, fontWeight: 700, color: C.navyLine, marginRight: 4, width: 44 },
-  infoVal: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.text, flex: 1 },
+  infoLbl: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navyLine, marginRight: 4, width: 44 },
+  infoVal: { fontFamily: "Cairo", fontSize: 7.5, fontWeight: 700, color: C.text, flex: 1 },
 
   /* ─ Table ─ */
   table: { width: "100%", border: `1 solid ${C.border}`, borderRadius: 3 },
@@ -124,20 +125,18 @@ function OfficialHeader({ data }: { data: MassarData }) {
         <Text style={s.offBold}>المملكة المغربية</Text>
         <Text style={s.offTxt}>وزارة التربية الوطنية</Text>
         <Text style={s.offTxt}>والتعليم الأولي والرياضة</Text>
-        {data.meta.academy !== "" && <Text style={s.offTxt}>{data.meta.academy}</Text>}
-        {data.meta.school  !== "" && <Text style={s.offBold}>{data.meta.school}</Text>}
+        {data.meta.academy !== "" ? <Text style={s.offTxt}>{data.meta.academy}</Text> : null}
+        {data.meta.school  !== "" ? <Text style={s.offBold}>{data.meta.school}</Text> : null}
       </View>
-      <View style={{ alignItems: "center", flex: 1 }}>
-        <View style={s.logo}><Text style={s.logoTxt}>م</Text></View>
-        <Text style={s.offBold}>أداة الأستاذ</Text>
-        <Text style={s.offTxt}>Teacher Tools Platform</Text>
+      <View style={{ width: 48, height: 48, backgroundColor: "#FFFFFF", borderRadius: 24 }}>
+        <Image src="/icons/physics-icon.png" style={{ width: 48, height: 48 }} />
       </View>
       <View style={s.offSide}>
         <Text style={s.offBold}>Royaume du Maroc</Text>
         <Text style={s.offTxt}>{"Ministere de l'Education"}</Text>
         <Text style={s.offTxt}>Nationale et du Prescolaire</Text>
-        {data.meta.term    !== "" && <Text style={s.offTxt}>{"Periode : " + data.meta.term}</Text>}
-        {data.meta.subject !== "" && <Text style={s.offBold}>{data.meta.subject}</Text>}
+        {data.meta.term    !== "" ? <Text style={s.offTxt}>{"Periode : " + data.meta.term}</Text> : null}
+        {data.meta.subject !== "" ? <Text style={s.offBold}>{data.meta.subject}</Text> : null}
       </View>
     </View>
   );

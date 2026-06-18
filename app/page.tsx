@@ -35,6 +35,28 @@ const TOOLS = [
     colorLight: "#F5F3FF",
     colorBorder: "#DDD6FE",
   },
+  {
+    href: "/tools/attendance-sheet",
+    icon: "📅",
+    title: "سجل الغياب",
+    titleFr: "Registre des Absences",
+    desc: "ارفع ملفات جميع أقسامك دفعة واحدة وأنتج سجل غياب كاملاً للدورة جاهزاً للطباعة",
+    badge: "جديد",
+    color: "#0891B2",
+    colorLight: "#ECFEFF",
+    colorBorder: "#A5F3FC",
+  },
+  {
+    href: "/tools/exam-stats",
+    icon: "📈",
+    title: "إحصائيات الامتحان",
+    titleFr: "Statistiques d'examen",
+    desc: "ارفع ملف مسار واحصل على تحليل شامل للنقط: المعدل، الوسيط، نسبة النجاح، وتوزيع الشرائح",
+    badge: "جديد",
+    color: "#0284C7",
+    colorLight: "#E0F2FE",
+    colorBorder: "#BAE6FD",
+  },
 ];
 
 export default function HomePage() {

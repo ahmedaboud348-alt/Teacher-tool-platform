@@ -5,6 +5,7 @@ import {
   Text,
   View,
   Font,
+  Image,
   StyleSheet,
   pdf,
 } from "@react-pdf/renderer";
@@ -45,47 +46,49 @@ const s = StyleSheet.create({
   sheetPage: { fontFamily: "Cairo", fontSize: 8, color: C.text, paddingTop: 12, paddingBottom: 12, paddingLeft: 16, paddingRight: 16 },
 
   // ── Cover: top ministry bar ──
-  ministryBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#F0F4F8", paddingTop: 10, paddingBottom: 10, paddingLeft: 28, paddingRight: 28, borderBottom: `1 solid ${C.borderIn}` },
-  ministryTxt: { fontFamily: "Cairo", fontSize: 7.5, color: C.muted, textAlign: "center" },
+  ministryBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#FFFFFF", paddingTop: 10, paddingBottom: 10, paddingLeft: 28, paddingRight: 28, borderBottom: `1 solid ${C.borderIn}` },
+  ministryTxt: { fontFamily: "Cairo", fontSize: 8, color: C.muted, textAlign: "center" },
   ministryBold: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navy, textAlign: "center" },
   ministrySide: { width: 160, alignItems: "center" },
+  ministryIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: C.gold, justifyContent: "center", alignItems: "center" },
+  ministryIconTxt: { fontFamily: "Cairo", fontSize: 16, fontWeight: 900, color: C.navy },
 
   // ── Cover: hero band ──
-  coverHero: { backgroundColor: C.navy, paddingTop: 36, paddingBottom: 0, paddingLeft: 40, paddingRight: 40, alignItems: "center" },
-  coverHeroLogo: { width: 62, height: 62, borderRadius: 31, backgroundColor: C.gold, justifyContent: "center", alignItems: "center", marginBottom: 16 },
-  coverHeroLogoTxt: { fontFamily: "Cairo", fontSize: 26, fontWeight: 900, color: C.white },
-  coverHeroTitleAr: { fontFamily: "Cairo", fontSize: 32, fontWeight: 900, color: C.white, textAlign: "center" },
-  coverHeroTitleFr: { fontFamily: "Cairo", fontSize: 13, fontWeight: 700, color: C.goldLight, textAlign: "center", marginTop: 5 },
-  coverHeroSub: { fontFamily: "Cairo", fontSize: 8.5, color: "#7BAFD4", textAlign: "center", marginTop: 5, marginBottom: 28 },
+  coverHero: { backgroundColor: C.navy, paddingTop: 24, paddingBottom: 0, paddingLeft: 40, paddingRight: 40, alignItems: "center" },
+  coverHeroLogo: { width: 54, height: 54, borderRadius: 27, backgroundColor: C.gold, justifyContent: "center", alignItems: "center", marginBottom: 12 },
+  coverHeroLogoTxt: { fontFamily: "Cairo", fontSize: 22, fontWeight: 900, color: C.white },
+  coverHeroTitleAr: { fontFamily: "Cairo", fontSize: 28, fontWeight: 900, color: C.white, textAlign: "center" },
+  coverHeroTitleFr: { fontFamily: "Cairo", fontSize: 12, fontWeight: 700, color: C.goldLight, textAlign: "center", marginTop: 4 },
+  coverHeroSub: { fontFamily: "Cairo", fontSize: 8, color: "#7BAFD4", textAlign: "center", marginTop: 4, marginBottom: 20 },
   coverGoldBar: { height: 5, backgroundColor: C.gold, width: "100%" },
   coverGoldBarThin: { height: 2, backgroundColor: C.gold, marginBottom: 20 },
 
   // ── Cover: info panel ──
-  coverBody: { paddingTop: 24, paddingBottom: 20, paddingLeft: 28, paddingRight: 28 },
-  coverInfoPanel: { flexDirection: "row", border: `1.5 solid ${C.border}`, borderRadius: 4, marginBottom: 22 },
-  coverInfoBlock: { flex: 1, paddingTop: 14, paddingBottom: 14, paddingLeft: 16, paddingRight: 16, borderRight: `1 solid ${C.borderIn}` },
-  coverInfoBlockLast: { flex: 1, paddingTop: 14, paddingBottom: 14, paddingLeft: 16, paddingRight: 16 },
-  coverInfoLbl: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navyLine, marginBottom: 3 },
-  coverInfoVal: { fontFamily: "Cairo", fontSize: 11, fontWeight: 900, color: C.text },
-  coverInfoValSm: { fontFamily: "Cairo", fontSize: 10, fontWeight: 700, color: C.text },
+  coverBody: { paddingTop: 16, paddingBottom: 14, paddingLeft: 28, paddingRight: 28 },
+  coverInfoPanel: { flexDirection: "row", border: `1.5 solid ${C.border}`, borderRadius: 4, marginBottom: 14 },
+  coverInfoBlock: { flex: 1, paddingTop: 10, paddingBottom: 10, paddingLeft: 8, paddingRight: 8, borderRight: `1 solid ${C.borderIn}`, alignItems: "center" },
+  coverInfoBlockLast: { flex: 1, paddingTop: 10, paddingBottom: 10, paddingLeft: 8, paddingRight: 8, alignItems: "center" },
+  coverInfoLbl: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navyLine, marginBottom: 2, textAlign: "center" },
+  coverInfoVal: { fontFamily: "Cairo", fontSize: 11, fontWeight: 900, color: C.text, textAlign: "center" },
+  coverInfoValSm: { fontFamily: "Cairo", fontSize: 10, fontWeight: 700, color: C.text, textAlign: "center" },
 
   // ── Cover: stats row ──
-  coverStats: { flexDirection: "row", marginBottom: 22 },
-  coverStatBox: { flex: 1, backgroundColor: C.rowEven, borderRadius: 4, paddingTop: 10, paddingBottom: 10, alignItems: "center", marginRight: 8, border: `1 solid ${C.borderIn}` },
-  coverStatBoxLast: { flex: 1, backgroundColor: C.rowEven, borderRadius: 4, paddingTop: 10, paddingBottom: 10, alignItems: "center", border: `1 solid ${C.borderIn}` },
-  coverStatNum: { fontFamily: "Cairo", fontSize: 20, fontWeight: 900, color: C.navy },
+  coverStats: { flexDirection: "row", marginBottom: 14 },
+  coverStatBox: { flex: 1, backgroundColor: C.rowEven, borderRadius: 4, paddingTop: 8, paddingBottom: 8, alignItems: "center", marginRight: 8, border: `1 solid ${C.borderIn}` },
+  coverStatBoxLast: { flex: 1, backgroundColor: C.rowEven, borderRadius: 4, paddingTop: 8, paddingBottom: 8, alignItems: "center", border: `1 solid ${C.borderIn}` },
+  coverStatNum: { fontFamily: "Cairo", fontSize: 18, fontWeight: 900, color: C.navy },
   coverStatLbl: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.muted, marginTop: 2 },
 
   // ── Cover: classes table ──
-  coverSectionTitle: { fontFamily: "Cairo", fontSize: 11, fontWeight: 900, color: C.navy, marginBottom: 8 },
-  coverSectionLine: { height: 2, backgroundColor: C.navy, marginBottom: 10 },
-  coverTblHdr: { flexDirection: "row", backgroundColor: C.navy, paddingTop: 8, paddingBottom: 8 },
-  coverTblHdrTxt: { fontFamily: "Cairo", fontSize: 9, fontWeight: 900, color: C.white, textAlign: "center" },
+  coverSectionTitle: { fontFamily: "Cairo", fontSize: 10, fontWeight: 900, color: C.navy, marginBottom: 6 },
+  coverSectionLine: { height: 2, backgroundColor: C.navy, marginBottom: 8 },
+  coverTblHdr: { flexDirection: "row", backgroundColor: C.navy, paddingTop: 6, paddingBottom: 6 },
+  coverTblHdrTxt: { fontFamily: "Cairo", fontSize: 8.5, fontWeight: 900, color: C.white, textAlign: "center" },
   coverTblRow: { flexDirection: "row", borderBottom: `0.75 solid ${C.borderIn}` },
   coverTblRowEven: { backgroundColor: C.rowEven },
-  coverTblCell: { fontFamily: "Cairo", fontSize: 9.5, fontWeight: 400, color: C.text, textAlign: "center", paddingTop: 7, paddingBottom: 7 },
-  coverTblCellBold: { fontFamily: "Cairo", fontSize: 9.5, fontWeight: 700, color: C.navy, paddingTop: 7, paddingBottom: 7 },
-  coverTblCellAr: { fontFamily: "Cairo", fontSize: 9.5, fontWeight: 700, color: C.text, textAlign: "right", paddingTop: 7, paddingBottom: 7, direction: "rtl" },
+  coverTblCell: { fontFamily: "Cairo", fontSize: 9, fontWeight: 400, color: C.text, textAlign: "center", paddingTop: 5, paddingBottom: 5 },
+  coverTblCellBold: { fontFamily: "Cairo", fontSize: 9, fontWeight: 700, color: C.navy, paddingTop: 5, paddingBottom: 5 },
+  coverTblCellAr: { fontFamily: "Cairo", fontSize: 9, fontWeight: 700, color: C.text, textAlign: "right", paddingTop: 5, paddingBottom: 5, direction: "rtl" },
 
   // ── Cover: footer ──
   coverFooter: { backgroundColor: C.navy, paddingTop: 12, paddingBottom: 12, paddingLeft: 28, paddingRight: 28, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
@@ -95,22 +98,22 @@ const s = StyleSheet.create({
   // ── Grading sheet (reused per class) ──
   offRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 5 },
   offSide: { alignItems: "center", width: 130 },
-  offTxt: { fontFamily: "Cairo", fontSize: 7.5, color: C.muted, textAlign: "center" },
+  offTxt: { fontFamily: "Cairo", fontSize: 8, color: C.muted, textAlign: "center" },
   offBold: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navy, textAlign: "center" },
-  logo: { width: 38, height: 38, borderRadius: 19, backgroundColor: C.navy, justifyContent: "center", alignItems: "center", marginBottom: 2 },
-  logoTxt: { fontFamily: "Cairo", fontSize: 15, fontWeight: 900, color: C.white },
+  logo: { width: 38, height: 38, borderRadius: 19, backgroundColor: C.gold, justifyContent: "center", alignItems: "center", marginBottom: 2 },
+  logoTxt: { fontFamily: "Cairo", fontSize: 15, fontWeight: 900, color: C.navy },
 
   banner: { backgroundColor: C.navy, borderRadius: 4, paddingTop: 7, paddingBottom: 7, alignItems: "center", marginBottom: 6 },
   bannerFr: { fontFamily: "Cairo", fontSize: 15, fontWeight: 900, color: C.white, textAlign: "center" },
   bannerAr: { fontFamily: "Cairo", fontSize: 13, fontWeight: 700, color: C.goldLight, textAlign: "center" },
-  bannerSub: { fontFamily: "Cairo", fontSize: 7, color: "#93B8D8", textAlign: "center", marginTop: 2 },
+  bannerSub: { fontFamily: "Cairo", fontSize: 7.5, color: "#93B8D8", textAlign: "center", marginTop: 2 },
   goldBarSm: { height: 3, backgroundColor: C.gold, marginBottom: 8 },
 
   infoRow: { flexDirection: "row", border: `1 solid ${C.border}`, borderRadius: 3, marginBottom: 8 },
   infoCell: { flex: 1, flexDirection: "row", alignItems: "center", paddingTop: 5, paddingBottom: 5, paddingLeft: 8, paddingRight: 8, borderRight: `1 solid ${C.borderIn}` },
   infoCellL: { flex: 1, flexDirection: "row", alignItems: "center", paddingTop: 5, paddingBottom: 5, paddingLeft: 8, paddingRight: 8 },
-  infoLbl: { fontFamily: "Cairo", fontSize: 7, fontWeight: 700, color: C.navyLine, marginRight: 4, width: 44 },
-  infoVal: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.text, flex: 1 },
+  infoLbl: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navyLine, marginRight: 4, width: 44 },
+  infoVal: { fontFamily: "Cairo", fontSize: 7.5, fontWeight: 700, color: C.text, flex: 1 },
 
   table: { width: "100%", border: `1 solid ${C.border}`, borderRadius: 3 },
   hRow1: { flexDirection: "row", backgroundColor: C.navy, minHeight: W.h1 },
@@ -159,9 +162,8 @@ function CoverPage({ entries, config }: { entries: GradeBookEntry[]; config: Gra
             ? <Text style={s.ministryTxt}>{first.academy}</Text>
             : null}
         </View>
-        <View style={{ alignItems: "center" }}>
-          <Text style={[s.ministryBold, { fontSize: 9 }]}>أداة الأستاذ</Text>
-          <Text style={[s.ministryTxt, { fontSize: 7 }]}>Teacher Tools Platform</Text>
+        <View style={{ width: 48, height: 48, backgroundColor: "#FFFFFF", borderRadius: 24 }}>
+          <Image src="/icons/physics-icon.png" style={{ width: 48, height: 48 }} />
         </View>
         <View style={s.ministrySide}>
           <Text style={s.ministryBold}>Royaume du Maroc</Text>
@@ -232,35 +234,27 @@ function CoverPage({ entries, config }: { entries: GradeBookEntry[]; config: Gra
         <View style={s.coverSectionLine} />
 
         <View style={s.coverTblHdr}>
-          <View style={{ width: 28 }}><Text style={s.coverTblHdrTxt}>{"#"}</Text></View>
-          <View style={{ flex: 1, paddingLeft: 8 }}><Text style={s.coverTblHdrTxt}>القسم</Text></View>
-          <View style={{ width: 100 }}><Text style={s.coverTblHdrTxt}>المستوى</Text></View>
-          <View style={{ width: 60 }}><Text style={s.coverTblHdrTxt}>التلاميذ</Text></View>
-          <View style={{ width: 70 }}><Text style={s.coverTblHdrTxt}>الدورة</Text></View>
-          <View style={{ width: 80 }}><Text style={s.coverTblHdrTxt}>المادة</Text></View>
+          <View style={{ flex: 0.4, alignItems: "center" }}><Text style={s.coverTblHdrTxt}>{"#"}</Text></View>
+          <View style={{ flex: 1, alignItems: "center" }}><Text style={s.coverTblHdrTxt}>القسم</Text></View>
+          <View style={{ flex: 1, alignItems: "center" }}><Text style={s.coverTblHdrTxt}>المستوى</Text></View>
+          <View style={{ flex: 1, alignItems: "center" }}><Text style={s.coverTblHdrTxt}>عدد التلاميذ</Text></View>
         </View>
 
         {entries.map((entry, i) => {
           const m = entry.data.meta;
           return (
             <View key={entry.id} style={[s.coverTblRow, i % 2 !== 0 ? s.coverTblRowEven : {}]}>
-              <View style={{ width: 28, alignItems: "center" }}>
+              <View style={{ flex: 0.4, alignItems: "center", justifyContent: "center" }}>
                 <Text style={s.coverTblCell}>{String(i + 1)}</Text>
               </View>
-              <View style={{ flex: 1, paddingLeft: 8 }}>
+              <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
                 <Text style={s.coverTblCellBold}>{m.className || entry.filename}</Text>
               </View>
-              <View style={{ width: 100 }}>
+              <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
                 <Text style={s.coverTblCellAr}>{m.level || "-"}</Text>
               </View>
-              <View style={{ width: 60, alignItems: "center" }}>
+              <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
                 <Text style={s.coverTblCell}>{String(entry.data.students.length)}</Text>
-              </View>
-              <View style={{ width: 70, alignItems: "center" }}>
-                <Text style={s.coverTblCell}>{m.term || "-"}</Text>
-              </View>
-              <View style={{ width: 80 }}>
-                <Text style={s.coverTblCellAr}>{m.subject || "-"}</Text>
               </View>
             </View>
           );
@@ -289,20 +283,18 @@ function ClassHeader({ entry }: { entry: GradeBookEntry }) {
         <Text style={s.offBold}>المملكة المغربية</Text>
         <Text style={s.offTxt}>وزارة التربية الوطنية</Text>
         <Text style={s.offTxt}>والتعليم الأولي والرياضة</Text>
-        {m.academy !== "" && <Text style={s.offTxt}>{m.academy}</Text>}
-        {m.school  !== "" && <Text style={s.offBold}>{m.school}</Text>}
+        {m.academy !== "" ? <Text style={s.offTxt}>{m.academy}</Text> : null}
+        {m.school  !== "" ? <Text style={s.offBold}>{m.school}</Text> : null}
       </View>
-      <View style={{ alignItems: "center", flex: 1 }}>
-        <View style={s.logo}><Text style={s.logoTxt}>م</Text></View>
-        <Text style={s.offBold}>أداة الأستاذ</Text>
-        <Text style={s.offTxt}>Teacher Tools Platform</Text>
-      </View>
+      <View style={{ width: 48, height: 48, backgroundColor: "#FFFFFF", borderRadius: 24 }}>
+          <Image src="/icons/physics-icon.png" style={{ width: 48, height: 48 }} />
+        </View>
       <View style={s.offSide}>
         <Text style={s.offBold}>Royaume du Maroc</Text>
         <Text style={s.offTxt}>{"Ministere de l'Education"}</Text>
         <Text style={s.offTxt}>Nationale et du Prescolaire</Text>
-        {m.term    !== "" && <Text style={s.offTxt}>{"Periode : " + m.term}</Text>}
-        {m.subject !== "" && <Text style={s.offBold}>{m.subject}</Text>}
+        {m.term    !== "" ? <Text style={s.offTxt}>{"Periode : " + m.term}</Text> : null}
+        {m.subject !== "" ? <Text style={s.offBold}>{m.subject}</Text> : null}
       </View>
     </View>
   );
