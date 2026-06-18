@@ -10,7 +10,7 @@ import {
 } from "@react-pdf/renderer";
 import type { MassarData, GradingSheetConfig } from "../types";
 
-// ── Font ──────────────────────────────────────────────────────────────────────
+// ── Fonts ─────────────────────────────────────────────────────────────────────
 Font.register({
   family: "Cairo",
   fonts: [
@@ -22,219 +22,145 @@ Font.register({
 
 // ── Colors ────────────────────────────────────────────────────────────────────
 const C = {
-  headerBg:   "#4CAF50",   // green header (like the image)
-  headerText: "#FFFFFF",
-  totalBg:    "#FF5722",   // orange total column
-  evalBg:     "#FFD700",   // yellow evaluation columns
-  rowOdd:     "#FFFFFF",
-  rowEven:    "#F9F9F9",
-  border:     "#CCCCCC",
-  text:       "#1A1A1A",
-  muted:      "#666666",
-  infoBorder: "#4CAF50",
+  navy:       "#1A3055",
+  navyMid:    "#234D7A",
+  navyLine:   "#2E6DA4",
+  gold:       "#C8960C",
+  goldLight:  "#F5E6C0",
+  totalBg:    "#FFF3CD",
+  totalBdr:   "#C8960C",
+  rowEven:    "#EEF3F8",
+  border:     "#8FA8BB",
+  borderIn:   "#AABDCC",
+  text:       "#0D1117",
+  muted:      "#3D5A6E",
+  white:      "#FFFFFF",
+};
+
+// ── Column widths ──────────────────────────────────────────────────────────────
+const W = {
+  num:  20,
+  name: 148,
+  act:  26,
+  tot:  32,
+  eval: 36,
+  row:  15,
+  h1:   22,
+  h2:   16,
 };
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
+
   page: {
     fontFamily: "Cairo",
     fontSize: 8,
     color: C.text,
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingLeft: 14,
-    paddingRight: 14,
-    direction: "ltr",
+    paddingTop: 12,
+    paddingBottom: 12,
+    paddingLeft: 16,
+    paddingRight: 16,
   },
 
-  // Title section
-  titleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 10,
-  },
-  titleLeft: { flex: 1 },
-  mainTitle: {
-    fontFamily: "Cairo",
-    fontSize: 18,
-    fontWeight: 900,
-    color: C.text,
-    marginBottom: 2,
-  },
-  subtitle: {
-    fontFamily: "Cairo",
-    fontSize: 9,
-    color: C.muted,
-  },
-  infoBox: {
-    width: 160,
-    border: `1.5 solid ${C.infoBorder}`,
-    borderRadius: 3,
-    padding: "6 10",
-  },
-  infoRow: {
-    flexDirection: "row",
-    marginBottom: 3,
-  },
-  infoLabel: {
-    fontFamily: "Cairo",
-    fontSize: 8,
-    fontWeight: 700,
-    width: 70,
-    color: C.muted,
-  },
-  infoValue: {
-    fontFamily: "Cairo",
-    fontSize: 8,
-    fontWeight: 700,
-    flex: 1,
-    color: C.text,
-  },
+  /* ─ Official header ─ */
+  offRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 5 },
+  offSide: { alignItems: "center", width: 130 },
+  offTxt: { fontFamily: "Cairo", fontSize: 7.5, color: C.muted, textAlign: "center" },
+  offBold: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navy, textAlign: "center" },
+  logo: { width: 38, height: 38, borderRadius: 19, backgroundColor: C.navy, justifyContent: "center", alignItems: "center", marginBottom: 2 },
+  logoTxt: { fontFamily: "Cairo", fontSize: 15, fontWeight: 900, color: C.white },
 
-  // Table
-  table: { width: "100%" },
+  /* ─ Title banner ─ */
+  banner: { backgroundColor: C.navy, borderRadius: 4, paddingTop: 7, paddingBottom: 7, alignItems: "center", marginBottom: 6 },
+  bannerFr: { fontFamily: "Cairo", fontSize: 15, fontWeight: 900, color: C.white, textAlign: "center" },
+  bannerAr: { fontFamily: "Cairo", fontSize: 13, fontWeight: 700, color: C.goldLight, textAlign: "center" },
+  bannerSub: { fontFamily: "Cairo", fontSize: 7, color: "#93B8D8", textAlign: "center", marginTop: 2 },
+  goldBar: { height: 3, backgroundColor: C.gold, marginBottom: 8 },
 
-  // Header rows
-  headerRow1: {
-    flexDirection: "row",
-    backgroundColor: C.headerBg,
-    minHeight: 22,
-  },
-  headerRow2: {
-    flexDirection: "row",
-    backgroundColor: C.headerBg,
-    minHeight: 16,
-  },
-  headerRow3: {
-    flexDirection: "row",
-    backgroundColor: C.headerBg,
-    minHeight: 14,
-    borderBottom: `1.5 solid ${C.border}`,
-  },
+  /* ─ Info strip ─ */
+  infoRow: { flexDirection: "row", border: `1 solid ${C.border}`, borderRadius: 3, marginBottom: 8 },
+  infoCell: { flex: 1, flexDirection: "row", alignItems: "center", paddingTop: 5, paddingBottom: 5, paddingLeft: 8, paddingRight: 8, borderRight: `1 solid ${C.borderIn}` },
+  infoCellL: { flex: 1, flexDirection: "row", alignItems: "center", paddingTop: 5, paddingBottom: 5, paddingLeft: 8, paddingRight: 8 },
+  infoLbl: { fontFamily: "Cairo", fontSize: 7, fontWeight: 700, color: C.navyLine, marginRight: 4, width: 44 },
+  infoVal: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.text, flex: 1 },
 
-  // Data rows
-  dataRow: {
-    flexDirection: "row",
-    minHeight: 16,
-    borderBottom: `0.5 solid ${C.border}`,
-  },
+  /* ─ Table ─ */
+  table: { width: "100%", border: `1 solid ${C.border}`, borderRadius: 3 },
+  hRow1: { flexDirection: "row", backgroundColor: C.navy, minHeight: W.h1 },
+  hRow2: { flexDirection: "row", backgroundColor: C.navyMid, minHeight: W.h2, borderBottom: `1.5 solid ${C.navyLine}` },
+  dRow: { flexDirection: "row", minHeight: W.row, borderBottom: `0.75 solid ${C.border}` },
 
-  // Cells
-  numCell: {
-    width: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRight: `0.5 solid ${C.border}`,
-    paddingVertical: 2,
-  },
-  nameCell: {
-    flex: 1,
-    justifyContent: "center",
-    borderRight: `0.5 solid ${C.border}`,
-    paddingHorizontal: 4,
-    paddingVertical: 2,
-  },
-  actCell: {
-    width: 28,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRight: `0.5 solid ${C.border}`,
-    paddingVertical: 2,
-  },
-  totalCell: {
-    width: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRight: `0.5 solid ${C.border}`,
-    paddingVertical: 2,
-    backgroundColor: "#FFF3E0",
-  },
-  evalCell: {
-    width: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRight: `0.5 solid ${C.border}`,
-    paddingVertical: 2,
-  },
-  obsCell: {
-    width: 55,
-    justifyContent: "center",
-    paddingHorizontal: 3,
-    paddingVertical: 2,
-  },
+  /* ─ Cells ─ */
+  numC:   { width: W.num,  justifyContent: "center", alignItems: "center", borderRight: `0.75 solid ${C.borderIn}` },
+  nameC:  { width: W.name, justifyContent: "center", borderRight: `0.75 solid ${C.borderIn}`, paddingLeft: 5, paddingRight: 5 },
+  actC:   { width: W.act,  justifyContent: "center", alignItems: "center", borderRight: `0.75 solid ${C.borderIn}` },
+  actLast:{ width: W.act,  justifyContent: "center", alignItems: "center", borderRight: `1.5 solid ${C.navyLine}` },
+  totC:   { width: W.tot,  justifyContent: "center", alignItems: "center", backgroundColor: C.totalBg, borderRight: `1.5 solid ${C.totalBdr}` },
+  evalC:  { width: W.eval, justifyContent: "center", alignItems: "center", borderRight: `0.75 solid ${C.borderIn}` },
+  obsC:   { flex: 1, justifyContent: "center", paddingLeft: 4, paddingRight: 4 },
 
-  // Text variants
-  headerText: {
-    fontFamily: "Cairo",
-    fontSize: 7.5,
-    fontWeight: 900,
-    color: C.headerText,
-    textAlign: "center",
-  },
-  headerTextSmall: {
-    fontFamily: "Cairo",
-    fontSize: 6.5,
-    fontWeight: 700,
-    color: C.headerText,
-    textAlign: "center",
-  },
-  cellText: {
-    fontFamily: "Cairo",
-    fontSize: 7.5,
-    textAlign: "center",
-    color: C.text,
-  },
-  nameText: {
-    fontFamily: "Cairo",
-    fontSize: 7.5,
-    textAlign: "right",
-    color: C.text,
-    direction: "rtl",
-  },
-  numText: {
-    fontFamily: "Cairo",
-    fontSize: 7.5,
-    fontWeight: 700,
-    textAlign: "center",
-    color: C.muted,
-  },
+  /* ─ Text ─ */
+  hLg:   { fontFamily: "Cairo", fontSize: 8,   fontWeight: 900, color: C.white,    textAlign: "center" },
+  hSm:   { fontFamily: "Cairo", fontSize: 7.5, fontWeight: 700, color: "#C8DDEF",  textAlign: "center" },
+  hTot:  { fontFamily: "Cairo", fontSize: 8,   fontWeight: 900, color: C.gold,     textAlign: "center" },
+  numTx: { fontFamily: "Cairo", fontSize: 8,   fontWeight: 700, color: C.muted,    textAlign: "center" },
+  nameTx:{ fontFamily: "Cairo", fontSize: 8.5, fontWeight: 700, color: C.text,     textAlign: "right",  direction: "rtl" },
 
-  // Footer
-  footer: {
-    marginTop: 8,
-    flexDirection: "row",
-    gap: 16,
-  },
-  footerText: {
-    fontFamily: "Cairo",
-    fontSize: 7,
-    color: C.muted,
-  },
-  footerBold: {
-    fontFamily: "Cairo",
-    fontSize: 7,
-    fontWeight: 700,
-    color: C.text,
-  },
+  /* ─ Footer ─ */
+  footer: { marginTop: 8, flexDirection: "row", justifyContent: "space-between" },
+  legItem:{ flexDirection: "row", alignItems: "center", marginRight: 14 },
+  legDot: { width: 5, height: 5, borderRadius: 2, backgroundColor: C.navyLine, marginRight: 3 },
+  legBold:{ fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navy },
+  legTxt: { fontFamily: "Cairo", fontSize: 8, color: C.muted },
+  pgNum:  { fontFamily: "Cairo", fontSize: 8, color: C.muted, textAlign: "right" },
 });
 
 // ── Components ────────────────────────────────────────────────────────────────
 
-function InfoBox({ config }: { config: GradingSheetConfig }) {
+function OfficialHeader({ data }: { data: MassarData }) {
   return (
-    <View style={s.infoBox}>
-      <View style={s.infoRow}>
-        <Text style={s.infoLabel}>Prof :</Text>
-        <Text style={s.infoValue}>{config.prof || "—"}</Text>
+    <View style={s.offRow}>
+      <View style={s.offSide}>
+        <Text style={s.offBold}>المملكة المغربية</Text>
+        <Text style={s.offTxt}>وزارة التربية الوطنية</Text>
+        <Text style={s.offTxt}>والتعليم الأولي والرياضة</Text>
+        {data.meta.academy !== "" && <Text style={s.offTxt}>{data.meta.academy}</Text>}
+        {data.meta.school  !== "" && <Text style={s.offBold}>{data.meta.school}</Text>}
       </View>
-      <View style={s.infoRow}>
-        <Text style={s.infoLabel}>Année Scolaire :</Text>
-        <Text style={s.infoValue}>{config.annee || "—"}</Text>
+      <View style={{ alignItems: "center", flex: 1 }}>
+        <View style={s.logo}><Text style={s.logoTxt}>م</Text></View>
+        <Text style={s.offBold}>أداة الأستاذ</Text>
+        <Text style={s.offTxt}>Teacher Tools Platform</Text>
       </View>
-      <View style={s.infoRow}>
-        <Text style={s.infoLabel}>Classe :</Text>
-        <Text style={s.infoValue}>{config.classe || "—"}</Text>
+      <View style={s.offSide}>
+        <Text style={s.offBold}>Royaume du Maroc</Text>
+        <Text style={s.offTxt}>{"Ministere de l'Education"}</Text>
+        <Text style={s.offTxt}>Nationale et du Prescolaire</Text>
+        {data.meta.term    !== "" && <Text style={s.offTxt}>{"Periode : " + data.meta.term}</Text>}
+        {data.meta.subject !== "" && <Text style={s.offBold}>{data.meta.subject}</Text>}
+      </View>
+    </View>
+  );
+}
+
+function InfoStrip({ data, config }: { data: MassarData; config: GradingSheetConfig }) {
+  return (
+    <View style={s.infoRow}>
+      <View style={s.infoCell}>
+        <Text style={s.infoLbl}>Prof :</Text>
+        <Text style={s.infoVal}>{config.prof || data.meta.teacher || "-"}</Text>
+      </View>
+      <View style={s.infoCell}>
+        <Text style={s.infoLbl}>Classe :</Text>
+        <Text style={s.infoVal}>{config.classe || data.meta.className || "-"}</Text>
+      </View>
+      <View style={s.infoCell}>
+        <Text style={s.infoLbl}>Niveau :</Text>
+        <Text style={s.infoVal}>{data.meta.level || "-"}</Text>
+      </View>
+      <View style={s.infoCellL}>
+        <Text style={s.infoLbl}>{"Annee :"}</Text>
+        <Text style={s.infoVal}>{config.annee || data.meta.year || "-"}</Text>
       </View>
     </View>
   );
@@ -244,102 +170,68 @@ function TableHeader({ config }: { config: GradingSheetConfig }) {
   const { evalCount, showActivites, showObservation } = config;
   return (
     <>
-      {/* Row 1 — main column labels */}
-      <View style={s.headerRow1}>
-        <View style={[s.numCell, { justifyContent: "center" }]}>
-          <Text style={s.headerText}>N°</Text>
+      <View style={s.hRow1}>
+        <View style={[s.numC,  { justifyContent: "center" }]}><Text style={s.hLg}>{"N°"}</Text></View>
+        <View style={[s.nameC, { justifyContent: "center" }]}><Text style={s.hLg}>Nom et Prenom</Text></View>
+        {showActivites
+          ? <View style={{ width: W.act * 4, justifyContent: "center", alignItems: "center", borderRight: `1.5 solid ${C.navyLine}` }}>
+              <Text style={s.hLg}>{"Activites Integrees /20"}</Text>
+            </View>
+          : null}
+        <View style={[s.totC, { justifyContent: "center" }]}><Text style={s.hTot}>{"Total\n/20"}</Text></View>
+        <View style={{ width: evalCount * W.eval, justifyContent: "center", alignItems: "center", borderRight: `0.75 solid ${C.borderIn}` }}>
+          <Text style={s.hLg}>{"Evaluations /20"}</Text>
         </View>
-        <View style={[s.nameCell, { justifyContent: "center" }]}>
-          <Text style={s.headerText}>Nom et Prénom</Text>
-        </View>
-        {showActivites && (
-          <View style={{ width: 112, justifyContent: "center", alignItems: "center", borderRight: `0.5 solid ${C.border}` }}>
-            <Text style={s.headerText}>Activités intégrées /20</Text>
-          </View>
-        )}
-        <View style={[s.totalCell, { justifyContent: "center" }]}>
-          <Text style={[s.headerText, { color: "#FF5722" }]}>Total</Text>
-        </View>
-        <View style={{ width: evalCount * 30, justifyContent: "center", alignItems: "center", borderRight: `0.5 solid ${C.border}` }}>
-          <Text style={s.headerText}>Évaluation</Text>
-        </View>
-        {showObservation && (
-          <View style={[s.obsCell, { justifyContent: "center" }]}>
-            <Text style={s.headerText}>Observation</Text>
-          </View>
-        )}
+        {showObservation
+          ? <View style={[s.obsC, { justifyContent: "center" }]}><Text style={s.hLg}>Observation</Text></View>
+          : null}
       </View>
-
-      {/* Row 2 — sub-labels */}
-      <View style={s.headerRow2}>
-        <View style={s.numCell} />
-        <View style={s.nameCell} />
-        {showActivites && (
-          <>
-            <View style={s.actCell}><Text style={s.headerTextSmall}>Part.{"\n"}/5</Text></View>
-            <View style={s.actCell}><Text style={s.headerTextSmall}>T.H.C{"\n"}/5</Text></View>
-            <View style={s.actCell}><Text style={s.headerTextSmall}>Cahier{"\n"}/5</Text></View>
-            <View style={s.actCell}><Text style={s.headerTextSmall}>Disc.{"\n"}/5</Text></View>
-          </>
-        )}
-        <View style={s.totalCell} />
+      <View style={s.hRow2}>
+        <View style={s.numC} />
+        <View style={s.nameC} />
+        {showActivites
+          ? <>
+              <View style={s.actC}><Text style={s.hSm}>{"Part.\n/5"}</Text></View>
+              <View style={s.actC}><Text style={s.hSm}>{"T.H.C\n/5"}</Text></View>
+              <View style={s.actC}><Text style={s.hSm}>{"Cahier\n/5"}</Text></View>
+              <View style={s.actLast}><Text style={s.hSm}>{"Disc.\n/5"}</Text></View>
+            </>
+          : null}
+        <View style={s.totC} />
         {Array.from({ length: evalCount }, (_, i) => (
-          <View key={i} style={s.evalCell}>
-            <Text style={s.headerTextSmall}>N°{i + 1}</Text>
-          </View>
+          <View key={i} style={s.evalC}><Text style={s.hSm}>{"CC " + (i + 1)}</Text></View>
         ))}
-        {showObservation && <View style={s.obsCell} />}
+        {showObservation ? <View style={s.obsC} /> : null}
       </View>
     </>
   );
 }
 
-function StudentRow({
-  student,
-  even,
-  config,
-}: {
-  student: { index: number; name: string };
-  even: boolean;
-  config: GradingSheetConfig;
-}) {
+function StudentRow({ student, even, config }: { student: { index: number; name: string }; even: boolean; config: GradingSheetConfig }) {
   const { evalCount, showActivites, showObservation } = config;
-  const bg = even ? C.rowEven : C.rowOdd;
+  const bg = even ? C.rowEven : C.white;
   return (
-    <View style={[s.dataRow, { backgroundColor: bg }]}>
-      <View style={s.numCell}>
-        <Text style={s.numText}>{student.index}</Text>
-      </View>
-      <View style={s.nameCell}>
-        <Text style={s.nameText}>{student.name}</Text>
-      </View>
-      {showActivites && (
-        <>
-          <View style={s.actCell} />
-          <View style={s.actCell} />
-          <View style={s.actCell} />
-          <View style={s.actCell} />
-        </>
-      )}
-      <View style={s.totalCell} />
-      {Array.from({ length: evalCount }, (_, i) => (
-        <View key={i} style={s.evalCell} />
-      ))}
-      {showObservation && <View style={s.obsCell} />}
+    <View style={[s.dRow, { backgroundColor: bg }]}>
+      <View style={s.numC}><Text style={s.numTx}>{String(student.index)}</Text></View>
+      <View style={s.nameC}><Text style={s.nameTx}>{student.name}</Text></View>
+      {showActivites
+        ? <>
+            <View style={s.actC} />
+            <View style={s.actC} />
+            <View style={s.actC} />
+            <View style={s.actLast} />
+          </>
+        : null}
+      <View style={s.totC} />
+      {Array.from({ length: evalCount }, (_, i) => <View key={i} style={s.evalC} />)}
+      {showObservation ? <View style={s.obsC} /> : null}
     </View>
   );
 }
 
-// ── Main Document ─────────────────────────────────────────────────────────────
+// ── Document ──────────────────────────────────────────────────────────────────
 
-function GradingSheetDocument({
-  data,
-  config,
-}: {
-  data: MassarData;
-  config: GradingSheetConfig;
-}) {
-  // Split students into pages of 30
+function GradingSheetDocument({ data, config }: { data: MassarData; config: GradingSheetConfig }) {
   const PAGE_SIZE = 30;
   const pages: MassarData["students"][] = [];
   for (let i = 0; i < data.students.length; i += PAGE_SIZE) {
@@ -350,54 +242,45 @@ function GradingSheetDocument({
     <Document title="Feuille de Notes">
       {pages.map((pageStudents, pageIdx) => (
         <Page key={pageIdx} size="A4" style={s.page} orientation="portrait">
-          {/* Title area */}
-          <View style={s.titleRow}>
-            <View style={s.titleLeft}>
-              <Text style={s.mainTitle}>FEUILLE DE NOTES</Text>
-              <Text style={s.subtitle}>Contrôle Continu &amp; Activités Intégrées</Text>
-            </View>
-            <InfoBox config={config} />
-          </View>
 
-          {/* Table */}
+          {pageIdx === 0 ? <OfficialHeader data={data} /> : null}
+
+          <View style={s.banner}>
+            <Text style={s.bannerFr}>FEUILLE DE NOTES</Text>
+            <Text style={s.bannerAr}>ورقة التنقيط</Text>
+            <Text style={s.bannerSub}>{"Controle Continu - Activites Integrees"}</Text>
+          </View>
+          <View style={s.goldBar} />
+
+          <InfoStrip data={data} config={config} />
+
           <View style={s.table}>
             <TableHeader config={config} />
             {pageStudents.map((student, i) => (
-              <StudentRow
-                key={student.code || i}
-                student={student}
-                even={i % 2 === 0}
-                config={config}
-              />
+              <StudentRow key={student.index} student={student} even={i % 2 === 0} config={config} />
             ))}
           </View>
 
-          {/* Footer legend */}
-          {config.showActivites && (
-            <View style={s.footer}>
-              <Text style={s.footerText}>
-                <Text style={s.footerBold}>Part :</Text> Participation{"   "}
-                <Text style={s.footerBold}>T.H.C :</Text> Travaux Hors Classe{"   "}
-                <Text style={s.footerBold}>Disc :</Text> Discipline / Comportement
-              </Text>
-            </View>
-          )}
+          <View style={s.footer}>
+            {config.showActivites
+              ? <View style={{ flexDirection: "row" }}>
+                  <View style={s.legItem}><View style={s.legDot} /><Text style={s.legBold}>{"Part. : "}</Text><Text style={s.legTxt}>Participation</Text></View>
+                  <View style={s.legItem}><View style={s.legDot} /><Text style={s.legBold}>{"T.H.C : "}</Text><Text style={s.legTxt}>Travaux Hors Classe</Text></View>
+                  <View style={s.legItem}><View style={s.legDot} /><Text style={s.legBold}>{"Disc. : "}</Text><Text style={s.legTxt}>Discipline / Comportement</Text></View>
+                </View>
+              : <View />}
+            {pages.length > 1
+              ? <Text style={s.pgNum}>{(pageIdx + 1) + " / " + pages.length}</Text>
+              : null}
+          </View>
 
-          {/* Page number */}
-          {pages.length > 1 && (
-            <Text
-              style={{ fontSize: 7, color: C.muted, textAlign: "right", marginTop: 4 }}
-            >
-              Page {pageIdx + 1} / {pages.length}
-            </Text>
-          )}
         </Page>
       ))}
     </Document>
   );
 }
 
-// ── Export function ───────────────────────────────────────────────────────────
+// ── Export ────────────────────────────────────────────────────────────────────
 
 export async function downloadGradingSheetPdf(
   data: MassarData,
@@ -408,7 +291,7 @@ export async function downloadGradingSheetPdf(
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `feuille-de-notes-${config.classe || "classe"}.pdf`;
+  a.download = "feuille-de-notes-" + (config.classe || data.meta.className || "classe") + ".pdf";
   a.click();
   URL.revokeObjectURL(url);
 }
