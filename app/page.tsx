@@ -24,6 +24,17 @@ const TOOLS = [
     colorLight: "#ECFDF5",
     colorBorder: "#A7F3D0",
   },
+  {
+    href: "/tools/grade-book",
+    icon: "📚",
+    title: "دفتر التنقيط",
+    titleFr: "Carnet de Notes",
+    desc: "ارفع ملفات جميع أقسامك دفعة واحدة وأنتج دفتراً كاملاً مع واجهة وجميع اللوائح",
+    badge: "جديد",
+    color: "#7C3AED",
+    colorLight: "#F5F3FF",
+    colorBorder: "#DDD6FE",
+  },
 ];
 
 export default function HomePage() {
