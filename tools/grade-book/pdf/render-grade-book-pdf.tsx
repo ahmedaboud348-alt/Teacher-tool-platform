@@ -44,35 +44,53 @@ const s = StyleSheet.create({
   coverPage: { fontFamily: "Cairo", fontSize: 9, color: C.text, paddingTop: 0, paddingBottom: 0 },
   sheetPage: { fontFamily: "Cairo", fontSize: 8, color: C.text, paddingTop: 12, paddingBottom: 12, paddingLeft: 16, paddingRight: 16 },
 
-  // ── Cover ──
-  coverTop: { backgroundColor: C.navy, paddingTop: 48, paddingBottom: 40, paddingLeft: 40, paddingRight: 40, alignItems: "center" },
-  coverLogo: { width: 56, height: 56, borderRadius: 28, backgroundColor: C.white, justifyContent: "center", alignItems: "center", marginBottom: 14 },
-  coverLogoTxt: { fontFamily: "Cairo", fontSize: 22, fontWeight: 900, color: C.navy },
-  coverTitleAr: { fontFamily: "Cairo", fontSize: 28, fontWeight: 900, color: C.white, textAlign: "center" },
-  coverTitleFr: { fontFamily: "Cairo", fontSize: 14, fontWeight: 700, color: C.goldLight, textAlign: "center", marginTop: 4 },
-  coverSub: { fontFamily: "Cairo", fontSize: 9, color: "#93B8D8", textAlign: "center", marginTop: 6 },
-  goldBar: { height: 4, backgroundColor: C.gold },
+  // ── Cover: top ministry bar ──
+  ministryBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#F0F4F8", paddingTop: 10, paddingBottom: 10, paddingLeft: 28, paddingRight: 28, borderBottom: `1 solid ${C.borderIn}` },
+  ministryTxt: { fontFamily: "Cairo", fontSize: 7.5, color: C.muted, textAlign: "center" },
+  ministryBold: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navy, textAlign: "center" },
+  ministrySide: { width: 160, alignItems: "center" },
 
-  // Cover info box
-  coverBody: { paddingTop: 32, paddingBottom: 32, paddingLeft: 40, paddingRight: 40 },
-  coverInfoGrid: { flexDirection: "row", marginBottom: 28 },
-  coverInfoCol: { flex: 1 },
-  coverInfoItem: { flexDirection: "row", marginBottom: 10, alignItems: "center" },
-  coverInfoLbl: { fontFamily: "Cairo", fontSize: 9, fontWeight: 700, color: C.navyLine, width: 80 },
-  coverInfoVal: { fontFamily: "Cairo", fontSize: 10, fontWeight: 700, color: C.text, flex: 1 },
+  // ── Cover: hero band ──
+  coverHero: { backgroundColor: C.navy, paddingTop: 36, paddingBottom: 0, paddingLeft: 40, paddingRight: 40, alignItems: "center" },
+  coverHeroLogo: { width: 62, height: 62, borderRadius: 31, backgroundColor: C.gold, justifyContent: "center", alignItems: "center", marginBottom: 16 },
+  coverHeroLogoTxt: { fontFamily: "Cairo", fontSize: 26, fontWeight: 900, color: C.white },
+  coverHeroTitleAr: { fontFamily: "Cairo", fontSize: 32, fontWeight: 900, color: C.white, textAlign: "center" },
+  coverHeroTitleFr: { fontFamily: "Cairo", fontSize: 13, fontWeight: 700, color: C.goldLight, textAlign: "center", marginTop: 5 },
+  coverHeroSub: { fontFamily: "Cairo", fontSize: 8.5, color: "#7BAFD4", textAlign: "center", marginTop: 5, marginBottom: 28 },
+  coverGoldBar: { height: 5, backgroundColor: C.gold, width: "100%" },
+  coverGoldBarThin: { height: 2, backgroundColor: C.gold, marginBottom: 20 },
 
-  // Classes table on cover
-  coverTableTitle: { fontFamily: "Cairo", fontSize: 11, fontWeight: 900, color: C.navy, marginBottom: 10, borderBottom: `2 solid ${C.navy}`, paddingBottom: 4 },
-  coverTableHdr: { flexDirection: "row", backgroundColor: C.navy, paddingTop: 7, paddingBottom: 7, paddingLeft: 10, paddingRight: 10, borderRadius: 3 },
-  coverTableHdrTxt: { fontFamily: "Cairo", fontSize: 9, fontWeight: 900, color: C.white, textAlign: "center" },
-  coverTableRow: { flexDirection: "row", paddingTop: 7, paddingBottom: 7, paddingLeft: 10, paddingRight: 10, borderBottom: `0.75 solid ${C.borderIn}` },
-  coverTableRowEven: { backgroundColor: C.rowEven },
-  coverTableCell: { fontFamily: "Cairo", fontSize: 9, fontWeight: 400, color: C.text, textAlign: "center" },
-  coverTableCellBold: { fontFamily: "Cairo", fontSize: 9, fontWeight: 700, color: C.text },
+  // ── Cover: info panel ──
+  coverBody: { paddingTop: 24, paddingBottom: 20, paddingLeft: 28, paddingRight: 28 },
+  coverInfoPanel: { flexDirection: "row", border: `1.5 solid ${C.border}`, borderRadius: 4, marginBottom: 22 },
+  coverInfoBlock: { flex: 1, paddingTop: 14, paddingBottom: 14, paddingLeft: 16, paddingRight: 16, borderRight: `1 solid ${C.borderIn}` },
+  coverInfoBlockLast: { flex: 1, paddingTop: 14, paddingBottom: 14, paddingLeft: 16, paddingRight: 16 },
+  coverInfoLbl: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.navyLine, marginBottom: 3 },
+  coverInfoVal: { fontFamily: "Cairo", fontSize: 11, fontWeight: 900, color: C.text },
+  coverInfoValSm: { fontFamily: "Cairo", fontSize: 10, fontWeight: 700, color: C.text },
 
-  // Cover footer
-  coverFooter: { paddingTop: 16, paddingLeft: 40, paddingRight: 40, borderTop: `1 solid ${C.borderIn}`, flexDirection: "row", justifyContent: "space-between" },
-  coverFooterTxt: { fontFamily: "Cairo", fontSize: 8, color: C.muted },
+  // ── Cover: stats row ──
+  coverStats: { flexDirection: "row", marginBottom: 22 },
+  coverStatBox: { flex: 1, backgroundColor: C.rowEven, borderRadius: 4, paddingTop: 10, paddingBottom: 10, alignItems: "center", marginRight: 8, border: `1 solid ${C.borderIn}` },
+  coverStatBoxLast: { flex: 1, backgroundColor: C.rowEven, borderRadius: 4, paddingTop: 10, paddingBottom: 10, alignItems: "center", border: `1 solid ${C.borderIn}` },
+  coverStatNum: { fontFamily: "Cairo", fontSize: 20, fontWeight: 900, color: C.navy },
+  coverStatLbl: { fontFamily: "Cairo", fontSize: 8, fontWeight: 700, color: C.muted, marginTop: 2 },
+
+  // ── Cover: classes table ──
+  coverSectionTitle: { fontFamily: "Cairo", fontSize: 11, fontWeight: 900, color: C.navy, marginBottom: 8 },
+  coverSectionLine: { height: 2, backgroundColor: C.navy, marginBottom: 10 },
+  coverTblHdr: { flexDirection: "row", backgroundColor: C.navy, paddingTop: 8, paddingBottom: 8 },
+  coverTblHdrTxt: { fontFamily: "Cairo", fontSize: 9, fontWeight: 900, color: C.white, textAlign: "center" },
+  coverTblRow: { flexDirection: "row", borderBottom: `0.75 solid ${C.borderIn}` },
+  coverTblRowEven: { backgroundColor: C.rowEven },
+  coverTblCell: { fontFamily: "Cairo", fontSize: 9.5, fontWeight: 400, color: C.text, textAlign: "center", paddingTop: 7, paddingBottom: 7 },
+  coverTblCellBold: { fontFamily: "Cairo", fontSize: 9.5, fontWeight: 700, color: C.navy, paddingTop: 7, paddingBottom: 7 },
+  coverTblCellAr: { fontFamily: "Cairo", fontSize: 9.5, fontWeight: 700, color: C.text, textAlign: "right", paddingTop: 7, paddingBottom: 7, direction: "rtl" },
+
+  // ── Cover: footer ──
+  coverFooter: { backgroundColor: C.navy, paddingTop: 12, paddingBottom: 12, paddingLeft: 28, paddingRight: 28, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  coverFooterTxt: { fontFamily: "Cairo", fontSize: 8, color: "#7BAFD4" },
+  coverFooterBold: { fontFamily: "Cairo", fontSize: 9, fontWeight: 700, color: C.goldLight },
 
   // ── Grading sheet (reused per class) ──
   offRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 5 },
@@ -126,72 +144,137 @@ const s = StyleSheet.create({
 function CoverPage({ entries, config }: { entries: GradeBookEntry[]; config: GradeBookConfig }) {
   const first = entries[0]?.data.meta;
   const totalStudents = entries.reduce((acc, e) => acc + e.data.students.length, 0);
+  const totalPages    = 1 + entries.reduce((acc, e) => acc + Math.ceil(e.data.students.length / 30), 0);
 
   return (
     <Page size="A4" style={s.coverPage} orientation="portrait">
-      {/* Top band */}
-      <View style={s.coverTop}>
-        <View style={s.coverLogo}><Text style={s.coverLogoTxt}>م</Text></View>
-        <Text style={s.coverTitleAr}>دفتر التنقيط</Text>
-        <Text style={s.coverTitleFr}>CARNET DE NOTES</Text>
-        <Text style={s.coverSub}>{"Controle Continu - Activites Integrees"}</Text>
-      </View>
-      <View style={s.goldBar} />
 
-      {/* Info */}
+      {/* ── Ministry bar ── */}
+      <View style={s.ministryBar}>
+        <View style={s.ministrySide}>
+          <Text style={s.ministryBold}>المملكة المغربية</Text>
+          <Text style={s.ministryTxt}>وزارة التربية الوطنية</Text>
+          <Text style={s.ministryTxt}>والتعليم الأولي والرياضة</Text>
+          {first?.academy !== "" && first?.academy
+            ? <Text style={s.ministryTxt}>{first.academy}</Text>
+            : null}
+        </View>
+        <View style={{ alignItems: "center" }}>
+          <Text style={[s.ministryBold, { fontSize: 9 }]}>أداة الأستاذ</Text>
+          <Text style={[s.ministryTxt, { fontSize: 7 }]}>Teacher Tools Platform</Text>
+        </View>
+        <View style={s.ministrySide}>
+          <Text style={s.ministryBold}>Royaume du Maroc</Text>
+          <Text style={s.ministryTxt}>{"Ministere de l'Education"}</Text>
+          <Text style={s.ministryTxt}>Nationale et du Prescolaire</Text>
+          {first?.school !== "" && first?.school
+            ? <Text style={s.ministryBold}>{first.school}</Text>
+            : null}
+        </View>
+      </View>
+
+      {/* ── Hero band ── */}
+      <View style={s.coverHero}>
+        <View style={s.coverHeroLogo}>
+          <Text style={s.coverHeroLogoTxt}>م</Text>
+        </View>
+        <Text style={s.coverHeroTitleAr}>دفتر التنقيط</Text>
+        <Text style={s.coverHeroTitleFr}>CARNET DE NOTES</Text>
+        <Text style={s.coverHeroSub}>{"Controle Continu — Activites Integrees"}</Text>
+      </View>
+      <View style={s.coverGoldBar} />
+
+      {/* ── Body ── */}
       <View style={s.coverBody}>
-        <View style={s.coverInfoGrid}>
-          <View style={s.coverInfoCol}>
-            {[
-              ["الأستاذ", config.prof || "-"],
-              ["المادة",  first?.subject || "-"],
-              ["الأكاديمية", first?.academy || "-"],
-            ].map(([lbl, val]) => (
-              <View key={lbl} style={s.coverInfoItem}>
-                <Text style={s.coverInfoLbl}>{lbl} :</Text>
-                <Text style={s.coverInfoVal}>{val}</Text>
-              </View>
-            ))}
+
+        {/* Info panel */}
+        <View style={s.coverInfoPanel}>
+          <View style={s.coverInfoBlock}>
+            <Text style={s.coverInfoLbl}>الأستاذ / الأستاذة</Text>
+            <Text style={s.coverInfoVal}>{config.prof || "-"}</Text>
           </View>
-          <View style={s.coverInfoCol}>
-            {[
-              ["السنة الدراسية", config.annee || "-"],
-              ["المؤسسة",        first?.school || "-"],
-              ["مجموع التلاميذ", String(totalStudents) + " تلميذ"],
-            ].map(([lbl, val]) => (
-              <View key={lbl} style={s.coverInfoItem}>
-                <Text style={s.coverInfoLbl}>{lbl} :</Text>
-                <Text style={s.coverInfoVal}>{val}</Text>
-              </View>
-            ))}
+          <View style={s.coverInfoBlock}>
+            <Text style={s.coverInfoLbl}>المادة الدراسية</Text>
+            <Text style={s.coverInfoVal}>{first?.subject || "-"}</Text>
+          </View>
+          <View style={s.coverInfoBlock}>
+            <Text style={s.coverInfoLbl}>السنة الدراسية</Text>
+            <Text style={s.coverInfoVal}>{config.annee || "-"}</Text>
+          </View>
+          <View style={s.coverInfoBlockLast}>
+            <Text style={s.coverInfoLbl}>الدورة</Text>
+            <Text style={s.coverInfoVal}>{first?.term || "-"}</Text>
           </View>
         </View>
 
-        {/* Classes list */}
-        <Text style={s.coverTableTitle}>{"قائمة الأقسام — " + entries.length + " قسم"}</Text>
-        <View style={s.coverTableHdr}>
-          <View style={{ width: 30 }}><Text style={s.coverTableHdrTxt}>{"#"}</Text></View>
-          <View style={{ flex: 1 }}><Text style={s.coverTableHdrTxt}>القسم</Text></View>
-          <View style={{ width: 80 }}><Text style={s.coverTableHdrTxt}>المستوى</Text></View>
-          <View style={{ width: 60, textAlign: "center" }}><Text style={s.coverTableHdrTxt}>التلاميذ</Text></View>
-          <View style={{ width: 80 }}><Text style={s.coverTableHdrTxt}>الدورة</Text></View>
-        </View>
-        {entries.map((entry, i) => (
-          <View key={entry.id} style={[s.coverTableRow, i % 2 !== 0 ? s.coverTableRowEven : {}]}>
-            <View style={{ width: 30 }}><Text style={s.coverTableCell}>{String(i + 1)}</Text></View>
-            <View style={{ flex: 1 }}><Text style={s.coverTableCellBold}>{entry.data.meta.className || entry.filename}</Text></View>
-            <View style={{ width: 80 }}><Text style={s.coverTableCell}>{entry.data.meta.level || "-"}</Text></View>
-            <View style={{ width: 60 }}><Text style={s.coverTableCell}>{String(entry.data.students.length)}</Text></View>
-            <View style={{ width: 80 }}><Text style={s.coverTableCell}>{entry.data.meta.term || "-"}</Text></View>
+        {/* Stats row */}
+        <View style={s.coverStats}>
+          <View style={s.coverStatBox}>
+            <Text style={s.coverStatNum}>{String(entries.length)}</Text>
+            <Text style={s.coverStatLbl}>قسم</Text>
           </View>
-        ))}
+          <View style={s.coverStatBox}>
+            <Text style={s.coverStatNum}>{String(totalStudents)}</Text>
+            <Text style={s.coverStatLbl}>تلميذ</Text>
+          </View>
+          <View style={s.coverStatBox}>
+            <Text style={s.coverStatNum}>{String(totalPages)}</Text>
+            <Text style={s.coverStatLbl}>صفحة</Text>
+          </View>
+          <View style={s.coverStatBoxLast}>
+            <Text style={s.coverStatNum}>{first?.year || config.annee || "-"}</Text>
+            <Text style={s.coverStatLbl}>السنة</Text>
+          </View>
+        </View>
+
+        {/* Classes table */}
+        <Text style={s.coverSectionTitle}>{"قائمة الأقسام"}</Text>
+        <View style={s.coverSectionLine} />
+
+        <View style={s.coverTblHdr}>
+          <View style={{ width: 28 }}><Text style={s.coverTblHdrTxt}>{"#"}</Text></View>
+          <View style={{ flex: 1, paddingLeft: 8 }}><Text style={s.coverTblHdrTxt}>القسم</Text></View>
+          <View style={{ width: 100 }}><Text style={s.coverTblHdrTxt}>المستوى</Text></View>
+          <View style={{ width: 60 }}><Text style={s.coverTblHdrTxt}>التلاميذ</Text></View>
+          <View style={{ width: 70 }}><Text style={s.coverTblHdrTxt}>الدورة</Text></View>
+          <View style={{ width: 80 }}><Text style={s.coverTblHdrTxt}>المادة</Text></View>
+        </View>
+
+        {entries.map((entry, i) => {
+          const m = entry.data.meta;
+          return (
+            <View key={entry.id} style={[s.coverTblRow, i % 2 !== 0 ? s.coverTblRowEven : {}]}>
+              <View style={{ width: 28, alignItems: "center" }}>
+                <Text style={s.coverTblCell}>{String(i + 1)}</Text>
+              </View>
+              <View style={{ flex: 1, paddingLeft: 8 }}>
+                <Text style={s.coverTblCellBold}>{m.className || entry.filename}</Text>
+              </View>
+              <View style={{ width: 100 }}>
+                <Text style={s.coverTblCellAr}>{m.level || "-"}</Text>
+              </View>
+              <View style={{ width: 60, alignItems: "center" }}>
+                <Text style={s.coverTblCell}>{String(entry.data.students.length)}</Text>
+              </View>
+              <View style={{ width: 70, alignItems: "center" }}>
+                <Text style={s.coverTblCell}>{m.term || "-"}</Text>
+              </View>
+              <View style={{ width: 80 }}>
+                <Text style={s.coverTblCellAr}>{m.subject || "-"}</Text>
+              </View>
+            </View>
+          );
+        })}
+
       </View>
 
-      {/* Footer */}
+      {/* ── Footer ── */}
       <View style={s.coverFooter}>
-        <Text style={s.coverFooterTxt}>{"Genere par : adat-aloustadh.ma"}</Text>
-        <Text style={s.coverFooterTxt}>{config.annee}</Text>
+        <Text style={s.coverFooterTxt}>{"adat-aloustadh.ma"}</Text>
+        <Text style={s.coverFooterBold}>{config.annee}</Text>
+        <Text style={s.coverFooterTxt}>{"Page 1 / " + String(totalPages)}</Text>
       </View>
+
     </Page>
   );
 }
