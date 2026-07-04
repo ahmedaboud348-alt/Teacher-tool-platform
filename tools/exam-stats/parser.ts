@@ -1,6 +1,5 @@
 "use client";
 
-import * as XLSX from "xlsx";
 import type { ExamData, ExamMeta, StudentRecord } from "./types";
 
 function cellVal(row: unknown[], col: number): string {
@@ -16,6 +15,7 @@ function cellNum(row: unknown[], col: number): number | null {
 }
 
 export async function parseExamFile(file: File): Promise<ExamData> {
+  const XLSX = await import("xlsx"); // lazy: keep the heavy lib out of the page's initial JS
   const buffer = await file.arrayBuffer();
   const wb = XLSX.read(buffer, { type: "array" });
   const ws = wb.Sheets[wb.SheetNames[0]];
