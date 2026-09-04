@@ -31,6 +31,7 @@ export function GradeBookTool() {
     coverVariant:    "male",
     tier:            "الثانوي الإعدادي",
     directorate:     "",
+    term:            "first",
   });
   const patch = <K extends keyof GradeBookConfig>(k: K, v: GradeBookConfig[K]) =>
     setConfig(c => ({ ...c, [k]: v }));
@@ -95,19 +96,26 @@ export function GradeBookTool() {
     setExporting(true);
     setError(null);
     try {
-      const res = await fetch("/api/unit-plan-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tool: "grade-book", payload: { entries, config } }),
-      });
-      if (!res.ok) throw new Error("PDF generation failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `دفتر-التنقيط-${config.prof || "الأستاذ"}-${config.annee || ""}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const terms: ("first" | "second")[] =
+        config.term === "both" ? ["first", "second"] : [config.term];
+      for (let i = 0; i < terms.length; i++) {
+        const t = terms[i];
+        const res = await fetch("/api/unit-plan-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tool: "grade-book", payload: { entries, config: { ...config, term: t } } }),
+        });
+        if (!res.ok) throw new Error("PDF generation failed");
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const termAr = t === "second" ? "الدورة-الثانية" : "الدورة-الأولى";
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `دفتر-التنقيط-${config.prof || "الأستاذ"}-${termAr}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        if (i < terms.length - 1) await new Promise(r => setTimeout(r, 800)); // let the first download start
+      }
     } catch (e) {
       setError("حدث خطأ أثناء إنشاء PDF.");
       console.error(e);
@@ -233,6 +241,14 @@ export function GradeBookTool() {
                       <input style={inputStyle} value={config.directorate}
                         placeholder="مثال: المديرية الإقليمية لمكناس"
                         onChange={e => patch("directorate", e.target.value)} />
+                    </Field>
+                    <Field label="الدورة">
+                      <select style={selectStyle} value={config.term}
+                        onChange={e => patch("term", e.target.value as "first" | "second" | "both")}>
+                        <option value="first">الدورة الأولى</option>
+                        <option value="second">الدورة الثانية</option>
+                        <option value="both">كلاهما (ملفان)</option>
+                      </select>
                     </Field>
                   </div>
                   <div style={togglesStyle}>

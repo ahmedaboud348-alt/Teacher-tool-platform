@@ -13,7 +13,7 @@ const ORANGE_BORDER = "#FED7AA";
 
 export function AttendanceSheetTool() {
   const [classes, setClasses] = useState<MassarData[]>([]);
-  const [config, setConfig] = useState<AttendanceConfig>({ prof: "", annee: "", sessionsPerWeek: 2 });
+  const [config, setConfig] = useState<AttendanceConfig>({ prof: "", annee: "", sessionsPerWeek: 2, coverVariant: "male", tier: "الثانوي الإعدادي", directorate: "", term: "first" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -43,19 +43,26 @@ export function AttendanceSheetTool() {
     if (classes.length === 0) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/unit-plan-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tool: "attendance", payload: { classes, config } }),
-      });
-      if (!res.ok) throw new Error("PDF generation failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "سجل-الغياب.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
+      const terms: ("first" | "second")[] =
+        config.term === "both" ? ["first", "second"] : [config.term];
+      for (let i = 0; i < terms.length; i++) {
+        const t = terms[i];
+        const res = await fetch("/api/unit-plan-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tool: "attendance", payload: { classes, config: { ...config, term: t } } }),
+        });
+        if (!res.ok) throw new Error("PDF generation failed");
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const termAr = t === "second" ? "الدورة-الثانية" : "الدورة-الأولى";
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `سجل-الغياب-${termAr}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        if (i < terms.length - 1) await new Promise(r => setTimeout(r, 800));
+      }
     } finally { setLoading(false); }
   };
   const totalSessions = config.sessionsPerWeek * 18;
@@ -130,6 +137,37 @@ export function AttendanceSheetTool() {
             <div style={{ flex: 1, minWidth: 200 }}>
               <label style={lbl}>السنة الدراسية</label>
               <input style={inp} value={config.annee} onChange={e => setConfig(c => ({ ...c, annee: e.target.value }))} placeholder="2025/2026" />
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
+            <div style={{ flex: 1, minWidth: 150 }}>
+              <label style={lbl}>غلاف السجل</label>
+              <select style={inp} value={config.coverVariant} onChange={e => setConfig(c => ({ ...c, coverVariant: e.target.value as "male" | "female" }))}>
+                <option value="male">نسخة أنيقة</option>
+                <option value="female">نسخة ناعمة</option>
+              </select>
+            </div>
+            <div style={{ flex: 1, minWidth: 150 }}>
+              <label style={lbl}>المستوى (على الغلاف)</label>
+              <select style={inp} value={config.tier} onChange={e => setConfig(c => ({ ...c, tier: e.target.value }))}>
+                <option value="">بدون</option>
+                <option value="التعليم الابتدائي">التعليم الابتدائي</option>
+                <option value="الثانوي الإعدادي">الثانوي الإعدادي</option>
+                <option value="الثانوي التأهيلي">الثانوي التأهيلي</option>
+              </select>
+            </div>
+            <div style={{ flex: 1, minWidth: 150 }}>
+              <label style={lbl}>المديرية (اختياري)</label>
+              <input style={inp} value={config.directorate} onChange={e => setConfig(c => ({ ...c, directorate: e.target.value }))} placeholder="مثال: المديرية الإقليمية لمكناس" />
+            </div>
+            <div style={{ flex: 1, minWidth: 150 }}>
+              <label style={lbl}>الدورة</label>
+              <select style={inp} value={config.term} onChange={e => setConfig(c => ({ ...c, term: e.target.value as "first" | "second" | "both" }))}>
+                <option value="first">الدورة الأولى</option>
+                <option value="second">الدورة الثانية</option>
+                <option value="both">كلاهما (ملفان)</option>
+              </select>
             </div>
           </div>
 

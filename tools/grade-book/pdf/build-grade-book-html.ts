@@ -35,7 +35,9 @@ export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookC
     `<circle cx="196" cy="7" r="1.8" fill="${theme.accent}"/></svg>`;
 
   const directorateLine = config.directorate ? `<div class="r3">${config.directorate}</div>` : "";
-  const tierLine = config.tier ? `<div class="layer cv-tier">${config.tier}</div>` : "";
+  const termLabel = config.term === "second" ? "الدورة الثانية" : "الدورة الأولى";
+  const tierTerm = [config.tier, termLabel].filter(Boolean).join("  —  ");
+  const tierLine = `<div class="layer cv-tier">${tierTerm}</div>`;
   const teacherLabel = config.coverVariant === "female" ? "الأستاذة" : "الأستاذ";
   // The female artwork's bottom illustration sits higher, so lift the name/year.
   const teacherTop = config.coverVariant === "female" ? "55%" : "59%";

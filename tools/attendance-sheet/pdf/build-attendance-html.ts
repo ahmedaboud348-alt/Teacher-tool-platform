@@ -1,43 +1,55 @@
 import type { MassarData } from "../../grading-sheet/types";
 import type { AttendanceConfig } from "../types";
+import { COVER_MALE, COVER_FEMALE } from "./cover-images";
 
 /**
- * "سجل الغياب" (Registre des absences): a landscape cover listing all classes,
- * followed by one attendance grid per class (18 weeks × sessions/week columns).
- * Grids auto-paginate; the header row repeats on every page.
+ * "سجل الغياب" (Registre des absences): a decorative full-page landscape image
+ * cover (one of two variants) with the Moroccan header / title / teacher / year
+ * overlaid on top, followed by one attendance grid per class
+ * (18 weeks × sessions/week columns). Grids auto-paginate; the header row
+ * repeats on every page.
  */
 const WEEKS = 18;
 
 export function buildAttendanceHtml(classes: MassarData[], config: AttendanceConfig): string {
-  const school = classes[0]?.meta.school || "";
-  const teacher = config.prof || classes[0]?.meta.teacher || "";
-  const annee = config.annee || classes[0]?.meta.year || "";
   const totalSessions = config.sessionsPerWeek * WEEKS;
-  const totalStudents = classes.reduce((s, c) => s + c.students.length, 0);
-  const sessionsLabel =
-    config.sessionsPerWeek === 1 ? "حصة واحدة" : config.sessionsPerWeek === 2 ? "حصتان" : "3 حصص";
+  const sessFz = totalSessions <= 18 ? 8 : totalSessions <= 36 ? 7 : 6;
 
-  const dense = classes.length > 8;
-  const rowPad = dense ? 4 : 7;
+  const coverImg = config.coverVariant === "female" ? COVER_FEMALE : COVER_MALE;
+  const coverBg = coverImg
+    ? `background-image:url('${coverImg}');background-size:cover;background-position:center;`
+    : "background:#FBF7F2;";
 
-  const coverRows = classes
-    .map((cls, i) => {
-      const bg = i % 2 === 0 ? "background:#EEF3F8;" : "";
-      return `
-      <tr style="${bg}">
-        <td style="padding:${rowPad}px 0;">${i + 1}</td>
-        <td style="padding:${rowPad}px 0;">${cls.meta.className || "—"}</td>
-        <td style="padding:${rowPad}px 0;">${cls.meta.level || "—"}</td>
-        <td style="padding:${rowPad}px 0;">${cls.students.length}</td>
-      </tr>`;
-    })
-    .join("");
+  // Cover text ink, harmonised per variant.
+  const theme = config.coverVariant === "female"
+    ? { ink: "#6A4351", sub: "#8A6472", accent: "#BE9A55" }
+    : { ink: "#1E2A44", sub: "#46587A", accent: "#B0893C" };
+
+  // Grid palette — dark headers keep it legible in B&W print.
+  const g = config.coverVariant === "female"
+    ? { ink: "#6A4351", line: "#9B6576", row: "#F7EEF1", goldLt: "#F3E3D8" }
+    : { ink: "#1A3055", line: "#2E6DA4", row: "#EEF3F8", goldLt: "#F5E6C0" };
+
+  const flourish =
+    `<svg width="210" height="14" viewBox="0 0 210 14" xmlns="http://www.w3.org/2000/svg">` +
+    `<line x1="14" y1="7" x2="86" y2="7" stroke="${theme.accent}" stroke-width="1.3"/>` +
+    `<line x1="124" y1="7" x2="196" y2="7" stroke="${theme.accent}" stroke-width="1.3"/>` +
+    `<path d="M105 1 L112 7 L105 13 L98 7 Z" fill="${theme.accent}"/>` +
+    `<circle cx="14" cy="7" r="1.8" fill="${theme.accent}"/>` +
+    `<circle cx="196" cy="7" r="1.8" fill="${theme.accent}"/></svg>`;
+
+  const directorateLine = config.directorate ? `<div class="r3">${config.directorate}</div>` : "";
+  const termLabel = config.term === "second" ? "الدورة الثانية" : "الدورة الأولى";
+  const tierTerm = [config.tier, termLabel].filter(Boolean).join("  —  ");
+  const tierLine = `<div class="layer cv-tier">${tierTerm}</div>`;
+  const teacherLabel = config.coverVariant === "female" ? "الأستاذة" : "الأستاذ";
+  const teacher = config.prof || classes[0]?.meta.teacher || "..........................";
+  const year = config.annee || classes[0]?.meta.year || "..................";
 
   const sessionHeadCells = Array.from(
     { length: totalSessions },
     (_, i) => `<th class="ses">${i + 1}</th>`
   ).join("");
-  const sessFz = totalSessions <= 18 ? 8 : totalSessions <= 36 ? 7 : 6;
 
   const classSections = classes
     .map((cls) => {
@@ -54,12 +66,13 @@ export function buildAttendanceHtml(classes: MassarData[], config: AttendanceCon
         })
         .join("");
 
+      const clsYear = config.annee || cls.meta.year || "";
       return `
     <div class="att-class">
       <div class="class-hdr">
         <span class="sub">${cls.meta.level || ""}</span>
         <span class="main">— ${cls.meta.className || ""} —</span>
-        <span class="sub">${config.annee || cls.meta.year || ""}</span>
+        <span class="sub yr">${clsYear}</span>
       </div>
       <table class="att-tbl" style="--ses-fz:${sessFz}px">
         <thead>
@@ -91,49 +104,48 @@ export function buildAttendanceHtml(classes: MassarData[], config: AttendanceCon
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
 
-  /* ── Cover ── */
-  .att-cover { display: flex; flex-direction: column; min-height: 210mm; padding: 10mm; }
-  .cv-banner { background: #1A3055; padding: 9px 0 7px; text-align: center; }
-  .cv-banner .fr { font-size: 21px; font-weight: 900; color: #FFFFFF; letter-spacing: 1px; }
-  .cv-banner .gline { height: 2px; background: #C8960C; margin: 3px 60px; }
-  .cv-banner .ar { font-size: 13px; font-weight: 700; color: #F5E6C0; }
-  .gold-bar { height: 3px; background: #C8960C; margin-bottom: 6px; }
-  .cv-school { background: #243F63; padding: 6px 0; text-align: center;
-    font-size: 11px; font-weight: 700; color: #FFFFFF; }
-  .cv-school-gold { height: 2px; background: #C8960C; margin-bottom: 8px; }
+  /* ── Image cover with overlaid text ── */
+  .att-cover { position: relative; width: 297mm; height: 210mm; overflow: hidden; ${coverBg} }
+  .att-cover .layer { position: absolute; left: 0; right: 0; text-align: center; direction: rtl; }
 
-  .cv-info { display: flex; gap: 8px; margin-bottom: 8px; }
-  .cv-card { flex: 1; border: 1px solid #AABDCC; border-radius: 5px; overflow: hidden; text-align: center; }
-  .cv-card .top { height: 3px; background: #C8960C; }
-  .cv-card .lbl { font-size: 8px; font-weight: 700; color: #2E6DA4; margin: 5px 0 2px; }
-  .cv-card .val { font-size: 11px; font-weight: 900; color: #1A3055; margin-bottom: 5px; }
+  .cv-header { top: 8%; }
+  .cv-header .r1 { font-size: 18px; font-weight: 800; color: ${theme.ink}; margin-bottom: 5px; }
+  .cv-header .r2 { font-size: 12.5px; font-weight: 600; color: ${theme.ink}; margin-bottom: 3px; }
+  .cv-header .r3 { font-size: 11px; font-weight: 500; color: ${theme.sub}; }
 
-  table.cv-tbl { width: 100%; border-collapse: collapse; border: 1px solid #8FA8BB; }
-  table.cv-tbl th { background: #1A3055; color: #FFFFFF; font-size: 9.5px; font-weight: 900;
-    padding: 7px 0; text-align: center; border-left: 1px solid #2E6DA4; }
-  table.cv-tbl td { font-size: 10px; font-weight: 700; text-align: center;
-    border-left: 0.75px solid #AABDCC; border-bottom: 0.75px solid #AABDCC; }
-  table.cv-tbl .tot-row td { background: #F5E6C0; font-weight: 900; color: #1A3055;
-    border-top: 1.5px solid #C8960C; padding: 6px 0; }
+  /* decorative cartouche around the title block */
+  .cv-frame { position: absolute; top: 30%; bottom: 42%; left: 34%; right: 34%;
+    border: 1.4px solid ${theme.accent}; border-radius: 3px; }
+  .cv-frame::after { content: ''; position: absolute; inset: 4px;
+    border: 0.7px solid ${theme.accent}; border-radius: 2px; }
 
-  .cv-summary { display: flex; background: #1A3055; border-radius: 5px; margin-top: 8px; padding: 8px 0; }
-  .cv-summary .item { flex: 1; text-align: center; border-left: 1px solid #2E6DA4; }
-  .cv-summary .item:last-child { border-left: none; }
-  .cv-summary .num { font-size: 16px; font-weight: 900; color: #C8960C; }
-  .cv-summary .lbl { font-size: 8px; font-weight: 700; color: #F5E6C0; }
+  .cv-title { top: 34%; font-family: 'Amiri', serif; font-size: 60px; font-weight: 700;
+    color: ${theme.ink}; text-shadow: 0 2px 4px rgba(0,0,0,0.12); }
+  .cv-flourish { top: 47.5%; }
+  .cv-tier { top: 52%; font-size: 16px; font-weight: 600; color: ${theme.sub}; }
+
+  .cv-teacher { top: 64%; }
+  .cv-year    { top: 80%; }
+  .cv-teacher .lbl, .cv-year .lbl { font-weight: 600; color: ${theme.sub}; }
+  .cv-teacher .lbl { font-size: 17px; }
+  .cv-year .lbl { font-size: 16px; }
+  .cv-teacher .val, .cv-year .val { font-weight: 800; color: ${theme.ink};
+    border-bottom: 1.5px solid ${theme.accent}; padding: 0 8px 4px; }
+  .cv-teacher .val { font-size: 22px; }
+  .cv-year .val { font-size: 20px; direction: ltr; unicode-bidi: isolate; }
 
   /* ── Class grids ── */
   .att-class { page: sheet; page-break-before: always; }
-  .class-hdr { background: #1A3055; border-radius: 4px 4px 0 0; padding: 6px 0; text-align: center; }
+  .class-hdr { background: ${g.ink}; border-radius: 4px 4px 0 0; padding: 6px 0; text-align: center; }
   .class-hdr .main { font-size: 12px; font-weight: 900; color: #FFFFFF; }
-  .class-hdr .sub { font-size: 9.5px; font-weight: 700; color: #F5E6C0; margin: 0 8px; }
+  .class-hdr .sub { font-size: 9.5px; font-weight: 700; color: ${g.goldLt}; margin: 0 8px; }
+  .class-hdr .yr { direction: ltr; unicode-bidi: isolate; display: inline-block; }
 
   table.att-tbl { width: 100%; border-collapse: collapse; table-layout: fixed;
     border: 1px solid #8FA8BB; }
-  table.att-tbl col, table.att-tbl colgroup { }
   table.att-tbl thead { display: table-header-group; }
-  table.att-tbl th { background: #1A3055; color: #FFFFFF; font-weight: 900;
-    border-left: 0.75px solid #2E6DA4; padding: 3px 0; text-align: center; }
+  table.att-tbl th { background: ${g.ink}; color: #FFFFFF; font-weight: 900;
+    border-left: 0.75px solid ${g.line}; padding: 3px 0; text-align: center; }
   table.att-tbl th.a-num { width: 26px; font-size: 8px; }
   table.att-tbl th.a-name { width: 150px; font-size: 9px; }
   table.att-tbl th.a-tot { width: 38px; font-size: 7.5px; }
@@ -144,42 +156,26 @@ export function buildAttendanceHtml(classes: MassarData[], config: AttendanceCon
   table.att-tbl td.a-name { width: 150px; text-align: right; direction: rtl; padding: 0 5px;
     font-size: 10px; font-weight: 700; color: #0D1117; }
   table.att-tbl td.a-tot { width: 38px; }
-  table.att-tbl tbody tr:nth-child(even) td { background: #EEF3F8; }
+  table.att-tbl tbody tr:nth-child(even) td { background: ${g.row}; }
   table.att-tbl tbody tr { page-break-inside: avoid; }
 </style>
 </head>
 <body>
 
   <div class="att-cover">
-    <div class="cv-banner">
-      <div class="fr">REGISTRE DES ABSENCES</div>
-      <div class="gline"></div>
-      <div class="ar">سجل الغياب</div>
-    </div>
-    <div class="gold-bar"></div>
-    <div class="cv-school">${school || "—"}</div>
-    <div class="cv-school-gold"></div>
-
-    <div class="cv-info">
-      <div class="cv-card"><div class="top"></div><div class="lbl">الأستاذ / الأستاذة</div><div class="val">${teacher || "—"}</div></div>
-      <div class="cv-card"><div class="top"></div><div class="lbl">الحصص في الأسبوع</div><div class="val">${sessionsLabel}</div></div>
-      <div class="cv-card"><div class="top"></div><div class="lbl">السنة الدراسية</div><div class="val">${annee || "—"}</div></div>
+    <div class="layer cv-header">
+      <div class="r1">المملكة المغربية</div>
+      <div class="r2">وزارة التربية الوطنية والتعليم الأولي والرياضة</div>
+      ${directorateLine}
     </div>
 
-    <table class="cv-tbl">
-      <thead><tr><th style="width:8%">#</th><th>القسم</th><th>المستوى</th><th>عدد التلاميذ</th></tr></thead>
-      <tbody>
-        ${coverRows}
-        <tr class="tot-row"><td>—</td><td>الإجمالي</td><td>${classes.length} أقسام</td><td>${totalStudents}</td></tr>
-      </tbody>
-    </table>
+    <div class="cv-frame"></div>
+    <div class="layer cv-title">سجل الغياب</div>
+    <div class="layer cv-flourish">${flourish}</div>
+    ${tierLine}
 
-    <div class="cv-summary">
-      <div class="item"><div class="num">${classes.length}</div><div class="lbl">عدد الأقسام</div></div>
-      <div class="item"><div class="num">${totalStudents}</div><div class="lbl">إجمالي التلاميذ</div></div>
-      <div class="item"><div class="num">${totalSessions}</div><div class="lbl">حصة في الدورة</div></div>
-      <div class="item"><div class="num">${config.sessionsPerWeek}</div><div class="lbl">حصص في الأسبوع</div></div>
-    </div>
+    <div class="layer cv-teacher"><span class="lbl">${teacherLabel}: </span><span class="val">${teacher}</span></div>
+    <div class="layer cv-year"><span class="lbl">السنة الدراسية: </span><span class="val">${year}</span></div>
   </div>
 
   ${classSections}

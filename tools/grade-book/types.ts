@@ -17,4 +17,5 @@ export type GradeBookConfig = {
   coverVariant:   CoverVariant;
   tier:           string; // المستوى التعليمي على الغلاف — اختياري (فارغ = يختفي)
   directorate:    string; // المديرية على الغلاف — اختياري (فارغ = يختفي)
+  term:           "first" | "second" | "both"; // الدورة — "both" يُصدّر ملفين
 };
