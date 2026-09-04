@@ -1,49 +1,53 @@
 import type { GradeBookEntry, GradeBookConfig } from "../types";
 import {
-  SHEET_CSS,
-  ATOM_SVG,
-  officialHeaderHtml,
-  bannerHtml,
+  sheetCss,
+  NAVY_SCHEME,
+  ROSE_SCHEME,
   infoStripHtml,
   sheetTableHtml,
   legendHtml,
 } from "../../grading-sheet/pdf/sheet-shared";
+import { COVER_MALE, COVER_FEMALE } from "./cover-images";
 
 /**
- * "دفتر التنقيط" (Carnet de notes): a cover page listing all classes,
- * followed by one grading sheet per class. The cover is designed to stay on a
- * single A4 page even with up to 12 classes.
+ * "دفتر التنقيط" (Carnet de notes): a decorative full-page image cover (one of
+ * two variants) with the Moroccan header / title / teacher / year overlaid on
+ * top, followed by one grading sheet per class.
  */
 export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookConfig): string {
-  const first = entries[0]?.data.meta;
-  const totalStudents = entries.reduce((acc, e) => acc + e.data.students.length, 0);
-  const totalPages = 1 + entries.reduce((acc, e) => acc + Math.ceil(e.data.students.length / 30), 0);
+  const coverImg = config.coverVariant === "female" ? COVER_FEMALE : COVER_MALE;
+  const coverBg = coverImg
+    ? `background-image:url('${coverImg}');background-size:cover;background-position:center;`
+    : "background:#FBF7F2;";
 
-  // Compact the classes table rows when there are many classes (keeps 12 on one page).
-  const dense = entries.length > 8;
-  const rowPad = dense ? 4 : 6;
+  // Per-variant ink so the text harmonises with each artwork.
+  const theme = config.coverVariant === "female"
+    ? { ink: "#6A4351", sub: "#8A6472", accent: "#BE9A55" }  // warm mauve + soft gold
+    : { ink: "#1E2A44", sub: "#46587A", accent: "#B0893C" }; // deep navy + gold
 
-  const classRows = entries
-    .map((e, i) => {
-      const m = e.data.meta;
-      const bg = i % 2 !== 0 ? "background:#EEF3F8;" : "";
-      return `
-      <tr style="${bg}">
-        <td style="padding:${rowPad}px 0;text-align:center;">${i + 1}</td>
-        <td style="padding:${rowPad}px 0;text-align:center;font-weight:700;color:#1A3055;">${m.className || e.filename}</td>
-        <td style="padding:${rowPad}px 0;text-align:center;" class="rtl">${m.level || "-"}</td>
-        <td style="padding:${rowPad}px 0;text-align:center;">${e.data.students.length}</td>
-      </tr>`;
-    })
-    .join("");
+  // Small gold flourish placed under the title.
+  const flourish =
+    `<svg width="210" height="14" viewBox="0 0 210 14" xmlns="http://www.w3.org/2000/svg">` +
+    `<line x1="14" y1="7" x2="86" y2="7" stroke="${theme.accent}" stroke-width="1.3"/>` +
+    `<line x1="124" y1="7" x2="196" y2="7" stroke="${theme.accent}" stroke-width="1.3"/>` +
+    `<path d="M105 1 L112 7 L105 13 L98 7 Z" fill="${theme.accent}"/>` +
+    `<circle cx="14" cy="7" r="1.8" fill="${theme.accent}"/>` +
+    `<circle cx="196" cy="7" r="1.8" fill="${theme.accent}"/></svg>`;
+
+  const directorateLine = config.directorate ? `<div class="r3">${config.directorate}</div>` : "";
+  const tierLine = config.tier ? `<div class="layer cv-tier">${config.tier}</div>` : "";
+  const teacherLabel = config.coverVariant === "female" ? "الأستاذة" : "الأستاذ";
+  // The female artwork's bottom illustration sits higher, so lift the name/year.
+  const teacherTop = config.coverVariant === "female" ? "55%" : "59%";
+  const yearTop = config.coverVariant === "female" ? "63%" : "69%";
+  const teacher = config.prof || "..........................";
+  const year = config.annee || "..................";
 
   const classSections = entries
     .map((e) => {
       const m = e.data.meta;
       return `
     <div class="gb-class">
-      ${officialHeaderHtml(m)}
-      ${bannerHtml()}
       ${infoStripHtml({
         prof: config.prof || m.teacher,
         classe: m.className,
@@ -71,110 +75,61 @@ export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookC
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
 
-  /* ── Cover ── */
-  .gb-cover { display: flex; flex-direction: column; min-height: 297mm; }
-  .ministry { display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 28px; border-bottom: 1px solid #AABDCC; }
-  .ministry .side { width: 200px; text-align: center; line-height: 1.4; }
-  .ministry .ar-b { font-size: 9px; font-weight: 700; color: #1A3055; }
-  .ministry .ar { font-size: 8.5px; color: #3D5A6E; }
-  .ministry .emblem { width: 48px; height: 48px; }
+  /* ── Image cover with overlaid text ── */
+  .gb-cover {
+    position: relative; width: 210mm; height: 297mm; overflow: hidden;
+    ${coverBg}
+  }
+  .gb-cover .layer { position: absolute; left: 0; right: 0; text-align: center; direction: rtl; }
 
-  .hero { background: #1A3055; padding: 22px 40px 18px; text-align: center; }
-  .hero .logo { width: 54px; height: 54px; border-radius: 27px; background: #C8960C;
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;
-    font-size: 24px; font-weight: 900; color: #FFFFFF; }
-  .hero .t-ar { font-size: 30px; font-weight: 900; color: #FFFFFF; }
-  .hero .t-fr { font-size: 13px; font-weight: 700; color: #F5E6C0; margin-top: 3px; letter-spacing: 1px; }
-  .hero .t-sub { font-size: 8.5px; color: #7BAFD4; margin-top: 3px; }
-  .gold-bar { height: 5px; background: #C8960C; }
+  .cv-header { top: 6.5%; }
+  .cv-header .r1 { font-size: 18px; font-weight: 800; color: ${theme.ink}; margin-bottom: 6px; }
+  .cv-header .r2 { font-size: 12.5px; font-weight: 600; color: ${theme.ink}; margin-bottom: 4px; }
+  .cv-header .r3 { font-size: 11px; font-weight: 500; color: ${theme.sub}; }
 
-  .cover-body { padding: 16px 28px; flex: 1; }
-  .info-panel { display: flex; border: 1.5px solid #8FA8BB; border-radius: 5px;
-    margin-bottom: 14px; overflow: hidden; }
-  .info-panel .blk { flex: 1; padding: 9px 8px; text-align: center; border-left: 1px solid #AABDCC; }
-  .info-panel .blk:first-child { border-left: none; }
-  .info-panel .lbl { font-size: 8.5px; font-weight: 700; color: #2E6DA4; margin-bottom: 2px; }
-  .info-panel .val { font-size: 11px; font-weight: 900; color: #0D1117; }
+  /* decorative cartouche around the title block */
+  .cv-frame { position: absolute; top: 28%; bottom: 46%; left: 20%; right: 20%;
+    border: 1.4px solid ${theme.accent}; border-radius: 3px; }
+  .cv-frame::after { content: ''; position: absolute; inset: 4px;
+    border: 0.7px solid ${theme.accent}; border-radius: 2px; }
 
-  .stats { display: flex; gap: 8px; margin-bottom: 16px; }
-  .stats .box { flex: 1; background: #EEF3F8; border: 1px solid #AABDCC; border-radius: 5px;
-    padding: 9px 0; text-align: center; }
-  .stats .num { font-size: 19px; font-weight: 900; color: #1A3055; }
-  .stats .lbl { font-size: 8.5px; font-weight: 700; color: #3D5A6E; margin-top: 1px; }
+  .cv-title { top: 32%; font-family: 'Amiri', serif; font-size: 62px; font-weight: 700;
+    color: ${theme.ink}; text-shadow: 0 2px 4px rgba(0,0,0,0.12); }
+  .cv-flourish { top: 43.5%; }
+  .cv-tier { top: 48%; font-size: 16px; font-weight: 600; color: ${theme.sub}; }
 
-  .sec-title { font-size: 11px; font-weight: 900; color: #1A3055; margin-bottom: 5px; }
-  .sec-line { height: 2px; background: #1A3055; margin-bottom: 8px; }
-
-  table.cover-tbl { width: 100%; border-collapse: collapse; }
-  table.cover-tbl thead th { background: #1A3055; color: #FFFFFF; font-size: 9px; font-weight: 900;
-    padding: 7px 0; text-align: center; }
-  table.cover-tbl tbody td { font-size: 9.5px; border-bottom: 0.75px solid #AABDCC; }
-  table.cover-tbl .rtl { direction: rtl; }
-
-  .cover-foot { margin-top: auto; background: #1A3055; padding: 11px 28px;
-    display: flex; justify-content: space-between; align-items: center; }
-  .cover-foot .t { font-size: 8.5px; color: #7BAFD4; }
-  .cover-foot .b { font-size: 9px; font-weight: 700; color: #F5E6C0; }
+  .cv-teacher { top: ${teacherTop}; }
+  .cv-year    { top: ${yearTop}; }
+  .cv-teacher .lbl, .cv-year .lbl { font-weight: 600; color: ${theme.sub}; }
+  .cv-teacher .lbl { font-size: 17px; }
+  .cv-year .lbl { font-size: 16px; }
+  .cv-teacher .val, .cv-year .val { font-weight: 800; color: ${theme.ink};
+    border-bottom: 1.5px solid ${theme.accent}; padding: 0 8px 4px; }
+  .cv-teacher .val { font-size: 22px; }
+  /* keep "2025-2026" in logical order inside the RTL line */
+  .cv-year .val { font-size: 20px; direction: ltr; unicode-bidi: isolate; }
 
   /* ── Class sheets ── */
   .gb-class { page: sheet; page-break-before: always; }
-  ${SHEET_CSS}
+  ${sheetCss(config.coverVariant === "female" ? ROSE_SCHEME : NAVY_SCHEME)}
 </style>
 </head>
 <body>
 
   <div class="gb-cover">
-    <div class="ministry">
-      <div class="side">
-        <div class="ar-b">المملكة المغربية</div>
-        <div class="ar">وزارة التربية الوطنية والتعليم الأولي والرياضة</div>
-        ${first?.academy ? `<div class="ar">${first.academy}</div>` : ""}
-      </div>
-      <div class="emblem">${ATOM_SVG}</div>
-      <div class="side">
-        <div class="ar-b">Royaume du Maroc</div>
-        <div class="ar">Ministère de l'Éducation Nationale</div>
-        ${first?.school ? `<div class="ar-b">${first.school}</div>` : ""}
-      </div>
+    <div class="cv-frame"></div>
+    <div class="layer cv-header">
+      <div class="r1">المملكة المغربية</div>
+      <div class="r2">وزارة التربية الوطنية والتعليم الأولي والرياضة</div>
+      ${directorateLine}
     </div>
 
-    <div class="hero">
-      <div class="logo">م</div>
-      <div class="t-ar">دفتر التنقيط</div>
-      <div class="t-fr">CARNET DE NOTES</div>
-      <div class="t-sub">Contrôle Continu — Activités Intégrées</div>
-    </div>
-    <div class="gold-bar"></div>
+    <div class="layer cv-title">دفتر التنقيط</div>
+    <div class="layer cv-flourish">${flourish}</div>
+    ${tierLine}
 
-    <div class="cover-body">
-      <div class="info-panel">
-        <div class="blk"><div class="lbl">الأستاذ / الأستاذة</div><div class="val">${config.prof || "-"}</div></div>
-        <div class="blk"><div class="lbl">المادة الدراسية</div><div class="val">${first?.subject || "-"}</div></div>
-        <div class="blk"><div class="lbl">السنة الدراسية</div><div class="val">${config.annee || "-"}</div></div>
-        <div class="blk"><div class="lbl">الدورة</div><div class="val">${first?.term || "-"}</div></div>
-      </div>
-
-      <div class="stats">
-        <div class="box"><div class="num">${entries.length}</div><div class="lbl">قسم</div></div>
-        <div class="box"><div class="num">${totalStudents}</div><div class="lbl">تلميذ</div></div>
-        <div class="box"><div class="num">${totalPages}</div><div class="lbl">صفحة</div></div>
-        <div class="box"><div class="num">${first?.year || config.annee || "-"}</div><div class="lbl">السنة</div></div>
-      </div>
-
-      <div class="sec-title">قائمة الأقسام</div>
-      <div class="sec-line"></div>
-      <table class="cover-tbl">
-        <thead><tr><th style="width:10%">#</th><th>القسم</th><th>المستوى</th><th>عدد التلاميذ</th></tr></thead>
-        <tbody>${classRows}</tbody>
-      </table>
-    </div>
-
-    <div class="cover-foot">
-      <div class="t">adat-aloustadh.ma</div>
-      <div class="b">${config.annee || ""}</div>
-      <div class="t">${entries.length} أقسام — ${totalStudents} تلميذ</div>
-    </div>
+    <div class="layer cv-teacher"><span class="lbl">${teacherLabel}: </span><span class="val">${teacher}</span></div>
+    <div class="layer cv-year"><span class="lbl">السنة الدراسية: </span><span class="val">${year}</span></div>
   </div>
 
   ${classSections}

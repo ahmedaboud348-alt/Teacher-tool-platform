@@ -28,6 +28,9 @@ export function GradeBookTool() {
     evalCount:       3,
     showActivites:   true,
     showObservation: true,
+    coverVariant:    "male",
+    tier:            "الثانوي الإعدادي",
+    directorate:     "",
   });
   const patch = <K extends keyof GradeBookConfig>(k: K, v: GradeBookConfig[K]) =>
     setConfig(c => ({ ...c, [k]: v }));
@@ -209,6 +212,27 @@ export function GradeBookTool() {
                         <option value={2}>2 — فرضان</option>
                         <option value={3}>3 — ثلاثة فروض</option>
                       </select>
+                    </Field>
+                    <Field label="غلاف الدفتر">
+                      <select style={selectStyle} value={config.coverVariant}
+                        onChange={e => patch("coverVariant", e.target.value as "male" | "female")}>
+                        <option value="male">نسخة أنيقة</option>
+                        <option value="female">نسخة ناعمة</option>
+                      </select>
+                    </Field>
+                    <Field label="المستوى (على الغلاف)">
+                      <select style={selectStyle} value={config.tier}
+                        onChange={e => patch("tier", e.target.value)}>
+                        <option value="">بدون</option>
+                        <option value="التعليم الابتدائي">التعليم الابتدائي</option>
+                        <option value="الثانوي الإعدادي">الثانوي الإعدادي</option>
+                        <option value="الثانوي التأهيلي">الثانوي التأهيلي</option>
+                      </select>
+                    </Field>
+                    <Field label="المديرية (على الغلاف — اختياري)">
+                      <input style={inputStyle} value={config.directorate}
+                        placeholder="مثال: المديرية الإقليمية لمكناس"
+                        onChange={e => patch("directorate", e.target.value)} />
                     </Field>
                   </div>
                   <div style={togglesStyle}>

@@ -1,6 +1,6 @@
 import type { MassarData, GradingSheetConfig } from "../types";
 import {
-  SHEET_CSS,
+  sheetCss,
   officialHeaderHtml,
   bannerHtml,
   infoStripHtml,
@@ -26,7 +26,7 @@ export function buildGradingSheetHtml(data: MassarData, config: GradingSheetConf
     font-family: 'Cairo', sans-serif; color: #0D1117;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
-  ${SHEET_CSS}
+  ${sheetCss()}
 </style>
 </head>
 <body>
