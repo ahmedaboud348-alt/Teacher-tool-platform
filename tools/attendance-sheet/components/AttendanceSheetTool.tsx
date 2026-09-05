@@ -13,10 +13,23 @@ const ORANGE_BORDER = "#FED7AA";
 
 export function AttendanceSheetTool() {
   const [classes, setClasses] = useState<MassarData[]>([]);
-  const [config, setConfig] = useState<AttendanceConfig>({ prof: "", annee: "", sessionsPerWeek: 2, coverVariant: "male", tier: "الثانوي الإعدادي", directorate: "", term: "first" });
+  const [config, setConfig] = useState<AttendanceConfig>({ prof: "", annee: "", sessionsPerWeek: 2, coverVariant: "male", tier: "الثانوي الإعدادي", directorate: "", term: "first", lang: "ar" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+
+  // ── Blank mode (no names) ──
+  const [mode, setMode] = useState<"massar" | "blank">("massar");
+  const [blankClasses, setBlankClasses] = useState<{ name: string; count: number; sessions: 1 | 2 | 3 }[]>([{ name: "", count: 40, sessions: 2 }]);
+  const buildBlankClasses = (): (MassarData & { sessionsPerWeek: 1 | 2 | 3 })[] =>
+    blankClasses.map(bc => ({
+      meta: { school: "", academy: "", level: bc.name, className: bc.name, teacher: "", term: "", subject: "", year: "" },
+      students: Array.from({ length: Math.max(0, Math.min(60, bc.count)) }, (_, i) => ({ index: i + 1, code: "", name: "" })),
+      sessionsPerWeek: bc.sessions,
+    }));
+  const setClassCount = (n: number) => setBlankClasses(prev => { const next = prev.slice(0, Math.max(1, n)); while (next.length < n) next.push({ name: "", count: 40, sessions: 2 }); return next; });
+  const patchBlank = (i: number, k: "name" | "count" | "sessions", v: string | number) => setBlankClasses(prev => prev.map((c, idx) => idx === i ? { ...c, [k]: v } : c));
+  const blankLbl: CSSProperties = { display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 5 };
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     const arr = Array.from(files).filter(f => f.name.match(/\.(xlsx|xls)$/i));
@@ -40,7 +53,8 @@ export function AttendanceSheetTool() {
   const onDrop = (e: DragEvent) => { e.preventDefault(); setDragging(false); if (e.dataTransfer.files?.length) handleFiles(e.dataTransfer.files); };
   const removeClass = (idx: number) => setClasses(prev => prev.filter((_, i) => i !== idx));
   const handleDownload = async () => {
-    if (classes.length === 0) return;
+    const dlClasses = mode === "blank" ? buildBlankClasses() : classes;
+    if (dlClasses.length === 0) return;
     setLoading(true);
     try {
       const terms: ("first" | "second")[] =
@@ -50,7 +64,7 @@ export function AttendanceSheetTool() {
         const res = await fetch("/api/unit-plan-pdf", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tool: "attendance", payload: { classes, config: { ...config, term: t } } }),
+          body: JSON.stringify({ tool: "attendance", payload: { classes: dlClasses, config: { ...config, term: t } } }),
         });
         if (!res.ok) throw new Error("PDF generation failed");
         const blob = await res.blob();
@@ -65,7 +79,14 @@ export function AttendanceSheetTool() {
       }
     } finally { setLoading(false); }
   };
-  const totalSessions = config.sessionsPerWeek * 18;
+  const sessionsSummary = (() => {
+    if (mode === "massar") return String(config.sessionsPerWeek * 18);
+    const vals = blankClasses.map(c => c.sessions * 18);
+    const min = Math.min(...vals), max = Math.max(...vals);
+    return min === max ? String(min) : `${min}–${max}`;
+  })();
+  const displayClasses = mode === "blank" ? buildBlankClasses() : classes;
+  const ready = mode === "massar" ? classes.length > 0 : blankClasses.every(c => c.count > 0);
 
   return (
     <div style={pageStyle}>
@@ -90,36 +111,84 @@ export function AttendanceSheetTool() {
 
       <div style={bodyStyle}>
 
-        {/* Upload */}
+        {/* Mode toggle */}
         <section style={cardStyle}>
-          <h2 style={secTitle}><span style={secIcon}>📂</span> رفع ملفات مسار</h2>
-          <label
-            style={{ ...dropStyle, ...(dragging ? dropActiveStyle : {}) }}
-            onDragOver={e => { e.preventDefault(); setDragging(true); }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={onDrop}
-          >
-            <input type="file" accept=".xlsx,.xls" multiple style={{ display: "none" }} onChange={onInput} />
-            <div style={{ fontSize: 40, marginBottom: 10 }}>📎</div>
-            <div style={{ fontWeight: 800, color: SLATE_DEEP, marginBottom: 4, fontSize: 14 }}>اسحب ملفات Excel أو اضغط للاختيار</div>
-            <div style={{ fontSize: 12, color: "#64748B" }}>يمكن رفع أقسام متعددة دفعة واحدة</div>
-          </label>
-          {error && <div style={errStyle}>{error}</div>}
+          <div style={{ display: "flex", gap: 10 }}>
+            {([["massar", "📂 من مسار (بالأسماء)"], ["blank", "📄 نسخة فارغة (بدون أسماء)"]] as const).map(([m, label]) => (
+              <button key={m} onClick={() => setMode(m)}
+                style={{ flex: 1, padding: "12px", borderRadius: 12, border: mode === m ? `2px solid ${SLATE_DEEP}` : "1.5px solid #E2E8F0", background: mode === m ? SLATE_DEEP : "#fff", color: mode === m ? "#fff" : "#334155", fontWeight: 800, fontSize: 14, fontFamily: "Cairo, sans-serif", cursor: "pointer" }}>
+                {label}
+              </button>
+            ))}
+          </div>
         </section>
 
-        {/* Classes */}
-        {classes.length > 0 && (
+        {mode === "massar" ? (
+          <>
+            {/* Upload */}
+            <section style={cardStyle}>
+              <h2 style={secTitle}><span style={secIcon}>📂</span> رفع ملفات مسار</h2>
+              <label
+                style={{ ...dropStyle, ...(dragging ? dropActiveStyle : {}) }}
+                onDragOver={e => { e.preventDefault(); setDragging(true); }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={onDrop}
+              >
+                <input type="file" accept=".xlsx,.xls" multiple style={{ display: "none" }} onChange={onInput} />
+                <div style={{ fontSize: 40, marginBottom: 10 }}>📎</div>
+                <div style={{ fontWeight: 800, color: SLATE_DEEP, marginBottom: 4, fontSize: 14 }}>اسحب ملفات Excel أو اضغط للاختيار</div>
+                <div style={{ fontSize: 12, color: "#64748B" }}>يمكن رفع أقسام متعددة دفعة واحدة</div>
+              </label>
+              {error && <div style={errStyle}>{error}</div>}
+            </section>
+
+            {/* Classes */}
+            {classes.length > 0 && (
+              <section style={cardStyle}>
+                <h2 style={secTitle}><span style={secIcon}>📋</span> الأقسام المرفوعة <span style={countBadge}>{classes.length}</span></h2>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {classes.map((cls, i) => (
+                    <div key={i} style={classRow}>
+                      <div style={classNum}>{i + 1}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 900, fontSize: 14, color: SLATE_DEEP }}>{cls.meta.className || "—"}</div>
+                        <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>{cls.meta.level || "—"} · {cls.students.length} تلميذ</div>
+                      </div>
+                      <button style={rmBtn} onClick={() => removeClass(i)} title="حذف">✕</button>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </>
+        ) : (
           <section style={cardStyle}>
-            <h2 style={secTitle}><span style={secIcon}>📋</span> الأقسام المرفوعة <span style={countBadge}>{classes.length}</span></h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {classes.map((cls, i) => (
-                <div key={i} style={classRow}>
-                  <div style={classNum}>{i + 1}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 900, fontSize: 14, color: SLATE_DEEP }}>{cls.meta.className || "—"}</div>
-                    <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>{cls.meta.level || "—"} · {cls.students.length} تلميذ</div>
+            <h2 style={secTitle}><span style={secIcon}>📄</span> الأقسام (نسخة فارغة)</h2>
+            <div style={{ marginBottom: 14, maxWidth: 220 }}>
+              <label style={lbl}>عدد الأقسام</label>
+              <select style={inp} value={blankClasses.length} onChange={e => setClassCount(Number(e.target.value))}>
+                {Array.from({ length: 12 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {blankClasses.map((bc, i) => (
+                <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+                  <div style={{ flex: 2 }}>
+                    <label style={blankLbl}>اسم القسم / المستوى</label>
+                    <input style={inp} value={bc.name} placeholder={`القسم ${i + 1}`} onChange={e => patchBlank(i, "name", e.target.value)} />
                   </div>
-                  <button style={rmBtn} onClick={() => removeClass(i)} title="حذف">✕</button>
+                  <div style={{ width: 110 }}>
+                    <label style={blankLbl}>عدد التلاميذ</label>
+                    <input type="number" min={1} max={60} style={inp} value={bc.count} onChange={e => patchBlank(i, "count", Number(e.target.value))} />
+                  </div>
+                  <div style={{ width: 140 }}>
+                    <label style={blankLbl}>الحصص / الأسبوع</label>
+                    <select style={inp} value={bc.sessions} onChange={e => patchBlank(i, "sessions", Number(e.target.value) as 1 | 2 | 3)}>
+                      <option value={1}>حصة ({1 * 18} ح/دورة)</option>
+                      <option value={2}>حصتان ({2 * 18} ح/دورة)</option>
+                      <option value={3}>3 حصص ({3 * 18} ح/دورة)</option>
+                    </select>
+                  </div>
                 </div>
               ))}
             </div>
@@ -169,39 +238,54 @@ export function AttendanceSheetTool() {
                 <option value="both">كلاهما (ملفان)</option>
               </select>
             </div>
+            <div style={{ flex: 1, minWidth: 150 }}>
+              <label style={lbl}>لغة المستند</label>
+              <select style={inp} value={config.lang} onChange={e => setConfig(c => ({ ...c, lang: e.target.value as "ar" | "fr" }))}>
+                <option value="ar">العربية</option>
+                <option value="fr">الفرنسية (Français)</option>
+              </select>
+            </div>
           </div>
 
-          <label style={lbl}>عدد الحصص في الأسبوع</label>
-          <div style={{ display: "flex", gap: 12 }}>
-            {([1, 2, 3] as const).map(n => {
-              const active = config.sessionsPerWeek === n;
-              return (
-                <button key={n} onClick={() => setConfig(c => ({ ...c, sessionsPerWeek: n }))}
-                  style={{ ...sessionBtn, ...(active ? sessionBtnActive : {}) }}>
-                  <span style={{ fontSize: 20, fontWeight: 900 }}>{n}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: active ? ORANGE : "#64748B" }}>
-                    {n === 1 ? "حصة" : n === 2 ? "حصتان" : "حصص"}
-                  </span>
-                  <span style={{ fontSize: 10, color: "#94A3B8" }}>{n * 18} ح/دورة</span>
-                </button>
-              );
-            })}
-          </div>
+          {mode === "massar" ? (
+            <>
+              <label style={lbl}>عدد الحصص في الأسبوع</label>
+              <div style={{ display: "flex", gap: 12 }}>
+                {([1, 2, 3] as const).map(n => {
+                  const active = config.sessionsPerWeek === n;
+                  return (
+                    <button key={n} onClick={() => setConfig(c => ({ ...c, sessionsPerWeek: n }))}
+                      style={{ ...sessionBtn, ...(active ? sessionBtnActive : {}) }}>
+                      <span style={{ fontSize: 20, fontWeight: 900 }}>{n}</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: active ? ORANGE : "#64748B" }}>
+                        {n === 1 ? "حصة" : n === 2 ? "حصتان" : "حصص"}
+                      </span>
+                      <span style={{ fontSize: 10, color: "#94A3B8" }}>{n * 18} ح/دورة</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div style={{ fontSize: 12, color: "#64748B", fontWeight: 600 }}>
+              💡 عدد الحصص يُحدَّد لكل قسم على حدة في قائمة الأقسام أعلاه.
+            </div>
+          )}
         </section>
 
         {/* Summary */}
-        {classes.length > 0 && (
+        {ready && (
           <div style={summaryRow}>
-            <SummaryCard label="عدد الأقسام" value={String(classes.length)} icon="📚" />
-            <SummaryCard label="إجمالي التلاميذ" value={String(classes.reduce((s, c) => s + c.students.length, 0))} icon="👥" />
-            <SummaryCard label="حصص/دورة" value={String(totalSessions)} icon="📊" />
+            <SummaryCard label="عدد الأقسام" value={String(displayClasses.length)} icon="📚" />
+            <SummaryCard label="إجمالي التلاميذ" value={String(displayClasses.reduce((s, c) => s + c.students.length, 0))} icon="👥" />
+            <SummaryCard label="حصص/دورة" value={sessionsSummary} icon="📊" />
           </div>
         )}
 
         {/* Download */}
         <button
-          style={{ ...dlBtn, opacity: classes.length > 0 && !loading ? 1 : 0.5, cursor: classes.length > 0 && !loading ? "pointer" : "not-allowed" }}
-          disabled={classes.length === 0 || loading}
+          style={{ ...dlBtn, opacity: ready && !loading ? 1 : 0.5, cursor: ready && !loading ? "pointer" : "not-allowed" }}
+          disabled={!ready || loading}
           onClick={handleDownload}
         >
           {loading ? "جارٍ الإنشاء..." : "⬇  تحميل PDF سجل الغياب"}

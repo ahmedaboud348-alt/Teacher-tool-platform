@@ -1,6 +1,7 @@
 import type { MassarData } from "../../grading-sheet/types";
 import type { AttendanceConfig } from "../types";
 import { COVER_MALE, COVER_FEMALE } from "./cover-images";
+import { COVER_L, pick, termLabel, tierLabel } from "../../grading-sheet/pdf/labels";
 
 /**
  * "سجل الغياب" (Registre des absences): a decorative full-page landscape image
@@ -11,10 +12,19 @@ import { COVER_MALE, COVER_FEMALE } from "./cover-images";
  */
 const WEEKS = 18;
 
-export function buildAttendanceHtml(classes: MassarData[], config: AttendanceConfig): string {
-  const totalSessions = config.sessionsPerWeek * WEEKS;
-  const sessFz = totalSessions <= 18 ? 8 : totalSessions <= 36 ? 7 : 6;
+/** A class may carry its own sessions/week (blank mode); otherwise the global
+ *  config value applies to every class (Massar mode). */
+type AttendanceClass = MassarData & { sessionsPerWeek?: 1 | 2 | 3 };
 
+export function buildAttendanceHtml(classes: AttendanceClass[], config: AttendanceConfig): string {
+  const lang = config.lang;
+  const htmlDir = lang === "fr" ? "ltr" : "rtl";
+  const nameCol = lang === "fr" ? "Nom de l'élève" : "اسم التلميذ";
+  const totalCol = lang === "fr" ? "Total" : "مجموع";
+  // The French title ("Registre des Absences") is far longer than the Arabic one,
+  // so widen the cartouche and shrink the title so it stays inside the frame.
+  const titleFz = lang === "fr" ? "44px" : "60px";
+  const frameSide = lang === "fr" ? "15%" : "34%";
   const coverImg = config.coverVariant === "female" ? COVER_FEMALE : COVER_MALE;
   const coverBg = coverImg
     ? `background-image:url('${coverImg}');background-size:cover;background-position:center;`
@@ -39,20 +49,23 @@ export function buildAttendanceHtml(classes: MassarData[], config: AttendanceCon
     `<circle cx="196" cy="7" r="1.8" fill="${theme.accent}"/></svg>`;
 
   const directorateLine = config.directorate ? `<div class="r3">${config.directorate}</div>` : "";
-  const termLabel = config.term === "second" ? "الدورة الثانية" : "الدورة الأولى";
-  const tierTerm = [config.tier, termLabel].filter(Boolean).join("  —  ");
+  const term = config.term === "second" ? "second" : "first";
+  const tierTerm = [tierLabel(config.tier, lang), termLabel(term, lang)].filter(Boolean).join("  —  ");
   const tierLine = `<div class="layer cv-tier">${tierTerm}</div>`;
-  const teacherLabel = config.coverVariant === "female" ? "الأستاذة" : "الأستاذ";
+  const teacherLabel = config.coverVariant === "female" ? pick(COVER_L.teacherF, lang) : pick(COVER_L.teacherM, lang);
   const teacher = config.prof || classes[0]?.meta.teacher || "..........................";
   const year = config.annee || classes[0]?.meta.year || "..................";
 
-  const sessionHeadCells = Array.from(
-    { length: totalSessions },
-    (_, i) => `<th class="ses">${i + 1}</th>`
-  ).join("");
-
   const classSections = classes
     .map((cls) => {
+      const perWeek = cls.sessionsPerWeek || config.sessionsPerWeek;
+      const totalSessions = perWeek * WEEKS;
+      const sessFz = totalSessions <= 18 ? 8 : totalSessions <= 36 ? 7 : 6;
+      const sessionHeadCells = Array.from(
+        { length: totalSessions },
+        (_, i) => `<th class="ses">${i + 1}</th>`
+      ).join("");
+
       const rows = cls.students
         .map((st) => {
           const cells = Array(totalSessions).fill(`<td class="ses"></td>`).join("");
@@ -67,10 +80,12 @@ export function buildAttendanceHtml(classes: MassarData[], config: AttendanceCon
         .join("");
 
       const clsYear = config.annee || cls.meta.year || "";
+      // In blank mode level === className (one typed name); avoid echoing it twice.
+      const lvl = cls.meta.level && cls.meta.level !== cls.meta.className ? cls.meta.level : "";
       return `
     <div class="att-class">
       <div class="class-hdr">
-        <span class="sub">${cls.meta.level || ""}</span>
+        <span class="sub">${lvl}</span>
         <span class="main">— ${cls.meta.className || ""} —</span>
         <span class="sub yr">${clsYear}</span>
       </div>
@@ -78,9 +93,9 @@ export function buildAttendanceHtml(classes: MassarData[], config: AttendanceCon
         <thead>
           <tr>
             <th class="a-num">#</th>
-            <th class="a-name">اسم التلميذ</th>
+            <th class="a-name">${nameCol}</th>
             ${sessionHeadCells}
-            <th class="a-tot">مجموع</th>
+            <th class="a-tot">${totalCol}</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
@@ -90,7 +105,7 @@ export function buildAttendanceHtml(classes: MassarData[], config: AttendanceCon
     .join("");
 
   return `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="${lang}" dir="${htmlDir}">
 <head>
 <meta charset="UTF-8">
 <style>
@@ -100,13 +115,13 @@ export function buildAttendanceHtml(classes: MassarData[], config: AttendanceCon
   @page sheet { size: A4 landscape; margin: 8mm 10mm; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: 'Cairo', sans-serif; color: #0D1117; direction: rtl;
+    font-family: 'Cairo', sans-serif; color: #0D1117; direction: ${htmlDir};
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
 
   /* ── Image cover with overlaid text ── */
   .att-cover { position: relative; width: 297mm; height: 210mm; overflow: hidden; ${coverBg} }
-  .att-cover .layer { position: absolute; left: 0; right: 0; text-align: center; direction: rtl; }
+  .att-cover .layer { position: absolute; left: 0; right: 0; text-align: center; direction: ${htmlDir}; }
 
   .cv-header { top: 8%; }
   .cv-header .r1 { font-size: 18px; font-weight: 800; color: ${theme.ink}; margin-bottom: 5px; }
@@ -114,12 +129,12 @@ export function buildAttendanceHtml(classes: MassarData[], config: AttendanceCon
   .cv-header .r3 { font-size: 11px; font-weight: 500; color: ${theme.sub}; }
 
   /* decorative cartouche around the title block */
-  .cv-frame { position: absolute; top: 30%; bottom: 42%; left: 34%; right: 34%;
+  .cv-frame { position: absolute; top: 30%; bottom: 42%; left: ${frameSide}; right: ${frameSide};
     border: 1.4px solid ${theme.accent}; border-radius: 3px; }
   .cv-frame::after { content: ''; position: absolute; inset: 4px;
     border: 0.7px solid ${theme.accent}; border-radius: 2px; }
 
-  .cv-title { top: 34%; font-family: 'Amiri', serif; font-size: 60px; font-weight: 700;
+  .cv-title { top: 34%; font-family: 'Amiri', serif; font-size: ${titleFz}; font-weight: 700;
     color: ${theme.ink}; text-shadow: 0 2px 4px rgba(0,0,0,0.12); }
   .cv-flourish { top: 47.5%; }
   .cv-tier { top: 52%; font-size: 16px; font-weight: 600; color: ${theme.sub}; }
@@ -164,18 +179,18 @@ export function buildAttendanceHtml(classes: MassarData[], config: AttendanceCon
 
   <div class="att-cover">
     <div class="layer cv-header">
-      <div class="r1">المملكة المغربية</div>
-      <div class="r2">وزارة التربية الوطنية والتعليم الأولي والرياضة</div>
+      <div class="r1">${pick(COVER_L.kingdom, lang)}</div>
+      <div class="r2">${pick(COVER_L.ministry, lang)}</div>
       ${directorateLine}
     </div>
 
     <div class="cv-frame"></div>
-    <div class="layer cv-title">سجل الغياب</div>
+    <div class="layer cv-title">${pick(COVER_L.attendanceTitle, lang)}</div>
     <div class="layer cv-flourish">${flourish}</div>
     ${tierLine}
 
     <div class="layer cv-teacher"><span class="lbl">${teacherLabel}: </span><span class="val">${teacher}</span></div>
-    <div class="layer cv-year"><span class="lbl">السنة الدراسية: </span><span class="val">${year}</span></div>
+    <div class="layer cv-year"><span class="lbl">${pick(COVER_L.yearLabel, lang)}: </span><span class="val">${year}</span></div>
   </div>
 
   ${classSections}

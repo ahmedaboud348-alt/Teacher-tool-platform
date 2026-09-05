@@ -22,6 +22,7 @@ export function GradingSheetTool() {
     evalCount: 3,
     showActivites: true,
     showObservation: true,
+    lang: "fr",
   });
 
   const patch = <K extends keyof GradingSheetConfig>(k: K, v: GradingSheetConfig[K]) =>

@@ -25,6 +25,7 @@ export function GradeBookTool() {
   const [config, setConfig] = useState<GradeBookConfig>({
     prof:            "",
     annee:           "",
+    subject:         "",
     evalCount:       3,
     showActivites:   true,
     showObservation: true,
@@ -32,9 +33,34 @@ export function GradeBookTool() {
     tier:            "الثانوي الإعدادي",
     directorate:     "",
     term:            "first",
+    lang:            "ar",
   });
   const patch = <K extends keyof GradeBookConfig>(k: K, v: GradeBookConfig[K]) =>
     setConfig(c => ({ ...c, [k]: v }));
+
+  // ── Blank mode (no names) ────────────────────────────────────────────────────
+  const [mode, setMode] = useState<"massar" | "blank">("massar");
+  const [blankClasses, setBlankClasses] = useState<{ name: string; count: number }[]>([
+    { name: "", count: 40 },
+  ]);
+  const buildBlankEntries = (): GradeBookEntry[] =>
+    blankClasses.map((bc, ci) => ({
+      id: "blank-" + ci,
+      filename: bc.name || `قسم ${ci + 1}`,
+      data: {
+        meta: { school: "", academy: "", level: bc.name, className: bc.name, teacher: "", term: "", subject: "", year: "" },
+        students: Array.from({ length: Math.max(0, Math.min(60, bc.count)) }, (_, i) => ({ index: i + 1, code: "", name: "" })),
+      },
+    }));
+  const setClassCount = (n: number) =>
+    setBlankClasses(prev => {
+      const next = prev.slice(0, Math.max(1, n));
+      while (next.length < n) next.push({ name: "", count: 40 });
+      return next;
+    });
+  const patchBlank = (i: number, k: "name" | "count", v: string | number) =>
+    setBlankClasses(prev => prev.map((c, idx) => (idx === i ? { ...c, [k]: v } : c)));
+  const blankLbl: CSSProperties = { display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 5 };
 
   // ── File handling ──────────────────────────────────────────────────────────
   const handleFiles = useCallback(async (files: File[]) => {
@@ -92,7 +118,8 @@ export function GradeBookTool() {
 
   // ── Export ─────────────────────────────────────────────────────────────────
   const handleExport = async () => {
-    if (entries.length === 0) return;
+    const exportEntries = mode === "blank" ? buildBlankEntries() : entries;
+    if (exportEntries.length === 0) return;
     setExporting(true);
     setError(null);
     try {
@@ -103,7 +130,7 @@ export function GradeBookTool() {
         const res = await fetch("/api/unit-plan-pdf", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tool: "grade-book", payload: { entries, config: { ...config, term: t } } }),
+          body: JSON.stringify({ tool: "grade-book", payload: { entries: exportEntries, config: { ...config, term: t } } }),
         });
         if (!res.ok) throw new Error("PDF generation failed");
         const blob = await res.blob();
@@ -124,8 +151,10 @@ export function GradeBookTool() {
     }
   };
 
-  const totalStudents = entries.reduce((acc, e) => acc + e.data.students.length, 0);
+  const displayEntries = mode === "blank" ? buildBlankEntries() : entries;
+  const totalStudents = displayEntries.reduce((acc, e) => acc + e.data.students.length, 0);
   const hasEntries    = entries.length > 0;
+  const ready = mode === "massar" ? hasEntries : blankClasses.every(c => c.count > 0);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -168,7 +197,18 @@ export function GradeBookTool() {
       <div style={bodyStyle}>
         <div style={contentWrapStyle}>
 
-          {/* ── Drop zone (always visible) ── */}
+          {/* ── Mode toggle ── */}
+          <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+            {([["massar", "📂 من مسار (بالأسماء)"], ["blank", "📄 نسخة فارغة (بدون أسماء)"]] as const).map(([m, label]) => (
+              <button key={m} onClick={() => setMode(m)}
+                style={{ flex: 1, padding: "12px", borderRadius: 12, border: mode === m ? "2px solid #1A3055" : "1.5px solid #E2E8F0", background: mode === m ? "#1A3055" : "#fff", color: mode === m ? "#fff" : "#334155", fontWeight: 800, fontSize: 14, fontFamily: "Cairo, sans-serif", cursor: "pointer" }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* ── Drop zone (Massar mode) ── */}
+          {mode === "massar" && (
           <div
             style={{ ...dropZoneStyle, ...(dragging ? dropZoneActiveStyle : {}) }}
             onDragOver={e => { e.preventDefault(); setDragging(true); }}
@@ -195,9 +235,10 @@ export function GradeBookTool() {
             </label>
             {error && <div style={errorStyle}>{error}</div>}
           </div>
+          )}
 
-          {/* ── Main layout (visible after upload) ── */}
-          {hasEntries && (
+          {/* ── Main layout ── */}
+          {ready && (
             <div style={mainLayoutStyle}>
 
               {/* Left — config */}
@@ -213,12 +254,18 @@ export function GradeBookTool() {
                       <input style={inputStyle} value={config.annee}
                         onChange={e => patch("annee", e.target.value)} />
                     </Field>
+                    <Field label="المادة الدراسية (على الغلاف)">
+                      <input style={inputStyle} value={config.subject}
+                        placeholder="مثال: الفيزياء والكيمياء"
+                        onChange={e => patch("subject", e.target.value)} />
+                    </Field>
                     <Field label="عدد تقييمات الفرض">
                       <select style={selectStyle} value={config.evalCount}
-                        onChange={e => patch("evalCount", Number(e.target.value) as 1|2|3)}>
+                        onChange={e => patch("evalCount", Number(e.target.value) as 1|2|3|4)}>
                         <option value={1}>1 — فرض واحد</option>
                         <option value={2}>2 — فرضان</option>
                         <option value={3}>3 — ثلاثة فروض</option>
+                        <option value={4}>4 — أربعة فروض</option>
                       </select>
                     </Field>
                     <Field label="غلاف الدفتر">
@@ -250,6 +297,13 @@ export function GradeBookTool() {
                         <option value="both">كلاهما (ملفان)</option>
                       </select>
                     </Field>
+                    <Field label="لغة المستند">
+                      <select style={selectStyle} value={config.lang}
+                        onChange={e => patch("lang", e.target.value as "ar" | "fr")}>
+                        <option value="ar">العربية</option>
+                        <option value="fr">الفرنسية (Français)</option>
+                      </select>
+                    </Field>
                   </div>
                   <div style={togglesStyle}>
                     <Toggle checked={config.showActivites}   onChange={v => patch("showActivites", v)}   label="عمود الأنشطة المندمجة" />
@@ -268,7 +322,7 @@ export function GradeBookTool() {
                 <div style={summaryCardStyle}>
                   <div style={summaryRowStyle}>
                     <span style={summaryLabelStyle}>إجمالي الأقسام</span>
-                    <span style={summaryValueStyle}>{entries.length}</span>
+                    <span style={summaryValueStyle}>{displayEntries.length}</span>
                   </div>
                   <div style={summaryRowStyle}>
                     <span style={summaryLabelStyle}>إجمالي التلاميذ</span>
@@ -277,24 +331,56 @@ export function GradeBookTool() {
                   <div style={summaryRowStyle}>
                     <span style={summaryLabelStyle}>عدد الصفحات (تقريبي)</span>
                     <span style={summaryValueStyle}>
-                      {1 + entries.reduce((acc, e) => acc + Math.ceil(e.data.students.length / 30), 0)}
+                      {1 + displayEntries.reduce((acc, e) => acc + Math.ceil(e.data.students.length / 30), 0)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Right — classes list */}
+              {/* Right — classes list / blank editor */}
               <div style={rightColStyle}>
                 <div style={sectionCardStyle}>
-                  <div style={listHeaderStyle}>
-                    <h2 style={sectionTitleStyle}>الأقسام المحملة</h2>
-                    <span style={badgeStyle}>{entries.length} قسم • مرتبة تصاعدياً</span>
-                  </div>
-                  <div style={classListStyle}>
-                    {entries.map((entry, idx) => (
-                      <ClassCard key={entry.id} entry={entry} idx={idx} onRemove={removeEntry} />
-                    ))}
-                  </div>
+                  {mode === "massar" ? (
+                    <>
+                      <div style={listHeaderStyle}>
+                        <h2 style={sectionTitleStyle}>الأقسام المحملة</h2>
+                        <span style={badgeStyle}>{entries.length} قسم • مرتبة تصاعدياً</span>
+                      </div>
+                      <div style={classListStyle}>
+                        {entries.map((entry, idx) => (
+                          <ClassCard key={entry.id} entry={entry} idx={idx} onRemove={removeEntry} />
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={listHeaderStyle}>
+                        <h2 style={sectionTitleStyle}>الأقسام (نسخة فارغة)</h2>
+                      </div>
+                      <Field label="عدد الأقسام">
+                        <select style={selectStyle} value={blankClasses.length}
+                          onChange={e => setClassCount(Number(e.target.value))}>
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+                        </select>
+                      </Field>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+                        {blankClasses.map((bc, i) => (
+                          <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+                            <div style={{ flex: 2 }}>
+                              <label style={blankLbl}>اسم القسم / المستوى</label>
+                              <input style={inputStyle} value={bc.name} placeholder={`القسم ${i + 1}`}
+                                onChange={e => patchBlank(i, "name", e.target.value)} />
+                            </div>
+                            <div style={{ width: 100 }}>
+                              <label style={blankLbl}>عدد التلاميذ</label>
+                              <input type="number" min={1} max={60} style={inputStyle} value={bc.count}
+                                onChange={e => patchBlank(i, "count", Number(e.target.value))} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 

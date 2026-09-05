@@ -1,4 +1,5 @@
 import type { MassarData, MassarMeta, GradingSheetConfig } from "../types";
+import type { Lang } from "./labels";
 
 /**
  * Shared HTML building blocks for the grading-sheet ("ورقة التنقيط") layout.
@@ -11,8 +12,31 @@ import type { MassarData, MassarMeta, GradingSheetConfig } from "../types";
 
 export type SheetConfig = Pick<
   GradingSheetConfig,
-  "evalCount" | "showActivites" | "showObservation"
+  "evalCount" | "showActivites" | "showObservation" | "lang"
 >;
+
+/** Bilingual column / label strings for the grading table. */
+const SHEET_L = {
+  num:        { ar: "ر.ت", fr: "N°" },
+  name:       { ar: "الاسم والنسب", fr: "Nom et Prénom" },
+  diag:       { ar: "التقويم<br/>التشخيصي", fr: "Évaluation<br/>diagnostique" },
+  actGroup:   { ar: "الأنشطة المدمجة /20", fr: "Activités Intégrées /20" },
+  part:       { ar: "مشاركة<br/>/5", fr: "Part.<br/>/5" },
+  thc:        { ar: "ع.خ.ق<br/>/5", fr: "T.H.C<br/>/5" },
+  cahier:     { ar: "دفتر<br/>/5", fr: "Cahier<br/>/5" },
+  disc:       { ar: "انضباط<br/>/5", fr: "Disc.<br/>/5" },
+  total:      { ar: "المجموع<br/>/20", fr: "Total<br/>/20" },
+  evalGroup:  { ar: "الفروض /20", fr: "Évaluations /20" },
+  cc:         { ar: "فرض", fr: "CC" },
+  obs:        { ar: "ملاحظات", fr: "Observation" },
+  // info strip
+  prof:       { ar: "الأستاذ", fr: "Prof" },
+  classe:     { ar: "القسم", fr: "Classe" },
+  niveau:     { ar: "المستوى", fr: "Niveau" },
+  annee:      { ar: "السنة", fr: "Année" },
+} as const;
+
+const L = (m: { ar: string; fr: string }, lang: Lang) => (lang === "fr" ? m.fr : m.ar);
 
 /** Crisp vector science emblem — no external asset, prints sharp in B&W. */
 export const ATOM_SVG = `
@@ -88,10 +112,11 @@ export function sheetCss(s: SheetScheme = NAVY_SCHEME): string {
     border: 1px solid #8FA8BB;
   }
   table.sheet-tbl col.c-num   { width: 30px; }
-  table.sheet-tbl col.c-act   { width: 38px; }
-  table.sheet-tbl col.c-total { width: 48px; }
-  table.sheet-tbl col.c-eval  { width: 52px; }
-  table.sheet-tbl col.c-obs   { width: 130px; }
+  table.sheet-tbl col.c-diag  { width: 46px; }
+  table.sheet-tbl col.c-act   { width: 36px; }
+  table.sheet-tbl col.c-total { width: 46px; }
+  table.sheet-tbl col.c-eval  { width: 46px; }
+  table.sheet-tbl col.c-obs   { width: 96px; }
 
   table.sheet-tbl thead { display: table-header-group; }
   table.sheet-tbl th {
@@ -101,6 +126,7 @@ export function sheetCss(s: SheetScheme = NAVY_SCHEME): string {
   }
   table.sheet-tbl th.sub { background: ${s.ink2}; color: ${s.subTxt}; font-weight: 700; font-size: 8px; }
   table.sheet-tbl th.h-total { color: #C8960C; border-left: 1.5px solid #C8960C; border-right: 1.5px solid #C8960C; }
+  table.sheet-tbl th.h-diag { font-size: 6.5px; line-height: 1.2; }
 
   table.sheet-tbl td {
     border: 0.75px solid #AABDCC; height: 22px; font-size: 9px;
@@ -109,8 +135,10 @@ export function sheetCss(s: SheetScheme = NAVY_SCHEME): string {
   table.sheet-tbl td.t-num  { text-align: center; color: #3D5A6E; font-weight: 700; }
   table.sheet-tbl td.t-name { text-align: right; direction: rtl; color: #0D1117; font-weight: 700; font-size: 11px; }
   table.sheet-tbl td.t-total { background: #FFF8E6; border-left: 1.5px solid #C8960C; border-right: 1.5px solid #C8960C; }
+  table.sheet-tbl td.t-diag { background: #FBF3E0; }
   table.sheet-tbl tbody tr:nth-child(even) td { background: ${s.row}; }
   table.sheet-tbl tbody tr:nth-child(even) td.t-total { background: #FBEFC9; }
+  table.sheet-tbl tbody tr:nth-child(even) td.t-diag { background: #F2E7CB; }
   table.sheet-tbl tbody tr { page-break-inside: avoid; }
 
   /* keep the legend glued to the last table rows — never orphan it on its own page */
@@ -160,46 +188,58 @@ export function bannerHtml(): string {
   <div class="sheet-goldbar"></div>`;
 }
 
-export function infoStripHtml(o: { prof: string; classe: string; niveau: string; annee: string }): string {
+export function infoStripHtml(
+  o: { prof: string; classe: string; niveau: string; annee: string },
+  lang: Lang = "fr"
+): string {
   return `
   <div class="sheet-info">
-    <div class="cell"><span class="lbl">Prof :</span><span class="val">${o.prof || "-"}</span></div>
-    <div class="cell"><span class="lbl">Classe :</span><span class="val">${o.classe || "-"}</span></div>
-    <div class="cell"><span class="lbl">Niveau :</span><span class="val">${o.niveau || "-"}</span></div>
-    <div class="cell"><span class="lbl">Année :</span><span class="val">${o.annee || "-"}</span></div>
+    <div class="cell"><span class="lbl">${L(SHEET_L.prof, lang)} :</span><span class="val">${o.prof || "-"}</span></div>
+    <div class="cell"><span class="lbl">${L(SHEET_L.classe, lang)} :</span><span class="val">${o.classe || "-"}</span></div>
+    <div class="cell"><span class="lbl">${L(SHEET_L.niveau, lang)} :</span><span class="val">${o.niveau || "-"}</span></div>
+    <div class="cell"><span class="lbl">${L(SHEET_L.annee, lang)} :</span><span class="val">${o.annee || "-"}</span></div>
   </div>`;
 }
 
-export function sheetTableHtml(students: MassarData["students"], config: SheetConfig): string {
-  const { evalCount, showActivites, showObservation } = config;
+export function sheetTableHtml(
+  students: MassarData["students"],
+  config: SheetConfig,
+  showDiagnostic = false
+): string {
+  const { evalCount, showActivites, showObservation, lang } = config;
 
   const cols = [
     `<col class="c-num"/>`,
     `<col/>`, // name — absorbs remaining width
+    ...(showDiagnostic ? [`<col class="c-diag"/>`] : []),
     ...(showActivites ? Array(4).fill(`<col class="c-act"/>`) : []),
     `<col class="c-total"/>`,
     ...Array(evalCount).fill(`<col class="c-eval"/>`),
     ...(showObservation ? [`<col class="c-obs"/>`] : []),
   ].join("");
 
+  const diagHead = showDiagnostic ? `<th rowspan="2" class="h-diag">${L(SHEET_L.diag, lang)}</th>` : "";
+  const diagCell = showDiagnostic ? `<td class="t-diag"></td>` : "";
+
   const actGroupHead = showActivites
-    ? `<th colspan="4">Activités Intégrées /20</th>`
+    ? `<th colspan="4">${L(SHEET_L.actGroup, lang)}</th>`
     : "";
-  const evalGroupHead = `<th colspan="${evalCount}">Évaluations /20</th>`;
-  const obsHead = showObservation ? `<th rowspan="2">Observation</th>` : "";
+  const evalGroupHead = `<th colspan="${evalCount}">${L(SHEET_L.evalGroup, lang)}</th>`;
+  const obsHead = showObservation ? `<th rowspan="2">${L(SHEET_L.obs, lang)}</th>` : "";
 
   const actSubHead = showActivites
-    ? `<th class="sub">Part.<br/>/5</th><th class="sub">T.H.C<br/>/5</th><th class="sub">Cahier<br/>/5</th><th class="sub">Disc.<br/>/5</th>`
+    ? `<th class="sub">${L(SHEET_L.part, lang)}</th><th class="sub">${L(SHEET_L.thc, lang)}</th><th class="sub">${L(SHEET_L.cahier, lang)}</th><th class="sub">${L(SHEET_L.disc, lang)}</th>`
     : "";
-  const evalSubHead = Array.from({ length: evalCount }, (_, i) => `<th class="sub">CC ${i + 1}</th>`).join("");
+  const evalSubHead = Array.from({ length: evalCount }, (_, i) => `<th class="sub">${L(SHEET_L.cc, lang)} ${i + 1}</th>`).join("");
 
   const head = `
     <thead>
       <tr>
-        <th rowspan="2">N°</th>
-        <th rowspan="2">Nom et Prénom</th>
+        <th rowspan="2">${L(SHEET_L.num, lang)}</th>
+        <th rowspan="2">${L(SHEET_L.name, lang)}</th>
+        ${diagHead}
         ${actGroupHead}
-        <th rowspan="2" class="h-total">Total<br/>/20</th>
+        <th rowspan="2" class="h-total">${L(SHEET_L.total, lang)}</th>
         ${evalGroupHead}
         ${obsHead}
       </tr>
@@ -219,6 +259,7 @@ export function sheetTableHtml(students: MassarData["students"], config: SheetCo
       <tr>
         <td class="t-num">${st.index}</td>
         <td class="t-name">${st.name}</td>
+        ${diagCell}
         ${actCells}
         <td class="t-total"></td>
         ${evalCells}
@@ -232,10 +273,19 @@ export function sheetTableHtml(students: MassarData["students"], config: SheetCo
 
 export function legendHtml(config: SheetConfig): string {
   if (!config.showActivites) return "";
+  const items = config.lang === "fr"
+    ? [
+        ["Part. :", "Participation"],
+        ["T.H.C :", "Travaux Hors Classe"],
+        ["Disc. :", "Discipline / Comportement"],
+      ]
+    : [
+        ["مشاركة :", "المشاركة داخل القسم"],
+        ["ع.خ.ق :", "العمل خارج القسم"],
+        ["انضباط :", "الانضباط والسلوك"],
+      ];
   return `
   <div class="sheet-legend">
-    <div class="item"><span class="dot"></span><span class="b">Part. :</span><span class="t">Participation</span></div>
-    <div class="item"><span class="dot"></span><span class="b">T.H.C :</span><span class="t">Travaux Hors Classe</span></div>
-    <div class="item"><span class="dot"></span><span class="b">Disc. :</span><span class="t">Discipline / Comportement</span></div>
+    ${items.map(([b, t]) => `<div class="item"><span class="dot"></span><span class="b">${b}</span><span class="t">${t}</span></div>`).join("")}
   </div>`;
 }

@@ -8,6 +8,7 @@ import {
   legendHtml,
 } from "../../grading-sheet/pdf/sheet-shared";
 import { COVER_MALE, COVER_FEMALE } from "./cover-images";
+import { COVER_L, pick, termLabel, tierLabel } from "../../grading-sheet/pdf/labels";
 
 /**
  * "دفتر التنقيط" (Carnet de notes): a decorative full-page image cover (one of
@@ -34,11 +35,15 @@ export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookC
     `<circle cx="14" cy="7" r="1.8" fill="${theme.accent}"/>` +
     `<circle cx="196" cy="7" r="1.8" fill="${theme.accent}"/></svg>`;
 
+  const lang = config.lang;
+  const coverDir = lang === "fr" ? "ltr" : "rtl";
   const directorateLine = config.directorate ? `<div class="r3">${config.directorate}</div>` : "";
-  const termLabel = config.term === "second" ? "الدورة الثانية" : "الدورة الأولى";
-  const tierTerm = [config.tier, termLabel].filter(Boolean).join("  —  ");
+  const term = config.term === "second" ? "second" : "first";
+  const tierTerm = [tierLabel(config.tier, lang), termLabel(term, lang)].filter(Boolean).join("  —  ");
   const tierLine = `<div class="layer cv-tier">${tierTerm}</div>`;
-  const teacherLabel = config.coverVariant === "female" ? "الأستاذة" : "الأستاذ";
+  const subjectLine = config.subject ? `<div class="layer cv-subject">${config.subject}</div>` : "";
+  const showDiagnostic = config.term === "first"; // diagnostic column only on term 1
+  const teacherLabel = config.coverVariant === "female" ? pick(COVER_L.teacherF, lang) : pick(COVER_L.teacherM, lang);
   // The female artwork's bottom illustration sits higher, so lift the name/year.
   const teacherTop = config.coverVariant === "female" ? "55%" : "59%";
   const yearTop = config.coverVariant === "female" ? "63%" : "69%";
@@ -55,8 +60,8 @@ export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookC
         classe: m.className,
         niveau: m.level,
         annee: config.annee || m.year,
-      })}
-      ${sheetTableHtml(e.data.students, config)}
+      }, lang)}
+      ${sheetTableHtml(e.data.students, config, showDiagnostic)}
       ${legendHtml(config)}
     </div>`;
     })
@@ -82,7 +87,7 @@ export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookC
     position: relative; width: 210mm; height: 297mm; overflow: hidden;
     ${coverBg}
   }
-  .gb-cover .layer { position: absolute; left: 0; right: 0; text-align: center; direction: rtl; }
+  .gb-cover .layer { position: absolute; left: 0; right: 0; text-align: center; direction: ${coverDir}; }
 
   .cv-header { top: 6.5%; }
   .cv-header .r1 { font-size: 18px; font-weight: 800; color: ${theme.ink}; margin-bottom: 6px; }
@@ -98,7 +103,8 @@ export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookC
   .cv-title { top: 32%; font-family: 'Amiri', serif; font-size: 62px; font-weight: 700;
     color: ${theme.ink}; text-shadow: 0 2px 4px rgba(0,0,0,0.12); }
   .cv-flourish { top: 43.5%; }
-  .cv-tier { top: 48%; font-size: 16px; font-weight: 600; color: ${theme.sub}; }
+  .cv-tier { top: 46%; font-size: 15px; font-weight: 600; color: ${theme.sub}; }
+  .cv-subject { top: 50%; font-size: 16px; font-weight: 800; color: ${theme.ink}; }
 
   .cv-teacher { top: ${teacherTop}; }
   .cv-year    { top: ${yearTop}; }
@@ -121,17 +127,18 @@ export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookC
   <div class="gb-cover">
     <div class="cv-frame"></div>
     <div class="layer cv-header">
-      <div class="r1">المملكة المغربية</div>
-      <div class="r2">وزارة التربية الوطنية والتعليم الأولي والرياضة</div>
+      <div class="r1">${pick(COVER_L.kingdom, lang)}</div>
+      <div class="r2">${pick(COVER_L.ministry, lang)}</div>
       ${directorateLine}
     </div>
 
-    <div class="layer cv-title">دفتر التنقيط</div>
+    <div class="layer cv-title">${pick(COVER_L.gradeBookTitle, lang)}</div>
     <div class="layer cv-flourish">${flourish}</div>
     ${tierLine}
+    ${subjectLine}
 
     <div class="layer cv-teacher"><span class="lbl">${teacherLabel}: </span><span class="val">${teacher}</span></div>
-    <div class="layer cv-year"><span class="lbl">السنة الدراسية: </span><span class="val">${year}</span></div>
+    <div class="layer cv-year"><span class="lbl">${pick(COVER_L.yearLabel, lang)}: </span><span class="val">${year}</span></div>
   </div>
 
   ${classSections}
