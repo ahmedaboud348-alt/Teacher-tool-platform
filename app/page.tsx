@@ -46,6 +46,17 @@ const TOOLS = [
     tag: "التتبع",
   },
   {
+    href: "/tools/daily-attendance",
+    icon: "🗓️",
+    title: "السجل اليومي للحضور والغياب",
+    titleFr: "Registre journalier — Primaire",
+    desc: "للابتدائي: سجل يومي بالعطل مُدرجة تلقائياً، صفحة لكل شهر جاهزة للطباعة",
+    color: "#1D4ED8",
+    gradient: "linear-gradient(135deg, #1D4ED8 0%, #1E3A8A 100%)",
+    colorLight: "#EFF6FF",
+    tag: "الابتدائي",
+  },
+  {
     href: "/tools/unit-plan",
     icon: "📝",
     title: "التخطيط المرحلي",
@@ -77,6 +88,17 @@ const TOOLS = [
     gradient: "linear-gradient(135deg, #0284C7 0%, #0369A1 100%)",
     colorLight: "#E0F2FE",
     tag: "التحليل",
+  },
+  {
+    href: "/tools/daily-attendance",
+    icon: "🗓️",
+    title: "السجل اليومي للحضور والغياب",
+    titleFr: "Registre journalier",
+    desc: "للتعليم الابتدائي: سجل سنوي كامل بالعطل الرسمية جاهز للطباعة من لائحة مسار",
+    color: "#1A3055",
+    gradient: "linear-gradient(135deg, #1A3055 0%, #0F1E35 100%)",
+    colorLight: "#EEF2F8",
+    tag: "الابتدائي",
   },
 ];
 

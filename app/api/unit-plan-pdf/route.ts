@@ -9,6 +9,7 @@ import { buildCertificateHtml } from "@/tools/certificate/pdf/build-certificate-
 import { buildGradingSheetHtml } from "@/tools/grading-sheet/pdf/build-grading-sheet-html";
 import { buildGradeBookHtml } from "@/tools/grade-book/pdf/build-grade-book-html";
 import { buildAttendanceHtml } from "@/tools/attendance-sheet/pdf/build-attendance-html";
+import { buildDailyAttendanceHtml } from "@/tools/daily-attendance/pdf/build-daily-attendance-html";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -151,6 +152,10 @@ export async function POST(req: NextRequest) {
       case "attendance":
         html = buildAttendanceHtml(payload.classes, payload.config);
         opts = { landscape: true, cssMargins: true };
+        break;
+      case "daily-attendance":
+        html = buildDailyAttendanceHtml(payload.classes, payload.config);
+        opts = { cssMargins: true };
         break;
       default:
         return NextResponse.json({ error: "unknown tool" }, { status: 400 });
