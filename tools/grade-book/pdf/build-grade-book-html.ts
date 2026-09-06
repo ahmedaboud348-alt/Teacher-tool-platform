@@ -118,7 +118,9 @@ export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookC
   .cv-year .val { font-size: 20px; direction: ltr; unicode-bidi: isolate; }
 
   /* ── Class sheets ── */
-  .gb-class { page: sheet; page-break-before: always; }
+  /* Arabic reads right-to-left, so the whole sheet (info strip + grading table
+     + legend) flows RTL; the French version stays LTR. */
+  .gb-class { page: sheet; page-break-before: always; direction: ${lang === "fr" ? "ltr" : "rtl"}; }
   ${sheetCss(config.coverVariant === "female" ? ROSE_SCHEME : NAVY_SCHEME)}
 </style>
 </head>

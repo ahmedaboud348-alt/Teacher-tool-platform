@@ -100,6 +100,17 @@ const TOOLS = [
     colorLight: "#EEF2F8",
     tag: "الابتدائي",
   },
+  {
+    href: "/tools/cahier-textes",
+    icon: "📖",
+    title: "دفتر النصوص",
+    titleFr: "Cahier de textes",
+    desc: "دفتر نصوص رسمي كامل بلغتين، مقسوم حسب المستويات، بلوائح التلاميذ وسجل الدروس جاهز للطباعة",
+    color: "#4338CA",
+    gradient: "linear-gradient(135deg, #4338CA 0%, #312E81 100%)",
+    colorLight: "#EEF2FF",
+    tag: "جديد",
+  },
 ];
 
 const FEATURES = [

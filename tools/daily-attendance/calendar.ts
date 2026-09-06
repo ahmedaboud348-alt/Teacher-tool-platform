@@ -27,7 +27,7 @@ const MONTHS_DEF = [
 ];
 
 /** [name, startISO, endISO] inclusive. Edit this list for a new school year. */
-const HOLIDAYS: [string, string, string][] = [
+export const HOLIDAYS: [string, string, string][] = [
   ["الفترة البينية الأولى", "2026-10-18", "2026-10-25"],
   ["عيد الوحدة", "2026-10-31", "2026-10-31"],
   ["ذكرى المسيرة الخضراء", "2026-11-06", "2026-11-06"],

@@ -18,6 +18,12 @@ export function buildDailyAttendanceHtml(classes: MassarData[], config: DailyAtt
   const theme = config.coverVariant === "female"
     ? { ink: "#6A4351", sub: "#8A6472", accent: "#BE9A55" }
     : { ink: "#1E2A44", sub: "#46587A", accent: "#B0893C" };
+
+  // Inner-page palette — must match the cover variant (rose for the soft/female
+  // version, navy for the elegant/male one) and stay legible in B&W print.
+  const s = config.coverVariant === "female"
+    ? { ink: "#6A4351", sub: "#8A6472", pill: "#9B6576", holBg: "#EFE1E7", row: "#F7EEF1", border: "#8A6472", borderLt: "#CBB3BD", borderMid: "#B79AA5", dots: "#C6ADB6" }
+    : { ink: "#1A3055", sub: "#3D5A6E", pill: "#1D4ED8", holBg: "#DDE5EC", row: "#F1F5F9", border: "#4A6178", borderLt: "#9AB0C0", borderMid: "#8FA8BB", dots: "#90A4B5" };
   const flourish =
     `<svg width="210" height="14" viewBox="0 0 210 14" xmlns="http://www.w3.org/2000/svg">` +
     `<line x1="14" y1="7" x2="86" y2="7" stroke="${theme.accent}" stroke-width="1.3"/>` +
@@ -115,25 +121,25 @@ export function buildDailyAttendanceHtml(classes: MassarData[], config: DailyAtt
   /* ── Info page ── */
   .info { page: sheet; page-break-before: always; }
   .info .ministry { text-align: center; line-height: 1.6; margin-bottom: 14mm; }
-  .info .ministry .b { font-size: 15px; font-weight: 800; color: #1A3055; }
-  .info .ministry .n { font-size: 12px; color: #3D5A6E; }
+  .info .ministry .b { font-size: 15px; font-weight: 800; color: ${s.ink}; }
+  .info .ministry .n { font-size: 12px; color: ${s.sub}; }
   .info .fld { display: flex; align-items: baseline; gap: 6px; margin-bottom: 9mm; font-size: 14px; }
-  .info .fld .fl { font-weight: 700; color: #1A3055; white-space: nowrap; }
-  .info .fld .fv { flex: 1; font-weight: 700; color: #0D1117; border-bottom: 1px dotted #90A4B5; }
-  .info .legend { margin-top: 12mm; font-size: 12px; color: #3D5A6E; line-height: 1.9; }
-  .info .legend b { color: #1A3055; }
-  .info .formula { margin-top: 8mm; font-size: 12px; color: #1A3055; display: flex; align-items: center; gap: 8px; }
+  .info .fld .fl { font-weight: 700; color: ${s.ink}; white-space: nowrap; }
+  .info .fld .fv { flex: 1; font-weight: 700; color: #0D1117; border-bottom: 1px dotted ${s.dots}; }
+  .info .legend { margin-top: 12mm; font-size: 12px; color: ${s.sub}; line-height: 1.9; }
+  .info .legend b { color: ${s.ink}; }
+  .info .formula { margin-top: 8mm; font-size: 12px; color: ${s.ink}; display: flex; align-items: center; gap: 8px; }
 
   /* ── Month grid ── */
   .month { page: sheet; page-break-before: always; }
   .mhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3mm; }
-  .mhead .mtitle { font-size: 15px; font-weight: 900; color: #1A3055; }
-  .mhead .mcls { font-size: 11px; font-weight: 800; color: #fff; background: #1D4ED8; border-radius: 999px; padding: 2px 10px; margin-right: 6px; }
-  .mhead .mbox { font-size: 10px; font-weight: 700; color: #1A3055; border: 1px solid #8FA8BB; border-radius: 4px; padding: 3px 8px; }
+  .mhead .mtitle { font-size: 15px; font-weight: 900; color: ${s.ink}; }
+  .mhead .mcls { font-size: 11px; font-weight: 800; color: #fff; background: ${s.pill}; border-radius: 999px; padding: 2px 10px; margin-right: 6px; }
+  .mhead .mbox { font-size: 10px; font-weight: 700; color: ${s.ink}; border: 1px solid ${s.borderMid}; border-radius: 4px; padding: 3px 8px; }
 
-  table.mtbl { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid #4A6178; }
-  table.mtbl th, table.mtbl td { border: 0.5px solid #9AB0C0; text-align: center; }
-  table.mtbl th { background: #1A3055; color: #fff; }
+  table.mtbl { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid ${s.border}; }
+  table.mtbl th, table.mtbl td { border: 0.5px solid ${s.borderLt}; text-align: center; }
+  table.mtbl th { background: ${s.ink}; color: #fff; }
   table.mtbl th.num { width: 8mm; font-size: 8px; }
   table.mtbl th.nm  { width: 34mm; font-size: 9px; }
   table.mtbl th.sm  { width: 8mm; }
@@ -142,15 +148,15 @@ export function buildDailyAttendanceHtml(classes: MassarData[], config: DailyAtt
   table.mtbl th.wd { height: 20mm; }
   table.mtbl th.wd span { writing-mode: vertical-rl; font-size: 7px; font-weight: 700; display: inline-block; }
   table.mtbl th.dn { font-size: 7.5px; font-weight: 700; height: 5mm; }
-  table.mtbl td.hol { background: #DDE5EC; }
-  table.mtbl td.hol span { writing-mode: vertical-rl; font-size: 8px; font-weight: 800; color: #1A3055; display: inline-block; }
-  table.mtbl td.num { font-size: 8px; font-weight: 700; color: #3D5A6E; height: 5.6mm; }
+  table.mtbl td.hol { background: ${s.holBg}; }
+  table.mtbl td.hol span { writing-mode: vertical-rl; font-size: 8px; font-weight: 800; color: ${s.ink}; display: inline-block; }
+  table.mtbl td.num { font-size: 8px; font-weight: 700; color: ${s.sub}; height: 5.6mm; }
   table.mtbl td.nm  { text-align: right; direction: rtl; padding: 0 4px; font-size: 9.5px; font-weight: 700; }
-  table.mtbl tbody tr:nth-child(even) td { background: #F1F5F9; }
+  table.mtbl tbody tr:nth-child(even) td { background: ${s.row}; }
 
-  .mformula { margin-top: 3mm; font-size: 10px; color: #1A3055; display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .mformula { margin-top: 3mm; font-size: 10px; color: ${s.ink}; display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
   .mformula .frac { display: inline-flex; flex-direction: column; text-align: center; }
-  .mformula .frac .num2 { border-bottom: 1px solid #1A3055; padding: 0 6px 1px; }
+  .mformula .frac .num2 { border-bottom: 1px solid ${s.ink}; padding: 0 6px 1px; }
   .mformula .frac .den { padding: 1px 6px 0; }
 </style>
 </head>
@@ -187,7 +193,7 @@ export function buildDailyAttendanceHtml(classes: MassarData[], config: DailyAtt
     <div class="formula">
       <span>النسبة المئوية الشهرية للمواظبة =</span>
       <span style="display:inline-flex;flex-direction:column;text-align:center">
-        <span style="border-bottom:1px solid #1A3055;padding:0 6px 1px">مجموع أنصاف أيام الحضور</span>
+        <span style="border-bottom:1px solid ${s.ink};padding:0 6px 1px">مجموع أنصاف أيام الحضور</span>
         <span style="padding:1px 6px 0">مجموع أنصاف أيام الدراسة</span>
       </span>
       <span>× 100</span>

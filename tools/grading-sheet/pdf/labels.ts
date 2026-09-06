@@ -18,6 +18,9 @@ export const COVER_L = {
   teacherF:         { ar: "الأستاذة", fr: "Professeure" },
   gradeBookTitle:   { ar: "دفتر التنقيط", fr: "Carnet de Notes" },
   attendanceTitle:  { ar: "سجل الغياب", fr: "Registre des Absences" },
+  cahierTitle:      { ar: "دفتر النصوص", fr: "Cahier de Textes" },
+  subjectLabel:     { ar: "المادة", fr: "Matière" },
+  levelLabel:       { ar: "المستوى", fr: "Niveau" },
 } as const;
 
 export function pick<T extends { ar: string; fr: string }>(m: T, lang: Lang): string {

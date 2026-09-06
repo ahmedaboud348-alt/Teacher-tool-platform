@@ -10,6 +10,7 @@ import { buildGradingSheetHtml } from "@/tools/grading-sheet/pdf/build-grading-s
 import { buildGradeBookHtml } from "@/tools/grade-book/pdf/build-grade-book-html";
 import { buildAttendanceHtml } from "@/tools/attendance-sheet/pdf/build-attendance-html";
 import { buildDailyAttendanceHtml } from "@/tools/daily-attendance/pdf/build-daily-attendance-html";
+import { buildCahierTextesHtml } from "@/tools/cahier-textes/pdf/build-cahier-textes-html";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -155,6 +156,10 @@ export async function POST(req: NextRequest) {
         break;
       case "daily-attendance":
         html = buildDailyAttendanceHtml(payload.classes, payload.config);
+        opts = { cssMargins: true };
+        break;
+      case "cahier-textes":
+        html = buildCahierTextesHtml(payload.config);
         opts = { cssMargins: true };
         break;
       default:
