@@ -124,7 +124,7 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
       <tr>
         <td class="r-num">${st.index}</td>
         <td class="r-name">${st.name}</td>
-        <td></td><td></td><td></td>
+        <td></td>
       </tr>`
       )
       .join("");
@@ -138,10 +138,10 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
       </div>
       <div class="ct-caption">${t(LB.studentsList, lang)}</div>
       <table class="roster-tbl">
-        <colgroup><col class="c-rn"/><col/><col class="c-rd"/><col class="c-rd"/><col class="c-rd"/></colgroup>
+        <colgroup><col class="c-rn"/><col/><col class="c-rd"/></colgroup>
         <thead><tr>
           <th>${t(LB.rNum, lang)}</th><th>${t(LB.rName, lang)}</th>
-          <th>${t(LB.rBirth, lang)}</th><th>${t(LB.rPrev, lang)}</th><th>${t(LB.rDiag, lang)}</th>
+          <th>${t(LB.rBirth, lang)}</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
