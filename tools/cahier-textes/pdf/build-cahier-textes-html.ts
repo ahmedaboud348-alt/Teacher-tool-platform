@@ -33,8 +33,9 @@ const LB = {
   girls:       { ar: "الإناث", fr: "Filles" },
   studentsList:{ ar: "لائحة التلاميذ", fr: "Liste des élèves" },
   // cards
-  personalCard:{ ar: "بطاقة شخصية", fr: "Fiche personnelle" },
-  proCard:     { ar: "بطاقة مهنية", fr: "Fiche professionnelle" },
+  personalCard:{ ar: "البطاقة الشخصية", fr: "Fiche personnelle" },
+  proCard:     { ar: "البطاقة المهنية", fr: "Fiche professionnelle" },
+  photo:       { ar: "الصورة", fr: "Photo" },
   // holidays
   holTitle:    { ar: "جدول العطل المدرسية والدينية", fr: "Calendrier des vacances et congés" },
   hName:       { ar: "العطلة", fr: "Congé / Vacances" },
@@ -56,16 +57,17 @@ const LB = {
   sigInsp:     { ar: "توقيع السيد المفتش", fr: "Signature de l'Inspecteur" },
 } as const;
 
-const PERSONAL: [string, string][] = [
+// [ar, fr, wide?] — wide fields span both grid columns.
+const PERSONAL: [string, string, boolean?][] = [
   ["الاسم", "Nom"], ["النسب", "Prénom"], ["تاريخ الازدياد", "Date de naissance"],
   ["مكان الازدياد", "Lieu de naissance"], ["الحالة العائلية", "Situation familiale"],
-  ["رقم البطاقة الوطنية", "N° CIN"], ["العنوان", "Adresse"],
-  ["البريد الإلكتروني", "Email"], ["رقم الهاتف", "Téléphone"],
+  ["رقم البطاقة الوطنية", "N° CIN"], ["رقم الهاتف", "Téléphone"],
+  ["العنوان", "Adresse", true], ["البريد الإلكتروني", "Email", true],
 ];
-const PRO: [string, string][] = [
+const PRO: [string, string, boolean?][] = [
   ["المهمة", "Fonction"], ["التخصص", "Spécialité"], ["الإطار", "Cadre"],
   ["رقم التأجير", "N° de paie (SOM)"], ["السلم", "Échelle"], ["الدرجة", "Grade"],
-  ["الرتبة", "Échelon"], ["مركز التكوين", "Centre de formation"],
+  ["الرتبة", "Échelon"], ["مركز التكوين", "Centre de formation", true],
 ];
 const DAYS: [string, string][] = [
   ["الاثنين", "Lundi"], ["الثلاثاء", "Mardi"], ["الأربعاء", "Mercredi"],
@@ -208,18 +210,24 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
     </div>`;
 
   // ── Personal + professional cards ──
-  const cardBlock = (title: string, fields: [string, string][]): string => `
-    <div class="card-box">
-      <div class="card-title">${title}</div>
-      <div class="card-body">
-        ${fields.map(([ar, fr]) => `<div class="card-row"><span class="card-lbl">${t({ ar, fr }, lang)}:</span><span class="card-dots"></span></div>`).join("")}
+  const ICON_PERSON = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>`;
+  const ICON_BRIEF = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>`;
+  const fieldCell = ([ar, fr, wide]: [string, string, boolean?]): string =>
+    `<div class="fld2${wide ? " wide" : ""}"><span class="lb">${t({ ar, fr }, lang)}</span><span class="vl"></span></div>`;
+  const cardBlock = (title: string, icon: string, fields: [string, string, boolean?][], withPhoto: boolean): string => `
+    <div class="card2">
+      <div class="card2-head">${icon}<span class="tt">${title}</span></div>
+      <div class="card2-goldbar"></div>
+      <div class="card2-wrap">
+        ${withPhoto ? `<div class="photo"><span>${t(LB.photo, lang)}</span></div>` : ""}
+        <div class="card2-grid">${fields.map(fieldCell).join("")}</div>
       </div>
     </div>`;
   const cardsPage = config.showCards ? `
     <div class="ct-page">
-      ${cardBlock(t(LB.personalCard, lang), PERSONAL)}
-      <div style="height:14px"></div>
-      ${cardBlock(t(LB.proCard, lang), PRO)}
+      ${cardBlock(t(LB.personalCard, lang), ICON_PERSON, PERSONAL, true)}
+      <div style="height:16px"></div>
+      ${cardBlock(t(LB.proCard, lang), ICON_BRIEF, PRO, false)}
     </div>` : "";
 
   // ── Holidays table (auto-filled from the shared school calendar) ──
@@ -366,13 +374,20 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
     text-align: center; padding: 4px; border-bottom: 1px solid #8FA8BB; }
 
   /* ── Cards ── */
-  .card-box { border: 1px solid #8FA8BB; border-radius: 6px; overflow: hidden; }
-  .card-title { background: ${g.ink}; color: #fff; font-weight: 900; font-size: 13px; text-align: center; padding: 8px; }
-  .card-body { padding: 10px 16px; }
-  .card-row { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; border-bottom: 1px dotted #C9D6E2; }
-  .card-row:last-child { border-bottom: none; }
-  .card-lbl { font-size: 11.5px; font-weight: 800; color: ${g.ink}; min-width: 150px; }
-  .card-dots { flex: 1; border-bottom: 1px dotted #8FA8BB; height: 12px; }
+  .card2 { border: 1.5px solid ${theme.accent}55; border-radius: 9px; overflow: hidden; margin: 0 4mm; }
+  .card2-head { background: ${g.ink}; color: #fff; display: flex; align-items: center; gap: 9px; padding: 10px 16px; }
+  .card2-head .tt { font-size: 14.5px; font-weight: 900; letter-spacing: .3px; }
+  .card2-head svg { flex-shrink: 0; }
+  .card2-goldbar { height: 3px; background: ${theme.accent}; }
+  .card2-wrap { display: flex; gap: 16px; padding: 16px 18px; align-items: flex-start; }
+  .photo { width: 26mm; height: 33mm; border: 1.5px dashed ${theme.accent}; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font-size: 10px; font-weight: 700; color: ${theme.sub}; background: ${g.row}; flex-shrink: 0; }
+  .card2-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 13px 22px; align-content: start; }
+  .fld2 { display: flex; flex-direction: column; gap: 5px; }
+  .fld2.wide { grid-column: 1 / -1; }
+  .fld2 .lb { font-size: 10.5px; font-weight: 800; color: ${g.ink}; }
+  .fld2 .vl { border-bottom: 1.2px dotted #A9B8C6; height: 15px; }
 
   /* ── Generic grid tables (holidays, structure, timetable) ── */
   table.grid-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid #8FA8BB; }
