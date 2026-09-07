@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import type { PhysicsChemistryLevelId } from "@/lib/subjects/physics-chemistry/types";
-import { getUnitsForLevel, LEVEL_LABELS, type UnitDefinition } from "@/lib/subjects/physics-chemistry/unit-catalog";
+import type { PhysicsChemistryLevelId, SubjectTrack } from "@/lib/subjects/physics-chemistry/types";
+import { getUnitsForLevel, levelLabel, type UnitDefinition } from "@/lib/subjects/physics-chemistry/unit-catalog";
 import { ac1GeneralLessons } from "@/lib/subjects/physics-chemistry/lesson-catalog/college/general/1ac";
 import { ac2GeneralLessons } from "@/lib/subjects/physics-chemistry/lesson-catalog/college/general/2ac";
 import { ac3GeneralLessons } from "@/lib/subjects/physics-chemistry/lesson-catalog/college/general/3ac";
+import { ac1InternationalLessons } from "@/lib/subjects/physics-chemistry/lesson-catalog/college/international/1ac";
+import { ac2InternationalLessons } from "@/lib/subjects/physics-chemistry/lesson-catalog/college/international/2ac";
+import { ac3InternationalLessons } from "@/lib/subjects/physics-chemistry/lesson-catalog/college/international/3ac";
 import type { PhysicsChemistryLessonReference } from "@/lib/subjects/physics-chemistry/types";
 
 const C1 = "#1E3A5F";
@@ -18,6 +21,9 @@ const ALL_LESSONS: PhysicsChemistryLessonReference[] = [
   ...ac1GeneralLessons,
   ...ac2GeneralLessons,
   ...ac3GeneralLessons,
+  ...ac1InternationalLessons,
+  ...ac2InternationalLessons,
+  ...ac3InternationalLessons,
 ];
 
 function getLessonsForUnit(unit: UnitDefinition): PhysicsChemistryLessonReference[] {
@@ -30,12 +36,14 @@ export default function UnitPlanTool() {
   const [prof, setProf] = useState("");
   const [school, setSchool] = useState("");
   const [year, setYear] = useState("2025-2026");
+  const [track, setTrack] = useState<SubjectTrack>("general");
   const [levelId, setLevelId] = useState<PhysicsChemistryLevelId>("1ac");
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
 
-  const units = getUnitsForLevel(levelId);
+  const units = getUnitsForLevel(levelId, track);
   const unit = units.find(u => u.id === selectedUnit) ?? null;
+  const levelText = levelLabel(levelId, track);
   const lessons = unit ? getLessonsForUnit(unit) : [];
   const totalHours = lessons.reduce((s, l) => s + l.defaultDurationHours, 0);
 
@@ -48,7 +56,7 @@ export default function UnitPlanTool() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tool: "unit-plan",
-          payload: { prof, school, year, levelId, unit, lessons, totalHours },
+          payload: { prof, school, year, levelId, unit, lessons, totalHours, track },
         }),
       });
       if (!res.ok) throw new Error("PDF generation failed");
@@ -56,7 +64,7 @@ export default function UnitPlanTool() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `تخطيط_مرحلي_${unit.domainLabel}_${LEVEL_LABELS[levelId]}_${year}.pdf`;
+      a.download = `تخطيط_مرحلي_${unit.domainLabel}_${levelText}_${year}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -80,6 +88,26 @@ export default function UnitPlanTool() {
         </div>
       </section>
 
+      {/* ── المسلك / اللغة ── */}
+      <section style={cardStyle}>
+        <h2 style={cardTitleStyle}>
+          <span style={cardIconStyle}>🌐</span>
+          المسلك ولغة الوثيقة
+        </h2>
+        <div style={choiceGridStyle}>
+          {([["general", "المسلك العام (عربية)"], ["international", "المسلك الدولي (Français)"]] as const).map(([tk, label]) => {
+            const active = track === tk;
+            return (
+              <button key={tk} onClick={() => { setTrack(tk); setSelectedUnit(null); }}
+                style={{ ...choiceBtnStyle, ...(active ? choiceBtnActiveStyle : {}) }}>
+                <span style={{ ...choiceCheckStyle, opacity: active ? 1 : 0 }}>✓</span>
+                <span style={choiceLabelStyle}>{label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
       {/* ── المستوى ── */}
       <section style={cardStyle}>
         <h2 style={cardTitleStyle}>
@@ -93,7 +121,7 @@ export default function UnitPlanTool() {
               <button key={lvl} onClick={() => { setLevelId(lvl); setSelectedUnit(null); }}
                 style={{ ...choiceBtnStyle, ...(active ? choiceBtnActiveStyle : {}) }}>
                 <span style={{ ...choiceCheckStyle, opacity: active ? 1 : 0 }}>✓</span>
-                <span style={choiceLabelStyle}>{LEVEL_LABELS[lvl]}</span>
+                <span style={choiceLabelStyle}>{levelLabel(lvl, track)}</span>
               </button>
             );
           })}
@@ -129,7 +157,7 @@ export default function UnitPlanTool() {
           <div style={pvHeaderStyle}>
             <div style={pvEyebrowStyle}>المملكة المغربية — وزارة التربية الوطنية</div>
             <div style={pvTitleStyle}>التوزيع المرحلي — وحدة {unit.domainLabel}</div>
-            <div style={pvSubStyle}>{LEVEL_LABELS[levelId]} — {year}</div>
+            <div style={pvSubStyle}>{levelText} — {year}</div>
             <div style={pvGoldLineStyle} />
           </div>
 
@@ -141,7 +169,7 @@ export default function UnitPlanTool() {
                 <td style={pvMlStyle}>المؤسسة</td><td style={pvMvStyle}>{school || "—"}</td>
               </tr>
               <tr>
-                <td style={pvMlStyle}>المستوى</td><td style={pvMvStyle}>{LEVEL_LABELS[levelId]}</td>
+                <td style={pvMlStyle}>المستوى</td><td style={pvMvStyle}>{levelText}</td>
                 <td style={pvMlStyle}>المدة</td><td style={pvMvStyle}>{totalHours} ساعة</td>
               </tr>
             </tbody>

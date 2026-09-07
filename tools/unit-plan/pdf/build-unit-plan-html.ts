@@ -1,6 +1,6 @@
 import type { PhysicsChemistryLevelId, PhysicsChemistryLessonReference } from "@/lib/subjects/physics-chemistry/types";
-import type { UnitDefinition } from "@/lib/subjects/physics-chemistry/unit-catalog";
-import { LEVEL_LABELS } from "@/lib/subjects/physics-chemistry/unit-catalog";
+import type { UnitDefinition, SubjectTrack } from "@/lib/subjects/physics-chemistry/unit-catalog";
+import { levelLabel } from "@/lib/subjects/physics-chemistry/unit-catalog";
 
 type Input = {
   prof: string;
@@ -10,11 +10,31 @@ type Input = {
   unit: UnitDefinition;
   lessons: PhysicsChemistryLessonReference[];
   totalHours: number;
+  track?: SubjectTrack;
 };
 
 export function buildUnitPlanHtml(input: Input): string {
-  const { prof, school, year, levelId, unit, lessons, totalHours } = input;
-  const level = LEVEL_LABELS[levelId];
+  const { prof, school, year, levelId, unit, lessons, totalHours, track } = input;
+  const fr = track === "international";
+  const dir = fr ? "ltr" : "rtl";
+  const side = fr ? "left" : "right";
+  const level = levelLabel(levelId, track);
+  const hoursUnit = fr ? "h" : "س";
+  const L = {
+    eyebrow: fr ? "Royaume du Maroc — Ministère de l'Éducation Nationale" : "المملكة المغربية — وزارة التربية الوطنية",
+    title: fr ? `Planification de l'unité : ${unit.domainLabel}` : `التوزيع المرحلي — وحدة ${unit.domainLabel}`,
+    prof: fr ? "Enseignant(e)" : "الأستاذ(ة)",
+    school: fr ? "Établissement" : "المؤسسة",
+    level: fr ? "Niveau" : "المستوى",
+    duration: fr ? "Durée totale" : "المدة الإجمالية",
+    competency: fr ? "Compétence visée" : "الكفاية المستهدفة",
+    values: fr ? "Valeurs intégrées" : "القيم المدمجة",
+    prereq: fr ? "Prérequis" : "المكتسبات السابقة",
+    lessonsTitle: fr ? "Leçons et objectifs d'apprentissage" : "جدول الدروس والأهداف",
+    lessons: fr ? "Leçons" : "الدروس",
+    durationCol: fr ? "Durée" : "المدة",
+    objectives: fr ? "Objectifs d'apprentissage" : "الأهداف التعلمية",
+  };
 
   const valuesHtml = unit.values.map(v => `<li>${v}</li>`).join("\n");
   const prereqHtml = unit.prerequisites.map(p => `<li>${p}</li>`).join("\n");
@@ -25,13 +45,13 @@ export function buildUnitPlanHtml(input: Input): string {
     return `
       <tr style="background:${bg}">
         <td class="td-lesson">${l.label}</td>
-        <td class="td-hours">${l.defaultDurationHours} س</td>
+        <td class="td-hours">${l.defaultDurationHours} ${hoursUnit}</td>
         <td class="td-objectives"><ul>${objHtml}</ul></td>
       </tr>`;
   }).join("\n");
 
   return `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="${fr ? "fr" : "ar"}" dir="${dir}">
 <head>
 <meta charset="UTF-8">
 <style>
@@ -59,7 +79,7 @@ export function buildUnitPlanHtml(input: Input): string {
     font-family: 'Cairo', 'Segoe UI', sans-serif;
     font-size: 12px;
     color: var(--text);
-    direction: rtl;
+    direction: ${dir};
     line-height: 1.55;
     background: var(--white);
     padding-bottom: 30px;
@@ -183,7 +203,7 @@ export function buildUnitPlanHtml(input: Input): string {
     margin: 0;
   }
   .info-content ul li {
-    padding-right: 14px;
+    padding-${side}: 14px;
     position: relative;
     line-height: 1.7;
   }
@@ -194,7 +214,7 @@ export function buildUnitPlanHtml(input: Input): string {
     background: var(--gold);
     border-radius: 50%;
     position: absolute;
-    right: 0;
+    ${side}: 0;
     top: 8px;
   }
 
@@ -236,7 +256,7 @@ export function buildUnitPlanHtml(input: Input): string {
     padding: 8px 12px;
     border: 1.5px solid var(--border);
     vertical-align: top;
-    text-align: right;
+    text-align: ${side};
   }
   .td-objectives ul {
     list-style: none;
@@ -246,7 +266,7 @@ export function buildUnitPlanHtml(input: Input): string {
   .td-objectives ul li {
     line-height: 1.65;
     margin-bottom: 1px;
-    padding-right: 14px;
+    padding-${side}: 14px;
     position: relative;
     font-size: 11px;
     font-weight: 600;
@@ -259,7 +279,7 @@ export function buildUnitPlanHtml(input: Input): string {
     background: var(--gold);
     border-radius: 50%;
     position: absolute;
-    right: 0;
+    ${side}: 0;
     top: 7px;
   }
   .lessons-table tr {
@@ -295,8 +315,8 @@ export function buildUnitPlanHtml(input: Input): string {
 
 <!-- HEADER -->
 <div class="doc-header">
-  <div class="doc-eyebrow">المملكة المغربية — وزارة التربية الوطنية</div>
-  <div class="doc-title">التوزيع المرحلي — وحدة ${unit.domainLabel}</div>
+  <div class="doc-eyebrow">${L.eyebrow}</div>
+  <div class="doc-title">${L.title}</div>
   <div class="doc-subtitle">${level} — ${year}</div>
   <div class="title-line"></div>
 </div>
@@ -305,16 +325,16 @@ export function buildUnitPlanHtml(input: Input): string {
 <div class="section">
   <table class="meta-table">
     <tr>
-      <td class="mt-label">الأستاذ(ة)</td>
+      <td class="mt-label">${L.prof}</td>
       <td class="mt-value">${prof || "—"}</td>
-      <td class="mt-label">المؤسسة</td>
+      <td class="mt-label">${L.school}</td>
       <td class="mt-value">${school || "—"}</td>
     </tr>
     <tr>
-      <td class="mt-label">المستوى</td>
+      <td class="mt-label">${L.level}</td>
       <td class="mt-value">${level}</td>
-      <td class="mt-label">المدة الإجمالية</td>
-      <td class="mt-value">${totalHours} ساعة</td>
+      <td class="mt-label">${L.duration}</td>
+      <td class="mt-value">${totalHours} ${fr ? "h" : "ساعة"}</td>
     </tr>
   </table>
 </div>
@@ -322,7 +342,7 @@ export function buildUnitPlanHtml(input: Input): string {
 <!-- COMPETENCY -->
 <div class="section">
   <div class="info-box">
-    <div class="info-label">الكفاية المستهدفة</div>
+    <div class="info-label">${L.competency}</div>
     <div class="info-content">${unit.competency}</div>
   </div>
 </div>
@@ -330,7 +350,7 @@ export function buildUnitPlanHtml(input: Input): string {
 <!-- VALUES -->
 <div class="section">
   <div class="info-box">
-    <div class="info-label">القيم المدمجة</div>
+    <div class="info-label">${L.values}</div>
     <div class="info-content"><ul>${valuesHtml}</ul></div>
   </div>
 </div>
@@ -338,20 +358,20 @@ export function buildUnitPlanHtml(input: Input): string {
 <!-- PREREQUISITES -->
 <div class="section">
   <div class="info-box">
-    <div class="info-label">المكتسبات السابقة</div>
+    <div class="info-label">${L.prereq}</div>
     <div class="info-content"><ul>${prereqHtml}</ul></div>
   </div>
 </div>
 
 <!-- LESSONS TABLE -->
 <div class="section">
-  <h2 class="sec-title"><span class="sec-bar"></span>جدول الدروس والأهداف</h2>
+  <h2 class="sec-title"><span class="sec-bar"></span>${L.lessonsTitle}</h2>
   <table class="lessons-table">
     <thead>
       <tr>
-        <th>الدروس</th>
-        <th>المدة</th>
-        <th>الأهداف التعلمية</th>
+        <th>${L.lessons}</th>
+        <th>${L.durationCol}</th>
+        <th>${L.objectives}</th>
       </tr>
     </thead>
     <tbody>
