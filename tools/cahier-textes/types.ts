@@ -29,4 +29,6 @@ export type CahierTextesConfig = {
   showStudentLists: boolean; // إدراج لوائح التلاميذ
   showCards: boolean;        // إدراج البطاقة الشخصية/المهنية
   showStructure: boolean;    // البنية التربوية + جدول الحصص + التواقيع
+  showIndex: boolean;        // صفحة الفهرس + دليل الأقسام
+  showLeaves: boolean;       // جدول الرخص الطبية والشخصية
 };

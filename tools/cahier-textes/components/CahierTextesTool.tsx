@@ -25,7 +25,7 @@ export function CahierTextesTool() {
   const [levels, setLevels] = useState<LevelState[]>([emptyLevel(), emptyLevel()]);
   const [config, setConfig] = useState<Omit<CahierTextesConfig, "lang" | "levels">>({
     coverVariant: "male", subject: "", academy: "", directorate: "", school: "", prof: "", annee: "",
-    showHolidays: true, showStudentLists: true, showCards: true, showStructure: true,
+    showHolidays: true, showStudentLists: true, showCards: true, showStructure: true, showIndex: true, showLeaves: true,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -231,8 +231,10 @@ export function CahierTextesTool() {
           <div style={{ marginTop: 8, fontSize: 12.5, fontWeight: 800, color: "#334155", marginBottom: 8 }}>{T("الأقسام المُدرَجة في الدفتر", "Sections incluses")}</div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             {([
+              ["showIndex", T("الفهرس ودليل الأقسام", "Sommaire")],
               ["showCards", T("البطاقة الشخصية/المهنية", "Fiches perso/pro")],
               ["showHolidays", T("جدول العطل", "Calendrier des congés")],
+              ["showLeaves", T("جدول الرخص", "Congés du personnel")],
               ["showStructure", T("البنية التربوية + جدول الحصص", "Structure + Emploi du temps")],
               ["showStudentLists", T("لوائح التلاميذ", "Listes d'élèves")],
             ] as const).map(([key, label]) => {

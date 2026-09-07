@@ -55,6 +55,21 @@ const LB = {
   sigProf:     { ar: "توقيع الأستاذ(ة)", fr: "Signature de l'enseignant(e)" },
   sigDir:      { ar: "توقيع السيد المدير", fr: "Signature du Directeur" },
   sigInsp:     { ar: "توقيع السيد المفتش", fr: "Signature de l'Inspecteur" },
+  // index (sommaire)
+  indexTitle:  { ar: "الفهرس", fr: "Sommaire" },
+  idxSection:  { ar: "المحتوى", fr: "Section" },
+  idxPage:     { ar: "الصفحة", fr: "Page" },
+  guideTitle:  { ar: "دليل الأقسام", fr: "Répartition des classes" },
+  secCards:    { ar: "البطاقة الشخصية والمهنية", fr: "Fiches personnelle et professionnelle" },
+  secHolidays: { ar: "جدول العطل المدرسية والدينية", fr: "Calendrier des vacances et congés" },
+  secLeaves:   { ar: "جدول الرخص", fr: "Congés du personnel" },
+  secStructure:{ ar: "البنية التربوية وجدول الحصص", fr: "Structure et emploi du temps" },
+  secLevel:    { ar: "المستوى", fr: "Niveau" },
+  classesCol:  { ar: "الأقسام", fr: "Classes" },
+  // leaves
+  leaveTitle:  { ar: "جدول الرخص الطبية والشخصية", fr: "Congés médicaux et personnels" },
+  leaveType:   { ar: "نوع الرخصة", fr: "Type de congé" },
+  obs:         { ar: "ملاحظات", fr: "Observations" },
 } as const;
 
 // [ar, fr, wide?] — wide fields span both grid columns.
@@ -288,7 +303,52 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
       </div>
     </div>` : "";
 
-  const frontMatter = cardsPage + holidaysPage + structurePage;
+  // ── Index / Sommaire + classes guide ──
+  const idxRows: string[] = [];
+  if (config.showCards) idxRows.push(t(LB.secCards, lang));
+  if (config.showHolidays) idxRows.push(t(LB.secHolidays, lang));
+  if (config.showLeaves) idxRows.push(t(LB.secLeaves, lang));
+  if (config.showStructure) idxRows.push(t(LB.secStructure, lang));
+  config.levels.forEach((lv) => idxRows.push(`${t(LB.secLevel, lang)} : ${lv.name || ""}`));
+  const sommaireRows = idxRows.map((name, i) =>
+    `<tr><td class="idx-n">${i + 1}</td><td class="idx-name">${name}</td><td class="idx-pg"></td></tr>`
+  ).join("");
+  const guideRows = config.levels.map((lv) => {
+    const names = lv.classes.map((c) => c.meta.className || "").filter(Boolean).join("، ") || "—";
+    const count = lv.classes.reduce((sm, c) => sm + c.students.length, 0);
+    return `<tr><td class="s-lv">${lv.name || ""}</td><td>${lv.classes.length}</td><td>${names}</td><td>${count || ""}</td></tr>`;
+  }).join("");
+  const indexPage = config.showIndex ? `
+    <div class="ct-page">
+      <div class="ct-caption">${t(LB.indexTitle, lang)}</div>
+      <table class="grid-tbl idx-tbl">
+        <colgroup><col class="c-idxn"/><col/><col class="c-idxp"/></colgroup>
+        <thead><tr><th>#</th><th>${t(LB.idxSection, lang)}</th><th>${t(LB.idxPage, lang)}</th></tr></thead>
+        <tbody>${sommaireRows}</tbody>
+      </table>
+      <div style="height:18px"></div>
+      <div class="ct-caption">${t(LB.guideTitle, lang)}</div>
+      <table class="grid-tbl">
+        <thead><tr><th>${t(LB.sLevels, lang)}</th><th>${t(LB.sClasses, lang)}</th><th>${t(LB.classesCol, lang)}</th><th>${t(LB.count, lang)}</th></tr></thead>
+        <tbody>${guideRows}</tbody>
+      </table>
+    </div>` : "";
+
+  // ── Leaves table (medical & personal) — fills the page ──
+  const leaveEmptyRows = Array.from({ length: 14 }, () =>
+    `<tr><td></td><td class="h-dt"></td><td class="h-dt"></td><td class="h-du"></td><td></td></tr>`
+  ).join("");
+  const leavesPage = config.showLeaves ? `
+    <div class="ct-page ct-fillpage">
+      <div class="ct-caption">${t(LB.leaveTitle, lang)}</div>
+      <table class="grid-tbl fill-tbl">
+        <colgroup><col class="c-lt"/><col class="c-hd"/><col class="c-hd"/><col class="c-hu"/><col/></colgroup>
+        <thead><tr><th>${t(LB.leaveType, lang)}</th><th>${t(LB.hFrom, lang)}</th><th>${t(LB.hTo, lang)}</th><th>${t(LB.hDur, lang)}</th><th>${t(LB.obs, lang)}</th></tr></thead>
+        <tbody>${leaveEmptyRows}</tbody>
+      </table>
+    </div>` : "";
+
+  const frontMatter = indexPage + cardsPage + holidaysPage + leavesPage + structurePage;
 
   const levelsHtml = config.levels
     .map((lv) => {
@@ -401,6 +461,12 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   table.grid-tbl td { border: 0.75px solid #AABDCC; height: 24px; font-size: 9.5px; text-align: center; padding: 0 4px; }
   table.grid-tbl tbody tr:nth-child(even) td { background: ${g.row}; }
   td.h-nm, td.s-lv { text-align: ${lang === "fr" ? "left" : "right"}; padding: 0 8px; font-weight: 700; }
+  /* index (sommaire) */
+  col.c-idxn { width: 34px; } col.c-idxp { width: 90px; } col.c-lt { width: 26%; }
+  table.idx-tbl td { height: 26px; }
+  td.idx-n { text-align: center; font-weight: 700; color: ${g.line}; }
+  td.idx-name { text-align: ${lang === "fr" ? "left" : "right"}; padding: 0 12px; font-weight: 700; }
+  td.idx-pg { border-bottom: 0.75px dotted ${g.line}; }
   td.h-dt { direction: ltr; unicode-bidi: isolate; } td.h-du { font-weight: 700; color: ${g.line}; }
   col.c-hd { width: 92px; } col.c-hu { width: 78px; }
   table.tt-tbl td { height: 30px; } th.tt-slot { font-size: 8px; direction: ltr; unicode-bidi: isolate; }
