@@ -60,7 +60,7 @@ const LB = {
 // [ar, fr, wide?] — wide fields span both grid columns.
 const PERSONAL: [string, string, boolean?][] = [
   ["الاسم", "Nom"], ["النسب", "Prénom"], ["تاريخ الازدياد", "Date de naissance"],
-  ["مكان الازدياد", "Lieu de naissance"], ["الحالة العائلية", "Situation familiale"],
+  ["مكان الازدياد", "Lieu de naissance"],
   ["رقم البطاقة الوطنية", "N° CIN"], ["رقم الهاتف", "Téléphone"],
   ["العنوان", "Adresse", true], ["البريد الإلكتروني", "Email", true],
 ];
@@ -238,9 +238,9 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
     return `<tr><td class="h-nm">${nm}</td><td class="h-dt">${fmtDate(from)}</td><td class="h-dt">${fmtDate(to)}</td><td class="h-du">${durDays(from, to)}</td></tr>`;
   }).join("");
   const holidaysPage = config.showHolidays ? `
-    <div class="ct-page">
+    <div class="ct-page ct-fillpage">
       <div class="ct-caption">${t(LB.holTitle, lang)} — <span style="direction:ltr;unicode-bidi:isolate">${YEAR_LABEL}</span></div>
-      <table class="grid-tbl">
+      <table class="grid-tbl fill-tbl">
         <colgroup><col/><col class="c-hd"/><col class="c-hd"/><col class="c-hu"/></colgroup>
         <thead><tr><th>${t(LB.hName, lang)}</th><th>${t(LB.hFrom, lang)}</th><th>${t(LB.hTo, lang)}</th><th>${t(LB.hDur, lang)}</th></tr></thead>
         <tbody>${holRows}</tbody>
@@ -388,6 +388,11 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   .fld2.wide { grid-column: 1 / -1; }
   .fld2 .lb { font-size: 10.5px; font-weight: 800; color: ${g.ink}; }
   .fld2 .vl { border-bottom: 1.2px dotted #A9B8C6; height: 15px; }
+
+  /* Holidays page fills the whole printable area; its rows stretch to fill. */
+  .ct-fillpage { display: flex; flex-direction: column; height: 277mm; overflow: hidden; }
+  .ct-fillpage .ct-caption { flex: 0 0 auto; }
+  .ct-fillpage .fill-tbl { flex: 1 1 auto; height: 100%; }
 
   /* ── Generic grid tables (holidays, structure, timetable) ── */
   table.grid-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid #8FA8BB; }
