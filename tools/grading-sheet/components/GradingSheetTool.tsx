@@ -22,6 +22,7 @@ export function GradingSheetTool() {
     evalCount: 3,
     showActivites: true,
     showObservation: true,
+    lang: "fr",
   });
 
   const patch = <K extends keyof GradingSheetConfig>(k: K, v: GradingSheetConfig[K]) =>
@@ -70,8 +71,19 @@ export function GradingSheetTool() {
     if (!data) return;
     setExporting(true);
     try {
-      const { downloadGradingSheetPdf } = await import("../pdf/render-grading-sheet-pdf");
-      await downloadGradingSheetPdf(data, config);
+      const res = await fetch("/api/unit-plan-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tool: "grading-sheet", payload: { data, config } }),
+      });
+      if (!res.ok) throw new Error("PDF generation failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ورقة-التنقيط-${config.classe || data.meta.className || "قسم"}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
     } catch (e) {
       setError("حدث خطأ أثناء إنشاء PDF.");
       console.error(e);
@@ -289,7 +301,7 @@ const appBarStyle: CSSProperties = {
   position: "sticky", top: 0, zIndex: 40,
   backgroundColor: "rgba(255,255,255,0.96)",
   backdropFilter: "blur(16px)",
-  boxShadow: "0 1px 0 rgba(124,58,237,0.06), 0 4px 16px rgba(0,0,0,0.04)",
+  boxShadow: "0 1px 0 rgba(15,118,110,0.06), 0 4px 16px rgba(0,0,0,0.04)",
 };
 const appBarInnerStyle: CSSProperties = {
   maxWidth: 1320, margin: "0 auto", padding: "0 24px", height: 64,
@@ -298,16 +310,16 @@ const appBarInnerStyle: CSSProperties = {
 const brandWrapStyle: CSSProperties = { display: "flex", alignItems: "center", gap: 12 };
 const logoMarkStyle: CSSProperties = {
   width: 34, height: 34, borderRadius: 9,
-  background: "linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)",
+  background: "linear-gradient(135deg, #0F766E 0%, #134E4A 100%)",
   display: "flex", alignItems: "center", justifyContent: "center",
   color: "#fff", fontWeight: 900, fontSize: 16, flexShrink: 0,
-  boxShadow: "0 4px 10px rgba(124,58,237,0.30)",
+  boxShadow: "0 4px 10px rgba(15,118,110,0.30)",
 };
 const brandNameStyle: CSSProperties = { fontSize: 13, fontWeight: 800, color: ds.colors.textPrimary, lineHeight: 1.2 };
 const brandSubStyle: CSSProperties  = { fontSize: 11, color: ds.colors.textMuted, lineHeight: 1 };
 const appBarLineStyle: CSSProperties = {
   height: 2,
-  background: "linear-gradient(90deg, #7C3AED 0%, #A78BFA 50%, transparent 100%)",
+  background: "linear-gradient(90deg, #0F766E 0%, #14B8A6 50%, transparent 100%)",
 };
 const stepBadgesStyle: CSSProperties  = { display: "flex", alignItems: "center", gap: 8 };
 const metaBadgeStyle: CSSProperties   = {
@@ -324,7 +336,7 @@ const resetBtnStyle: CSSProperties = {
 // Hero
 const heroStyle: CSSProperties = {
   position: "relative", overflow: "hidden",
-  background: "linear-gradient(140deg, #3B0764 0%, #6D28D9 55%, #7C3AED 100%)",
+  background: "linear-gradient(140deg, #0A3D3A 0%, #0D9488 55%, #0F766E 100%)",
   paddingTop: 56, paddingBottom: 100, paddingLeft: 24, paddingRight: 24,
 };
 const heroBgStyle: CSSProperties = {
@@ -373,7 +385,7 @@ const fileBtnStyle: CSSProperties   = {
   backgroundColor: ds.colors.primary500,
   border: "none", borderRadius: 10, padding: "10px 24px",
   marginBottom: 16,
-  boxShadow: "0 6px 18px rgba(124,58,237,0.25)",
+  boxShadow: "0 6px 18px rgba(15,118,110,0.25)",
 };
 const dropHintStyle: CSSProperties  = { fontSize: 12, color: ds.colors.textMuted };
 const errorStyle: CSSProperties     = {
@@ -427,9 +439,9 @@ const toggleLabelStyle: CSSProperties   = { fontSize: 12, fontWeight: 600, color
 // Export button
 const exportBtnStyle: CSSProperties = {
   width: "100%", minHeight: 48, borderRadius: 12, border: "none", cursor: "pointer",
-  background: "linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)",
+  background: "linear-gradient(135deg, #0F766E 0%, #134E4A 100%)",
   color: "#fff", fontSize: 15, fontWeight: 800,
-  boxShadow: "0 8px 20px rgba(124,58,237,0.30)",
+  boxShadow: "0 8px 20px rgba(15,118,110,0.30)",
   transition: "opacity 150ms ease",
 };
 const exportBtnLoadingStyle: CSSProperties = { opacity: 0.7, cursor: "not-allowed" };

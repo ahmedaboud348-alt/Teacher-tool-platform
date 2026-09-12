@@ -1,6 +1,5 @@
 "use client";
 
-import * as XLSX from "xlsx";
 import type { MassarData, MassarMeta, MassarStudent } from "./types";
 
 function cellVal(row: unknown[], col: number): string {
@@ -9,6 +8,7 @@ function cellVal(row: unknown[], col: number): string {
 }
 
 export async function parseMassarFile(file: File): Promise<MassarData> {
+  const XLSX = await import("xlsx"); // lazy: keep the heavy lib out of the page's initial JS
   const buffer = await file.arrayBuffer();
   const wb = XLSX.read(buffer, { type: "array" });
 

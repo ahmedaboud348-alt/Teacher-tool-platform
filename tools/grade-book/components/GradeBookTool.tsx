@@ -25,12 +25,42 @@ export function GradeBookTool() {
   const [config, setConfig] = useState<GradeBookConfig>({
     prof:            "",
     annee:           "",
+    subject:         "",
     evalCount:       3,
     showActivites:   true,
     showObservation: true,
+    coverVariant:    "male",
+    tier:            "الثانوي الإعدادي",
+    directorate:     "",
+    term:            "first",
+    lang:            "ar",
   });
   const patch = <K extends keyof GradeBookConfig>(k: K, v: GradeBookConfig[K]) =>
     setConfig(c => ({ ...c, [k]: v }));
+
+  // ── Blank mode (no names) ────────────────────────────────────────────────────
+  const [mode, setMode] = useState<"massar" | "blank">("massar");
+  const [blankClasses, setBlankClasses] = useState<{ name: string; count: number }[]>([
+    { name: "", count: 40 },
+  ]);
+  const buildBlankEntries = (): GradeBookEntry[] =>
+    blankClasses.map((bc, ci) => ({
+      id: "blank-" + ci,
+      filename: bc.name || `قسم ${ci + 1}`,
+      data: {
+        meta: { school: "", academy: "", level: bc.name, className: bc.name, teacher: "", term: "", subject: "", year: "" },
+        students: Array.from({ length: Math.max(0, Math.min(60, bc.count)) }, (_, i) => ({ index: i + 1, code: "", name: "" })),
+      },
+    }));
+  const setClassCount = (n: number) =>
+    setBlankClasses(prev => {
+      const next = prev.slice(0, Math.max(1, n));
+      while (next.length < n) next.push({ name: "", count: 40 });
+      return next;
+    });
+  const patchBlank = (i: number, k: "name" | "count", v: string | number) =>
+    setBlankClasses(prev => prev.map((c, idx) => (idx === i ? { ...c, [k]: v } : c)));
+  const blankLbl: CSSProperties = { display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 5 };
 
   // ── File handling ──────────────────────────────────────────────────────────
   const handleFiles = useCallback(async (files: File[]) => {
@@ -88,12 +118,31 @@ export function GradeBookTool() {
 
   // ── Export ─────────────────────────────────────────────────────────────────
   const handleExport = async () => {
-    if (entries.length === 0) return;
+    const exportEntries = mode === "blank" ? buildBlankEntries() : entries;
+    if (exportEntries.length === 0) return;
     setExporting(true);
     setError(null);
     try {
-      const { downloadGradeBookPdf } = await import("../pdf/render-grade-book-pdf");
-      await downloadGradeBookPdf(entries, config);
+      const terms: ("first" | "second")[] =
+        config.term === "both" ? ["first", "second"] : [config.term];
+      for (let i = 0; i < terms.length; i++) {
+        const t = terms[i];
+        const res = await fetch("/api/unit-plan-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tool: "grade-book", payload: { entries: exportEntries, config: { ...config, term: t } } }),
+        });
+        if (!res.ok) throw new Error("PDF generation failed");
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const termAr = t === "second" ? "الدورة-الثانية" : "الدورة-الأولى";
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `دفتر-التنقيط-${config.prof || "الأستاذ"}-${termAr}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        if (i < terms.length - 1) await new Promise(r => setTimeout(r, 800)); // let the first download start
+      }
     } catch (e) {
       setError("حدث خطأ أثناء إنشاء PDF.");
       console.error(e);
@@ -102,8 +151,10 @@ export function GradeBookTool() {
     }
   };
 
-  const totalStudents = entries.reduce((acc, e) => acc + e.data.students.length, 0);
+  const displayEntries = mode === "blank" ? buildBlankEntries() : entries;
+  const totalStudents = displayEntries.reduce((acc, e) => acc + e.data.students.length, 0);
   const hasEntries    = entries.length > 0;
+  const ready = mode === "massar" ? hasEntries : blankClasses.every(c => c.count > 0);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -146,7 +197,18 @@ export function GradeBookTool() {
       <div style={bodyStyle}>
         <div style={contentWrapStyle}>
 
-          {/* ── Drop zone (always visible) ── */}
+          {/* ── Mode toggle ── */}
+          <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+            {([["massar", "📂 من مسار (بالأسماء)"], ["blank", "📄 نسخة فارغة (بدون أسماء)"]] as const).map(([m, label]) => (
+              <button key={m} onClick={() => setMode(m)}
+                style={{ flex: 1, padding: "12px", borderRadius: 12, border: mode === m ? "2px solid #1A3055" : "1.5px solid #E2E8F0", background: mode === m ? "#1A3055" : "#fff", color: mode === m ? "#fff" : "#334155", fontWeight: 800, fontSize: 14, fontFamily: "Cairo, sans-serif", cursor: "pointer" }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* ── Drop zone (Massar mode) ── */}
+          {mode === "massar" && (
           <div
             style={{ ...dropZoneStyle, ...(dragging ? dropZoneActiveStyle : {}) }}
             onDragOver={e => { e.preventDefault(); setDragging(true); }}
@@ -173,9 +235,10 @@ export function GradeBookTool() {
             </label>
             {error && <div style={errorStyle}>{error}</div>}
           </div>
+          )}
 
-          {/* ── Main layout (visible after upload) ── */}
-          {hasEntries && (
+          {/* ── Main layout ── */}
+          {ready && (
             <div style={mainLayoutStyle}>
 
               {/* Left — config */}
@@ -191,12 +254,54 @@ export function GradeBookTool() {
                       <input style={inputStyle} value={config.annee}
                         onChange={e => patch("annee", e.target.value)} />
                     </Field>
+                    <Field label="المادة الدراسية (على الغلاف)">
+                      <input style={inputStyle} value={config.subject}
+                        placeholder="مثال: الفيزياء والكيمياء"
+                        onChange={e => patch("subject", e.target.value)} />
+                    </Field>
                     <Field label="عدد تقييمات الفرض">
                       <select style={selectStyle} value={config.evalCount}
-                        onChange={e => patch("evalCount", Number(e.target.value) as 1|2|3)}>
+                        onChange={e => patch("evalCount", Number(e.target.value) as 1|2|3|4)}>
                         <option value={1}>1 — فرض واحد</option>
                         <option value={2}>2 — فرضان</option>
                         <option value={3}>3 — ثلاثة فروض</option>
+                        <option value={4}>4 — أربعة فروض</option>
+                      </select>
+                    </Field>
+                    <Field label="غلاف الدفتر">
+                      <select style={selectStyle} value={config.coverVariant}
+                        onChange={e => patch("coverVariant", e.target.value as "male" | "female")}>
+                        <option value="male">نسخة أنيقة</option>
+                        <option value="female">نسخة ناعمة</option>
+                      </select>
+                    </Field>
+                    <Field label="المستوى (على الغلاف)">
+                      <select style={selectStyle} value={config.tier}
+                        onChange={e => patch("tier", e.target.value)}>
+                        <option value="">بدون</option>
+                        <option value="التعليم الابتدائي">التعليم الابتدائي</option>
+                        <option value="الثانوي الإعدادي">الثانوي الإعدادي</option>
+                        <option value="الثانوي التأهيلي">الثانوي التأهيلي</option>
+                      </select>
+                    </Field>
+                    <Field label="المديرية (على الغلاف — اختياري)">
+                      <input style={inputStyle} value={config.directorate}
+                        placeholder="مثال: المديرية الإقليمية لمكناس"
+                        onChange={e => patch("directorate", e.target.value)} />
+                    </Field>
+                    <Field label="الدورة">
+                      <select style={selectStyle} value={config.term}
+                        onChange={e => patch("term", e.target.value as "first" | "second" | "both")}>
+                        <option value="first">الدورة الأولى</option>
+                        <option value="second">الدورة الثانية</option>
+                        <option value="both">كلاهما (ملفان)</option>
+                      </select>
+                    </Field>
+                    <Field label="لغة المستند">
+                      <select style={selectStyle} value={config.lang}
+                        onChange={e => patch("lang", e.target.value as "ar" | "fr")}>
+                        <option value="ar">العربية</option>
+                        <option value="fr">الفرنسية (Français)</option>
                       </select>
                     </Field>
                   </div>
@@ -217,7 +322,7 @@ export function GradeBookTool() {
                 <div style={summaryCardStyle}>
                   <div style={summaryRowStyle}>
                     <span style={summaryLabelStyle}>إجمالي الأقسام</span>
-                    <span style={summaryValueStyle}>{entries.length}</span>
+                    <span style={summaryValueStyle}>{displayEntries.length}</span>
                   </div>
                   <div style={summaryRowStyle}>
                     <span style={summaryLabelStyle}>إجمالي التلاميذ</span>
@@ -226,24 +331,56 @@ export function GradeBookTool() {
                   <div style={summaryRowStyle}>
                     <span style={summaryLabelStyle}>عدد الصفحات (تقريبي)</span>
                     <span style={summaryValueStyle}>
-                      {1 + entries.reduce((acc, e) => acc + Math.ceil(e.data.students.length / 30), 0)}
+                      {1 + displayEntries.reduce((acc, e) => acc + Math.ceil(e.data.students.length / 30), 0)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Right — classes list */}
+              {/* Right — classes list / blank editor */}
               <div style={rightColStyle}>
                 <div style={sectionCardStyle}>
-                  <div style={listHeaderStyle}>
-                    <h2 style={sectionTitleStyle}>الأقسام المحملة</h2>
-                    <span style={badgeStyle}>{entries.length} قسم • مرتبة تصاعدياً</span>
-                  </div>
-                  <div style={classListStyle}>
-                    {entries.map((entry, idx) => (
-                      <ClassCard key={entry.id} entry={entry} idx={idx} onRemove={removeEntry} />
-                    ))}
-                  </div>
+                  {mode === "massar" ? (
+                    <>
+                      <div style={listHeaderStyle}>
+                        <h2 style={sectionTitleStyle}>الأقسام المحملة</h2>
+                        <span style={badgeStyle}>{entries.length} قسم • مرتبة تصاعدياً</span>
+                      </div>
+                      <div style={classListStyle}>
+                        {entries.map((entry, idx) => (
+                          <ClassCard key={entry.id} entry={entry} idx={idx} onRemove={removeEntry} />
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={listHeaderStyle}>
+                        <h2 style={sectionTitleStyle}>الأقسام (نسخة فارغة)</h2>
+                      </div>
+                      <Field label="عدد الأقسام">
+                        <select style={selectStyle} value={blankClasses.length}
+                          onChange={e => setClassCount(Number(e.target.value))}>
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+                        </select>
+                      </Field>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+                        {blankClasses.map((bc, i) => (
+                          <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+                            <div style={{ flex: 2 }}>
+                              <label style={blankLbl}>اسم القسم / المستوى</label>
+                              <input style={inputStyle} value={bc.name} placeholder={`القسم ${i + 1}`}
+                                onChange={e => patchBlank(i, "name", e.target.value)} />
+                            </div>
+                            <div style={{ width: 100 }}>
+                              <label style={blankLbl}>عدد التلاميذ</label>
+                              <input type="number" min={1} max={60} style={inputStyle} value={bc.count}
+                                onChange={e => patchBlank(i, "count", Number(e.target.value))} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -299,18 +436,18 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 // ── Styles ─────────────────────────────────────────────────────────────────────
 const pageStyle: CSSProperties = { minHeight: "100vh", backgroundColor: ds.colors.bgPage, fontFamily: "Cairo, system-ui, sans-serif", direction: "rtl" };
 
-const appBarStyle: CSSProperties = { position: "sticky", top: 0, zIndex: 40, backgroundColor: "rgba(255,255,255,0.96)", backdropFilter: "blur(16px)", boxShadow: "0 1px 0 rgba(124,58,237,0.06), 0 4px 16px rgba(0,0,0,0.04)" };
+const appBarStyle: CSSProperties = { position: "sticky", top: 0, zIndex: 40, backgroundColor: "rgba(255,255,255,0.96)", backdropFilter: "blur(16px)", boxShadow: "0 1px 0 rgba(15,118,110,0.06), 0 4px 16px rgba(0,0,0,0.04)" };
 const appBarInnerStyle: CSSProperties = { maxWidth: 1320, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 };
 const brandWrapStyle: CSSProperties = { display: "flex", alignItems: "center", gap: 12 };
-const logoMarkStyle: CSSProperties = { width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 16, flexShrink: 0, boxShadow: "0 4px 10px rgba(124,58,237,0.30)" };
+const logoMarkStyle: CSSProperties = { width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg, #0F766E 0%, #134E4A 100%)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 16, flexShrink: 0, boxShadow: "0 4px 10px rgba(15,118,110,0.30)" };
 const brandNameStyle: CSSProperties = { fontSize: 13, fontWeight: 800, color: ds.colors.textPrimary, lineHeight: "1.2" };
 const brandSubStyle: CSSProperties  = { fontSize: 11, color: ds.colors.textMuted, lineHeight: "1" };
-const appBarLineStyle: CSSProperties = { height: 2, background: "linear-gradient(90deg, #7C3AED 0%, #A78BFA 50%, transparent 100%)" };
+const appBarLineStyle: CSSProperties = { height: 2, background: "linear-gradient(90deg, #0F766E 0%, #14B8A6 50%, transparent 100%)" };
 const badgesRowStyle: CSSProperties = { display: "flex", alignItems: "center", gap: 8 };
 const badgeStyle: CSSProperties = { fontSize: 11, fontWeight: 700, color: ds.colors.primary600, backgroundColor: ds.colors.primary100, border: `1px solid ${ds.colors.primary200}`, borderRadius: 999, padding: "3px 10px" };
 const clearBtnStyle: CSSProperties = { fontSize: 12, fontWeight: 700, color: "#DC2626", backgroundColor: "transparent", border: "none", cursor: "pointer" };
 
-const heroStyle: CSSProperties = { position: "relative", overflow: "hidden", background: "linear-gradient(140deg, #3B0764 0%, #6D28D9 55%, #7C3AED 100%)", paddingTop: 56, paddingBottom: 100, paddingLeft: 24, paddingRight: 24 };
+const heroStyle: CSSProperties = { position: "relative", overflow: "hidden", background: "linear-gradient(140deg, #0A3D3A 0%, #0D9488 55%, #0F766E 100%)", paddingTop: 56, paddingBottom: 100, paddingLeft: 24, paddingRight: 24 };
 const heroBgStyle: CSSProperties = { position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)", backgroundSize: "28px 28px", pointerEvents: "none" };
 const heroInnerStyle: CSSProperties = { position: "relative", zIndex: 1, textAlign: "center", maxWidth: 600, margin: "0 auto" };
 const heroEyebrowStyle: CSSProperties = { display: "inline-block", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.75)", backgroundColor: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.20)", borderRadius: 999, padding: "6px 18px", marginBottom: 16 };
@@ -326,7 +463,7 @@ const dropZoneActiveStyle: CSSProperties = { borderColor: ds.colors.primary500, 
 const dropIconStyle: CSSProperties  = { fontSize: 44, marginBottom: 12 };
 const dropTitleStyle: CSSProperties = { fontSize: 18, fontWeight: 800, color: ds.colors.textPrimary, marginBottom: 6 };
 const dropSubStyle: CSSProperties   = { fontSize: 13, color: ds.colors.textMuted, marginBottom: 16 };
-const fileBtnStyle: CSSProperties   = { display: "inline-block", cursor: "pointer", fontSize: 14, fontWeight: 700, color: "#fff", backgroundColor: ds.colors.primary500, border: "none", borderRadius: 10, padding: "10px 24px", marginBottom: 12, boxShadow: "0 6px 18px rgba(124,58,237,0.25)" };
+const fileBtnStyle: CSSProperties   = { display: "inline-block", cursor: "pointer", fontSize: 14, fontWeight: 700, color: "#fff", backgroundColor: ds.colors.primary500, border: "none", borderRadius: 10, padding: "10px 24px", marginBottom: 12, boxShadow: "0 6px 18px rgba(15,118,110,0.25)" };
 const errorStyle: CSSProperties     = { marginTop: 12, fontSize: 13, color: ds.colors.danger, backgroundColor: ds.colors.dangerBg, border: `1px solid ${ds.colors.danger}`, borderRadius: 8, padding: "8px 16px" };
 
 const mainLayoutStyle: CSSProperties   = { display: "grid", gridTemplateColumns: "320px 1fr", gap: 20, alignItems: "start" };
@@ -347,7 +484,7 @@ const thumbStyle: CSSProperties        = { position: "absolute", top: 3, right: 
 const thumbOnStyle: CSSProperties      = { right: "calc(100% - 19px)" };
 const toggleLabelStyle: CSSProperties  = { fontSize: 12, fontWeight: 600, color: ds.colors.textSecondary };
 
-const exportBtnStyle: CSSProperties        = { width: "100%", minHeight: 48, borderRadius: 12, border: "none", cursor: "pointer", background: "linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)", color: "#fff", fontSize: 15, fontWeight: 800, boxShadow: "0 8px 20px rgba(124,58,237,0.30)", transition: "opacity 150ms" };
+const exportBtnStyle: CSSProperties        = { width: "100%", minHeight: 48, borderRadius: 12, border: "none", cursor: "pointer", background: "linear-gradient(135deg, #0F766E 0%, #134E4A 100%)", color: "#fff", fontSize: 15, fontWeight: 800, boxShadow: "0 8px 20px rgba(15,118,110,0.30)", transition: "opacity 150ms" };
 const exportBtnDisabledStyle: CSSProperties = { opacity: 0.7, cursor: "not-allowed" };
 
 const summaryCardStyle: CSSProperties = { backgroundColor: ds.colors.bgSubtle, border: `1px solid ${ds.colors.borderMuted}`, borderRadius: 12, padding: "14px 18px", display: "flex", flexDirection: "column", gap: 8 };

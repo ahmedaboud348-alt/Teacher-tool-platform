@@ -26,7 +26,9 @@ export type GradingSheetConfig = {
   annee: string;
   classe: string;
   // Columns
-  evalCount: 1 | 2 | 3;
+  evalCount: 1 | 2 | 3 | 4;
   showActivites: boolean;
   showObservation: boolean;
+  // Output language for all generated labels
+  lang: "ar" | "fr";
 };
