@@ -20,6 +20,7 @@ const LB = {
   class:       { ar: "القسم", fr: "Classe" },
   date:        { ar: "التاريخ", fr: "Date" },
   activities:  { ar: "الأنشطة المنجزة", fr: "Activités réalisées" },
+  logTitle:    { ar: "سجل الدروس والأنشطة المنجزة", fr: "Journal des séances" },
   dirNotes:    { ar: "ملاحظات السيد المدير", fr: "Observations du Directeur" },
   inspNotes:   { ar: "ملاحظات السيد المفتش", fr: "Observations de l'Inspecteur" },
   // roster
@@ -114,8 +115,15 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
     : { ink: "#1E2A44", sub: "#46587A", accent: "#B0893C" };
 
   const g = config.coverVariant === "female"
-    ? { ink: "#6A4351", ink2: "#815566", line: "#9B6576", row: "#F7EEF1", goldLt: "#F3E3D8" }
-    : { ink: "#1A3055", ink2: "#234D7A", line: "#2E6DA4", row: "#EEF3F8", goldLt: "#F5E6C0" };
+    ? { ink: "#6A4351", ink2: "#815566", line: "#9B6576", row: "#F9F1F4", goldLt: "#F3E3D8" }
+    : { ink: "#1A3055", ink2: "#234D7A", line: "#2E6DA4", row: "#F1F6FB", goldLt: "#F5E6C0" };
+  // Refined palette for the premium look.
+  const isF = config.coverVariant === "female";
+  const cardBorder = isF ? "#DBC6CF" : "#BFCDDD";
+  const headTint  = isF ? "#F0E1E8" : "#E4EBF4";
+  const headText  = g.ink;
+  const cellBorder = isF ? "#E4D2DA" : "#CFDBE7";
+  const side = lang === "fr" ? "left" : "right";
 
   const flourish =
     `<svg width="210" height="14" viewBox="0 0 210 14" xmlns="http://www.w3.org/2000/svg">` +
@@ -124,6 +132,22 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
     `<path d="M105 1 L112 7 L105 13 L98 7 Z" fill="${theme.accent}"/>` +
     `<circle cx="14" cy="7" r="1.8" fill="${theme.accent}"/>` +
     `<circle cx="196" cy="7" r="1.8" fill="${theme.accent}"/></svg>`;
+
+  // ── Shared premium UI helpers ──
+  const sv = (p: string) => `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+  const ICONS = {
+    list: sv(`<path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1.1" fill="#fff" stroke="none"/><circle cx="4" cy="12" r="1.1" fill="#fff" stroke="none"/><circle cx="4" cy="18" r="1.1" fill="#fff" stroke="none"/>`),
+    calendar: sv(`<rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/>`),
+    building: sv(`<path d="M4 21V6l8-3 8 3v15"/><path d="M3 21h18M9 10h.01M15 10h.01M9 14h.01M15 14h.01M10.5 21v-3h3v3"/>`),
+    grid: sv(`<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>`),
+    book: sv(`<path d="M5 4a1 1 0 0 1 1-1h13v18H6a1 1 0 0 1-1-1z"/><path d="M8 7h8M8 11h8M8 15h5"/>`),
+    leaf: sv(`<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6M9 11h6"/>`),
+    journal: sv(`<path d="M4 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M8 8h8M8 12h8M8 16h5"/>`),
+  };
+  const secHd = (icon: string, title: string) =>
+    `<div class="sec-hd"><span class="sec-ic">${icon}</span><span class="sec-tt">${title}</span></div>`;
+  const chip = (label: string, value = "") =>
+    `<span class="chip"><b>${label}</b>${value ? ` ${value}` : ""}</span>`;
 
   const directorateLine = config.directorate ? `<div class="r3">${config.directorate}</div>` : "";
   const teacherLabel = config.coverVariant === "female" ? pick(COVER_L.teacherF, lang) : pick(COVER_L.teacherM, lang);
@@ -147,21 +171,23 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
       .join("");
     return `
     <div class="ct-page">
-      <div class="ct-hdr">
-        <span class="hcell"><b>${t(LB.class, lang)}:</b> ${cls.meta.className || cls.meta.level || ""}</span>
-        <span class="hcell"><b>${t(LB.count, lang)}:</b> ${cls.students.length || ""}</span>
-        <span class="hcell"><b>${t(LB.boys, lang)}:</b> </span>
-        <span class="hcell"><b>${t(LB.girls, lang)}:</b> </span>
+      <div class="info-band">
+        ${chip(t(LB.class, lang) + ":", cls.meta.className || cls.meta.level || "")}
+        ${chip(t(LB.count, lang) + ":", String(cls.students.length || ""))}
+        ${chip(t(LB.boys, lang) + ":")}
+        ${chip(t(LB.girls, lang) + ":")}
       </div>
-      <div class="ct-caption">${t(LB.studentsList, lang)}</div>
-      <table class="roster-tbl">
-        <colgroup><col class="c-rn"/><col/><col class="c-rd"/></colgroup>
-        <thead><tr>
-          <th>${t(LB.rNum, lang)}</th><th>${t(LB.rName, lang)}</th>
-          <th>${t(LB.rBirth, lang)}</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+      <div class="card-wrap">
+        ${secHd(ICONS.list, t(LB.studentsList, lang))}
+        <table class="roster-tbl">
+          <colgroup><col class="c-rn"/><col/><col class="c-rd"/></colgroup>
+          <thead><tr>
+            <th>${t(LB.rNum, lang)}</th><th>${t(LB.rName, lang)}</th>
+            <th>${t(LB.rBirth, lang)}</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
     </div>`;
   };
 
@@ -172,17 +198,20 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   const subj = config.subject || "";
   const logPage = (levelName: string): string => `
     <div class="ct-page ct-logpage">
-      <div class="ct-hdr">
-        <span class="hcell"><b>${t(LB.level, lang)}:</b> ${levelName || ""}</span>
-        ${subj ? `<span class="hcell"><b>${pick(COVER_L.subjectLabel, lang)}:</b> ${subj}</span>` : ""}
+      <div class="info-band">
+        ${chip(t(LB.level, lang) + ":", levelName || "")}
+        ${subj ? chip(pick(COVER_L.subjectLabel, lang) + ":", subj) : ""}
       </div>
-      <table class="log-tbl">
-        <colgroup><col class="c-date"/><col class="c-cls"/><col/></colgroup>
-        <thead><tr>
-          <th>${t(LB.date, lang)}</th><th>${t(LB.class, lang)}</th><th>${t(LB.activities, lang)}</th>
-        </tr></thead>
-        <tbody>${emptyRows(20)}</tbody>
-      </table>
+      <div class="card-wrap logcard">
+        ${secHd(ICONS.journal, t(LB.logTitle, lang))}
+        <table class="log-tbl">
+          <colgroup><col class="c-date"/><col class="c-cls"/><col/></colgroup>
+          <thead><tr>
+            <th>${t(LB.date, lang)}</th><th>${t(LB.class, lang)}</th><th>${t(LB.activities, lang)}</th>
+          </tr></thead>
+          <tbody>${emptyRows(19)}</tbody>
+        </table>
+      </div>
       <div class="ct-notes">
         <div class="note-box"><div class="note-lbl">${t(LB.dirNotes, lang)}</div></div>
         <div class="note-box"><div class="note-lbl">${t(LB.inspNotes, lang)}</div></div>
@@ -254,12 +283,14 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   }).join("");
   const holidaysPage = config.showHolidays ? `
     <div class="ct-page ct-fillpage">
-      <div class="ct-caption">${t(LB.holTitle, lang)} — <span style="direction:ltr;unicode-bidi:isolate">${YEAR_LABEL}</span></div>
-      <table class="grid-tbl fill-tbl">
-        <colgroup><col/><col class="c-hd"/><col class="c-hd"/><col class="c-hu"/></colgroup>
-        <thead><tr><th>${t(LB.hName, lang)}</th><th>${t(LB.hFrom, lang)}</th><th>${t(LB.hTo, lang)}</th><th>${t(LB.hDur, lang)}</th></tr></thead>
-        <tbody>${holRows}</tbody>
-      </table>
+      <div class="card-wrap fillcard">
+        ${secHd(ICONS.calendar, `${t(LB.holTitle, lang)} — <span style="direction:ltr;unicode-bidi:isolate">${YEAR_LABEL}</span>`)}
+        <table class="grid-tbl fill-tbl">
+          <colgroup><col/><col class="c-hd"/><col class="c-hd"/><col class="c-hu"/></colgroup>
+          <thead><tr><th>${t(LB.hName, lang)}</th><th>${t(LB.hFrom, lang)}</th><th>${t(LB.hTo, lang)}</th><th>${t(LB.hDur, lang)}</th></tr></thead>
+          <tbody>${holRows}</tbody>
+        </table>
+      </div>
     </div>` : "";
 
   // ── School structure + timetable + signatures ──
@@ -276,26 +307,33 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   ).join("");
   const structurePage = config.showStructure ? `
     <div class="ct-page">
-      <div class="ct-caption">${t(LB.structTitle, lang)}</div>
-      <table class="grid-tbl" style="margin-bottom:14px">
-        <thead><tr>
-          <th>${t(LB.sLevels, lang)}</th><th>${t(LB.sClasses, lang)}</th><th>${t(LB.count, lang)}</th>
-          <th>${t(LB.boys, lang)}</th><th>${t(LB.girls, lang)}</th><th>${t(LB.sTotal, lang)}</th>
-        </tr></thead>
-        <tbody>${structRows}</tbody>
-      </table>
-      <table class="grid-tbl" style="margin-bottom:16px">
-        <thead><tr>
-          <th>${t(LB.assigned, lang)}</th><th>${t(LB.count, lang)}</th><th>${t(LB.hoursDone, lang)}</th>
-          <th>${t(LB.hoursExtra, lang)}</th><th>${t(LB.sTotal, lang)}</th>
-        </tr></thead>
-        <tbody>${assignedRows}</tbody>
-      </table>
-      <div class="ct-caption">${t(LB.timetable, lang)}</div>
-      <table class="grid-tbl tt-tbl">
-        <thead><tr><th class="tt-day">${t(LB.daysCol, lang)}</th>${slotHead}</tr></thead>
-        <tbody>${ttRows}</tbody>
-      </table>
+      <div class="card-wrap" style="margin-bottom:13px">
+        ${secHd(ICONS.building, t(LB.structTitle, lang))}
+        <table class="grid-tbl">
+          <thead><tr>
+            <th>${t(LB.sLevels, lang)}</th><th>${t(LB.sClasses, lang)}</th><th>${t(LB.count, lang)}</th>
+            <th>${t(LB.boys, lang)}</th><th>${t(LB.girls, lang)}</th><th>${t(LB.sTotal, lang)}</th>
+          </tr></thead>
+          <tbody>${structRows}</tbody>
+        </table>
+      </div>
+      <div class="card-wrap" style="margin-bottom:13px">
+        ${secHd(ICONS.list, t(LB.assigned, lang))}
+        <table class="grid-tbl">
+          <thead><tr>
+            <th>${t(LB.assigned, lang)}</th><th>${t(LB.count, lang)}</th><th>${t(LB.hoursDone, lang)}</th>
+            <th>${t(LB.hoursExtra, lang)}</th><th>${t(LB.sTotal, lang)}</th>
+          </tr></thead>
+          <tbody>${assignedRows}</tbody>
+        </table>
+      </div>
+      <div class="card-wrap">
+        ${secHd(ICONS.grid, t(LB.timetable, lang))}
+        <table class="grid-tbl tt-tbl">
+          <thead><tr><th class="tt-day">${t(LB.daysCol, lang)}</th>${slotHead}</tr></thead>
+          <tbody>${ttRows}</tbody>
+        </table>
+      </div>
       <div class="sig-row">
         <div class="sig-box"><div class="sig-lbl">${t(LB.sigProf, lang)}</div></div>
         <div class="sig-box"><div class="sig-lbl">${t(LB.sigDir, lang)}</div></div>
@@ -320,32 +358,37 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   }).join("");
   const indexPage = config.showIndex ? `
     <div class="ct-page">
-      <div class="ct-caption">${t(LB.indexTitle, lang)}</div>
-      <table class="grid-tbl idx-tbl">
-        <colgroup><col class="c-idxn"/><col/><col class="c-idxp"/></colgroup>
-        <thead><tr><th>#</th><th>${t(LB.idxSection, lang)}</th><th>${t(LB.idxPage, lang)}</th></tr></thead>
-        <tbody>${sommaireRows}</tbody>
-      </table>
-      <div style="height:18px"></div>
-      <div class="ct-caption">${t(LB.guideTitle, lang)}</div>
-      <table class="grid-tbl">
-        <thead><tr><th>${t(LB.sLevels, lang)}</th><th>${t(LB.sClasses, lang)}</th><th>${t(LB.classesCol, lang)}</th><th>${t(LB.count, lang)}</th></tr></thead>
-        <tbody>${guideRows}</tbody>
-      </table>
+      <div class="card-wrap" style="margin-bottom:16px">
+        ${secHd(ICONS.book, t(LB.indexTitle, lang))}
+        <table class="grid-tbl idx-tbl">
+          <colgroup><col class="c-idxn"/><col/><col class="c-idxp"/></colgroup>
+          <thead><tr><th>#</th><th>${t(LB.idxSection, lang)}</th><th>${t(LB.idxPage, lang)}</th></tr></thead>
+          <tbody>${sommaireRows}</tbody>
+        </table>
+      </div>
+      <div class="card-wrap">
+        ${secHd(ICONS.list, t(LB.guideTitle, lang))}
+        <table class="grid-tbl">
+          <thead><tr><th>${t(LB.sLevels, lang)}</th><th>${t(LB.sClasses, lang)}</th><th>${t(LB.classesCol, lang)}</th><th>${t(LB.count, lang)}</th></tr></thead>
+          <tbody>${guideRows}</tbody>
+        </table>
+      </div>
     </div>` : "";
 
   // ── Leaves table (medical & personal) — fills the page ──
-  const leaveEmptyRows = Array.from({ length: 14 }, () =>
+  const leaveEmptyRows = Array.from({ length: 13 }, () =>
     `<tr><td></td><td class="h-dt"></td><td class="h-dt"></td><td class="h-du"></td><td></td></tr>`
   ).join("");
   const leavesPage = config.showLeaves ? `
     <div class="ct-page ct-fillpage">
-      <div class="ct-caption">${t(LB.leaveTitle, lang)}</div>
-      <table class="grid-tbl fill-tbl">
-        <colgroup><col class="c-lt"/><col class="c-hd"/><col class="c-hd"/><col class="c-hu"/><col/></colgroup>
-        <thead><tr><th>${t(LB.leaveType, lang)}</th><th>${t(LB.hFrom, lang)}</th><th>${t(LB.hTo, lang)}</th><th>${t(LB.hDur, lang)}</th><th>${t(LB.obs, lang)}</th></tr></thead>
-        <tbody>${leaveEmptyRows}</tbody>
-      </table>
+      <div class="card-wrap fillcard">
+        ${secHd(ICONS.leaf, t(LB.leaveTitle, lang))}
+        <table class="grid-tbl fill-tbl">
+          <colgroup><col class="c-lt"/><col class="c-hd"/><col class="c-hd"/><col class="c-hu"/><col/></colgroup>
+          <thead><tr><th>${t(LB.leaveType, lang)}</th><th>${t(LB.hFrom, lang)}</th><th>${t(LB.hTo, lang)}</th><th>${t(LB.hDur, lang)}</th><th>${t(LB.obs, lang)}</th></tr></thead>
+          <tbody>${leaveEmptyRows}</tbody>
+        </table>
+      </div>
     </div>` : "";
 
   const frontMatter = indexPage + cardsPage + holidaysPage + leavesPage + structurePage;
@@ -397,49 +440,67 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
 
   /* ── Inner pages ── */
   .ct-page { page: sheet; page-break-before: always; }
-  /* Lesson-log page fills the whole printable area: the table stretches and the
-     notes stay pinned to the bottom — no empty gap. */
-  .ct-logpage { display: flex; flex-direction: column; height: 277mm; overflow: hidden; }
-  .ct-logpage .ct-hdr { flex: 0 0 auto; }
-  .ct-logpage .log-tbl { flex: 1 1 auto; height: 100%; }
+
+  /* Info chips band (level / subject / class …) */
+  .info-band { display: flex; gap: 9px; margin-bottom: 11px; }
+  .chip { flex: 1; position: relative; background: #fff; border: 1.2px solid ${cardBorder};
+    border-radius: 8px; padding: 9px 13px; padding-${side}: 18px; font-size: 12px; color: ${g.ink}; font-weight: 700; }
+  .chip::before { content: ''; position: absolute; ${side}: 0; top: 4px; bottom: 4px; width: 4px;
+    background: ${theme.accent}; border-radius: 3px; }
+  .chip b { color: ${g.line}; font-weight: 800; }
+
+  /* Section card = dark title band (+gold underline) over a bordered table */
+  .card-wrap { border: 1.3px solid ${cardBorder}; border-radius: 10px; overflow: hidden; background: #fff; }
+  .sec-hd { position: relative; background: linear-gradient(105deg, ${g.ink} 0%, ${g.ink2} 100%);
+    color: #fff; display: flex; align-items: center; justify-content: center; gap: 9px; padding: 11px 14px 13px; }
+  .sec-hd::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: ${theme.accent}; }
+  .sec-ic { display: flex; align-items: center; }
+  .sec-tt { font-size: 14px; font-weight: 900; letter-spacing: .4px; }
+
+  /* Fill pages: the card + its table stretch to fill the sheet */
+  .ct-logpage, .ct-fillpage { display: flex; flex-direction: column; height: 277mm; overflow: hidden; }
+  .ct-logpage .info-band { flex: 0 0 auto; }
+  .ct-logpage .logcard, .ct-fillpage .fillcard { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+  .ct-logpage .log-tbl, .ct-fillpage .fill-tbl { flex: 1 1 auto; height: 100%; }
   .ct-logpage .ct-notes { flex: 0 0 auto; }
-  .ct-hdr { display: flex; gap: 8px; margin-bottom: 8px; }
-  .ct-hdr .hcell { flex: 1; border: 1px solid #8FA8BB; border-radius: 4px; padding: 8px 12px;
-    font-size: 12px; color: #0D1117; background: ${g.row}; }
-  .ct-hdr .hcell b { color: ${g.line}; }
-  .ct-caption { background: ${g.ink}; color: #fff; text-align: center; font-weight: 900; font-size: 13px;
-    padding: 7px; border-radius: 4px 4px 0 0; }
 
-  table.log-tbl, table.roster-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid #8FA8BB; }
-  table.log-tbl thead, table.roster-tbl thead { display: table-header-group; }
-  table.log-tbl th, table.roster-tbl th { background: ${g.ink}; color: #fff; font-weight: 900; font-size: 12px;
-    text-align: center; padding: 7px 3px; border: 0.75px solid ${g.line}; }
-  table.log-tbl td, table.roster-tbl td { border: 0.75px solid #AABDCC; }
-  table.log-tbl tbody tr:nth-child(even) td, table.roster-tbl tbody tr:nth-child(even) td { background: ${g.row}; }
-  table.log-tbl tbody tr, table.roster-tbl tbody tr { page-break-inside: avoid; }
+  /* Shared table skeleton */
+  table.log-tbl, table.roster-tbl, table.grid-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  table.log-tbl thead, table.roster-tbl thead, table.grid-tbl thead { display: table-header-group; }
+  table.log-tbl th, table.roster-tbl th, table.grid-tbl th {
+    background: ${headTint}; color: ${headText}; font-weight: 800; font-size: 11.5px; text-align: center;
+    padding: 8px 3px; border: 0.6px solid ${cellBorder}; border-bottom: 2px solid ${theme.accent}; }
+  table.log-tbl td, table.roster-tbl td, table.grid-tbl td {
+    border: 0.6px solid ${cellBorder}; text-align: center; vertical-align: middle; }
+  table.log-tbl tbody tr:nth-child(even) td, table.roster-tbl tbody tr:nth-child(even) td,
+  table.grid-tbl tbody tr:nth-child(even) td { background: ${g.row}; }
+  table.log-tbl tbody tr, table.roster-tbl tbody tr, table.grid-tbl tbody tr { page-break-inside: avoid; }
 
-  col.c-date { width: 80px; } col.c-cls { width: 60px; }
-  td.l-date, td.l-class { text-align: center; }
-  td.l-act { height: 30px; }
-  td.l-date, td.l-class { height: 30px; }
+  /* Log columns */
+  col.c-date { width: 82px; } col.c-cls { width: 60px; }
+  td.l-date, td.l-class, td.l-act { height: 30px; }
 
-  col.c-rn { width: 34px; } col.c-rd { width: 110px; }
-  table.roster-tbl td { height: 25px; font-size: 10px; vertical-align: middle; }
-  td.r-num { text-align: center; color: #3D5A6E; font-weight: 700; font-size: 11px; }
-  td.r-name { text-align: ${lang === "fr" ? "left" : "right"}; direction: ${dir}; padding: 0 8px; font-weight: 700; font-size: 12px; }
+  /* Roster */
+  col.c-rn { width: 36px; } col.c-rd { width: 112px; }
+  table.roster-tbl td { height: 25px; font-size: 10px; }
+  td.r-num { text-align: center; color: ${g.line}; font-weight: 700; font-size: 11px; }
+  td.r-name { text-align: ${side}; direction: ${dir}; padding: 0 9px; font-weight: 700; font-size: 12px; }
 
-  .ct-notes { display: flex; gap: 10px; margin-top: 8px; break-inside: avoid; page-break-inside: avoid; }
-  .ct-notes .note-box { flex: 1; border: 1px solid #8FA8BB; border-radius: 4px; min-height: 66px; }
-  .ct-notes .note-lbl { background: ${g.row}; color: ${g.ink}; font-weight: 800; font-size: 10px;
-    text-align: center; padding: 4px; border-bottom: 1px solid #8FA8BB; }
+  /* Notes (director / inspector) */
+  .ct-notes { display: flex; gap: 11px; margin-top: 10px; break-inside: avoid; page-break-inside: avoid; }
+  .ct-notes .note-box { flex: 1; border: 1.2px solid ${cardBorder}; border-radius: 9px; overflow: hidden; min-height: 62px; background: #fff; }
+  .ct-notes .note-lbl { background: ${headTint}; color: ${g.ink}; font-weight: 800; font-size: 10.5px;
+    text-align: center; padding: 6px; border-bottom: 2px solid ${theme.accent}; }
 
   /* ── Cards ── */
-  .card2 { border: 1.5px solid ${theme.accent}55; border-radius: 9px; overflow: hidden; margin: 0 4mm; }
-  .card2-head { background: ${g.ink}; color: #fff; display: flex; align-items: center; gap: 9px; padding: 10px 16px; }
+  .card2 { border: 1.3px solid ${cardBorder}; border-radius: 11px; overflow: hidden; margin: 0 2mm; }
+  .card2-head { position: relative; background: linear-gradient(105deg, ${g.ink} 0%, ${g.ink2} 100%); color: #fff;
+    display: flex; align-items: center; gap: 9px; padding: 11px 16px 13px; }
   .card2-head .tt { font-size: 14.5px; font-weight: 900; letter-spacing: .3px; }
   .card2-head svg { flex-shrink: 0; }
-  .card2-goldbar { height: 3px; background: ${theme.accent}; }
-  .card2-wrap { display: flex; gap: 16px; padding: 16px 18px; align-items: flex-start; }
+  .card2-head::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: ${theme.accent}; }
+  .card2-goldbar { display: none; }
+  .card2-wrap { display: flex; gap: 16px; padding: 18px 20px; align-items: flex-start; }
   .photo { width: 26mm; height: 33mm; border: 1.5px dashed ${theme.accent}; border-radius: 7px;
     display: flex; align-items: center; justify-content: center; text-align: center;
     font-size: 10px; font-weight: 700; color: ${theme.sub}; background: ${g.row}; flex-shrink: 0; }
@@ -449,33 +510,23 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   .fld2 .lb { font-size: 12px; font-weight: 800; color: ${g.ink}; }
   .fld2 .vl { border-bottom: 1.2px dotted #A9B8C6; height: 17px; }
 
-  /* Holidays page fills the whole printable area; its rows stretch to fill. */
-  .ct-fillpage { display: flex; flex-direction: column; height: 277mm; overflow: hidden; }
-  .ct-fillpage .ct-caption { flex: 0 0 auto; }
-  .ct-fillpage .fill-tbl { flex: 1 1 auto; height: 100%; }
-
-  /* ── Generic grid tables (holidays, structure, timetable) ── */
-  table.grid-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid #8FA8BB; }
-  table.grid-tbl th { background: ${g.ink}; color: #fff; font-weight: 900; font-size: 11.5px; text-align: center;
-    padding: 7px 3px; border: 0.75px solid ${g.line}; }
-  table.grid-tbl td { border: 0.75px solid #AABDCC; height: 26px; font-size: 12px; text-align: center; padding: 0 4px; vertical-align: middle; }
-  table.grid-tbl tbody tr:nth-child(even) td { background: ${g.row}; }
-  td.h-nm, td.s-lv { text-align: ${lang === "fr" ? "left" : "right"}; padding: 0 10px; font-weight: 700; font-size: 12.5px; }
+  /* ── Generic grid tables (holidays, structure, timetable, index) ── */
+  table.grid-tbl td { height: 26px; font-size: 12px; padding: 0 4px; }
+  td.h-nm, td.s-lv { text-align: ${side}; padding: 0 10px; font-weight: 700; font-size: 12.5px; }
   /* index (sommaire) */
-  col.c-idxn { width: 34px; } col.c-idxp { width: 90px; } col.c-lt { width: 26%; }
+  col.c-idxn { width: 36px; } col.c-idxp { width: 92px; } col.c-lt { width: 26%; }
   table.idx-tbl td { height: 30px; }
   td.idx-n { text-align: center; font-weight: 700; color: ${g.line}; font-size: 12px; }
-  td.idx-name { text-align: ${lang === "fr" ? "left" : "right"}; padding: 0 14px; font-weight: 700; font-size: 13px; }
+  td.idx-name { text-align: ${side}; padding: 0 14px; font-weight: 700; font-size: 13px; }
   td.idx-pg { border-bottom: 0.75px dotted ${g.line}; }
   td.h-dt { direction: ltr; unicode-bidi: isolate; font-size: 12.5px; } td.h-du { font-weight: 800; color: ${g.line}; font-size: 13px; }
   col.c-hd { width: 92px; } col.c-hu { width: 78px; }
   table.tt-tbl td { height: 34px; } th.tt-slot { font-size: 9px; direction: ltr; unicode-bidi: isolate; }
-  td.tt-day, th.tt-day { font-weight: 800; background: ${g.row}; color: ${g.ink}; width: 72px; font-size: 11px; }
-  table.tt-tbl th.tt-day { background: ${g.ink}; color: #fff; }
+  td.tt-day { font-weight: 800; background: ${headTint}; color: ${g.ink}; width: 72px; font-size: 11px; }
 
-  .sig-row { display: flex; gap: 10px; margin-top: 14px; }
-  .sig-box { flex: 1; border: 1px solid #8FA8BB; border-radius: 5px; min-height: 74px; }
-  .sig-lbl { background: ${g.row}; color: ${g.ink}; font-weight: 800; font-size: 11px; text-align: center; padding: 6px; border-bottom: 1px solid #8FA8BB; }
+  .sig-row { display: flex; gap: 11px; margin-top: 15px; }
+  .sig-box { flex: 1; border: 1.2px solid ${cardBorder}; border-radius: 9px; overflow: hidden; min-height: 74px; background: #fff; }
+  .sig-lbl { background: ${headTint}; color: ${g.ink}; font-weight: 800; font-size: 11px; text-align: center; padding: 7px; border-bottom: 2px solid ${theme.accent}; }
 
   /* ── Level divider (full-bleed, generated background) ── */
   .ct-divider { page-break-before: always; width: 210mm; height: 297mm; overflow: hidden;
