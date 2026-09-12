@@ -31,4 +31,5 @@ export type CahierTextesConfig = {
   showStructure: boolean;    // البنية التربوية + جدول الحصص + التواقيع
   showIndex: boolean;        // صفحة الفهرس + دليل الأقسام
   showLeaves: boolean;       // جدول الرخص الطبية والشخصية
+  logSplit: "level" | "class"; // تقسيم سجل الدروس: سجل لكل مستوى أو لكل قسم
 };

@@ -26,6 +26,7 @@ export function CahierTextesTool() {
   const [config, setConfig] = useState<Omit<CahierTextesConfig, "lang" | "levels">>({
     coverVariant: "male", subject: "", academy: "", directorate: "", school: "", prof: "", annee: "",
     showHolidays: true, showStudentLists: true, showCards: true, showStructure: true, showIndex: true, showLeaves: true,
+    logSplit: "level",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -154,6 +155,22 @@ export function CahierTextesTool() {
             </div>
           </div>
 
+          {/* Log split: per level vs per class */}
+          <div style={{ marginBottom: 14 }}>
+            <label style={miniLbl}>{T("تقسيم سجل الدروس", "Découpage du journal")}</label>
+            <div style={{ display: "flex", gap: 10 }}>
+              {([["level", T("سجل موحّد لكل مستوى", "Un journal par niveau")], ["class", T("سجل مستقل لكل قسم", "Un journal par classe")]] as const).map(([v, label]) => {
+                const on = config.logSplit === v;
+                return (
+                  <button key={v} onClick={() => setConfig(c => ({ ...c, logSplit: v }))}
+                    style={{ flex: 1, padding: "10px", borderRadius: 10, border: on ? `2px solid ${INDIGO}` : "1.5px solid #E2E8F0", background: on ? INDIGO_LIGHT : "#fff", color: on ? INK : "#64748B", fontWeight: 700, fontSize: 12.5, cursor: "pointer", fontFamily: "Cairo, sans-serif" }}>
+                    {on ? "✓ " : ""}{label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {levels.map((lv, i) => (
               <div key={i} style={levelCard}>
@@ -162,8 +179,8 @@ export function CahierTextesTool() {
                     <label style={miniLbl}>{T(`اسم المستوى ${i + 1}`, `Niveau ${i + 1}`)}</label>
                     <input style={inp} value={lv.name} placeholder={T("مثال: الأولى إعدادي", "Ex: 1ère année")} onChange={e => patchLevel(i, { name: e.target.value })} />
                   </div>
-                  <div style={{ width: 150 }}>
-                    <label style={miniLbl}>{T("صفحات سجل الدروس", "Pages du journal")}</label>
+                  <div style={{ width: 160 }}>
+                    <label style={miniLbl}>{config.logSplit === "class" ? T("صفحات لكل قسم", "Pages / classe") : T("صفحات لكل مستوى", "Pages / niveau")}</label>
                     <input type="number" min={1} max={40} style={inp} value={lv.logPages} onChange={e => patchLevel(i, { logPages: Number(e.target.value) })} />
                   </div>
                   {mode === "massar" && (

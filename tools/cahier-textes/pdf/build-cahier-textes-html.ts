@@ -173,7 +173,7 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
     <div class="ct-page">
       <div class="info-band">
         ${chip(t(LB.class, lang) + ":", cls.meta.className || cls.meta.level || "")}
-        ${chip(t(LB.count, lang) + ":", String(cls.students.length || ""))}
+        ${chip(t(LB.count, lang) + ":", String(cls.students.filter((s) => s.name.trim()).length || ""))}
         ${chip(t(LB.boys, lang) + ":")}
         ${chip(t(LB.girls, lang) + ":")}
       </div>
@@ -196,10 +196,11 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
     Array.from({ length: n }, () => `<tr><td class="l-date"></td><td class="l-class"></td><td class="l-act"></td></tr>`).join("");
 
   const subj = config.subject || "";
-  const logPage = (levelName: string): string => `
+  const logPage = (levelName: string, className = ""): string => `
     <div class="ct-page ct-logpage">
       <div class="info-band">
         ${chip(t(LB.level, lang) + ":", levelName || "")}
+        ${className ? chip(t(LB.class, lang) + ":", className) : ""}
         ${subj ? chip(pick(COVER_L.subjectLabel, lang) + ":", subj) : ""}
       </div>
       <div class="card-wrap logcard">
@@ -353,7 +354,8 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   ).join("");
   const guideRows = config.levels.map((lv) => {
     const names = lv.classes.map((c) => c.meta.className || "").filter(Boolean).join("، ") || "—";
-    const count = lv.classes.reduce((sm, c) => sm + c.students.length, 0);
+    // Count only real (named) students — stays empty in the blank version.
+    const count = lv.classes.reduce((sm, c) => sm + c.students.filter((s) => s.name.trim()).length, 0);
     return `<tr><td class="s-lv">${lv.name || ""}</td><td>${lv.classes.length}</td><td>${names}</td><td>${count || ""}</td></tr>`;
   }).join("");
   const indexPage = config.showIndex ? `
@@ -397,9 +399,12 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
     .map((lv) => {
       const divider = levelDivider(lv, config.levels.indexOf(lv));
       const rosters = config.showStudentLists ? lv.classes.map(rosterHtml).join("") : "";
-      // One running lesson-log per LEVEL (not per class); the class is noted in
-      // the "Classe" column row by row.
-      const logs = Array.from({ length: Math.max(1, lv.logPagesPerClass) }, () => logPage(lv.name)).join("");
+      const pages = Math.max(1, lv.logPagesPerClass);
+      // "level" → one running log for the whole level (class noted per row);
+      // "class" → a dedicated log block per class.
+      const logs = config.logSplit === "class" && lv.classes.length > 0
+        ? lv.classes.map((c) => Array.from({ length: pages }, () => logPage(lv.name, c.meta.className || "")).join("")).join("")
+        : Array.from({ length: pages }, () => logPage(lv.name)).join("");
       return divider + rosters + logs;
     })
     .join("");
