@@ -404,16 +404,16 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   .ct-logpage .log-tbl { flex: 1 1 auto; height: 100%; }
   .ct-logpage .ct-notes { flex: 0 0 auto; }
   .ct-hdr { display: flex; gap: 8px; margin-bottom: 8px; }
-  .ct-hdr .hcell { flex: 1; border: 1px solid #8FA8BB; border-radius: 4px; padding: 7px 10px;
-    font-size: 10px; color: #0D1117; background: ${g.row}; }
+  .ct-hdr .hcell { flex: 1; border: 1px solid #8FA8BB; border-radius: 4px; padding: 8px 12px;
+    font-size: 12px; color: #0D1117; background: ${g.row}; }
   .ct-hdr .hcell b { color: ${g.line}; }
-  .ct-caption { background: ${g.ink}; color: #fff; text-align: center; font-weight: 900; font-size: 12px;
-    padding: 6px; border-radius: 4px 4px 0 0; }
+  .ct-caption { background: ${g.ink}; color: #fff; text-align: center; font-weight: 900; font-size: 13px;
+    padding: 7px; border-radius: 4px 4px 0 0; }
 
   table.log-tbl, table.roster-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid #8FA8BB; }
   table.log-tbl thead, table.roster-tbl thead { display: table-header-group; }
-  table.log-tbl th, table.roster-tbl th { background: ${g.ink}; color: #fff; font-weight: 900; font-size: 10.5px;
-    text-align: center; padding: 6px 3px; border: 0.75px solid ${g.line}; }
+  table.log-tbl th, table.roster-tbl th { background: ${g.ink}; color: #fff; font-weight: 900; font-size: 12px;
+    text-align: center; padding: 7px 3px; border: 0.75px solid ${g.line}; }
   table.log-tbl td, table.roster-tbl td { border: 0.75px solid #AABDCC; }
   table.log-tbl tbody tr:nth-child(even) td, table.roster-tbl tbody tr:nth-child(even) td { background: ${g.row}; }
   table.log-tbl tbody tr, table.roster-tbl tbody tr { page-break-inside: avoid; }
@@ -423,10 +423,10 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   td.l-act { height: 30px; }
   td.l-date, td.l-class { height: 30px; }
 
-  col.c-rn { width: 34px; } col.c-rd { width: 96px; }
-  table.roster-tbl td { height: 21px; font-size: 9px; }
-  td.r-num { text-align: center; color: #3D5A6E; font-weight: 700; }
-  td.r-name { text-align: ${lang === "fr" ? "left" : "right"}; direction: ${dir}; padding: 0 6px; font-weight: 700; font-size: 10.5px; }
+  col.c-rn { width: 34px; } col.c-rd { width: 110px; }
+  table.roster-tbl td { height: 25px; font-size: 10px; vertical-align: middle; }
+  td.r-num { text-align: center; color: #3D5A6E; font-weight: 700; font-size: 11px; }
+  td.r-name { text-align: ${lang === "fr" ? "left" : "right"}; direction: ${dir}; padding: 0 8px; font-weight: 700; font-size: 12px; }
 
   .ct-notes { display: flex; gap: 10px; margin-top: 8px; break-inside: avoid; page-break-inside: avoid; }
   .ct-notes .note-box { flex: 1; border: 1px solid #8FA8BB; border-radius: 4px; min-height: 66px; }
@@ -443,11 +443,11 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
   .photo { width: 26mm; height: 33mm; border: 1.5px dashed ${theme.accent}; border-radius: 7px;
     display: flex; align-items: center; justify-content: center; text-align: center;
     font-size: 10px; font-weight: 700; color: ${theme.sub}; background: ${g.row}; flex-shrink: 0; }
-  .card2-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 13px 22px; align-content: start; }
-  .fld2 { display: flex; flex-direction: column; gap: 5px; }
+  .card2-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px 22px; align-content: start; }
+  .fld2 { display: flex; flex-direction: column; gap: 6px; }
   .fld2.wide { grid-column: 1 / -1; }
-  .fld2 .lb { font-size: 10.5px; font-weight: 800; color: ${g.ink}; }
-  .fld2 .vl { border-bottom: 1.2px dotted #A9B8C6; height: 15px; }
+  .fld2 .lb { font-size: 12px; font-weight: 800; color: ${g.ink}; }
+  .fld2 .vl { border-bottom: 1.2px dotted #A9B8C6; height: 17px; }
 
   /* Holidays page fills the whole printable area; its rows stretch to fill. */
   .ct-fillpage { display: flex; flex-direction: column; height: 277mm; overflow: hidden; }
@@ -456,26 +456,26 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
 
   /* ── Generic grid tables (holidays, structure, timetable) ── */
   table.grid-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid #8FA8BB; }
-  table.grid-tbl th { background: ${g.ink}; color: #fff; font-weight: 900; font-size: 10px; text-align: center;
-    padding: 6px 3px; border: 0.75px solid ${g.line}; }
-  table.grid-tbl td { border: 0.75px solid #AABDCC; height: 24px; font-size: 9.5px; text-align: center; padding: 0 4px; }
+  table.grid-tbl th { background: ${g.ink}; color: #fff; font-weight: 900; font-size: 11.5px; text-align: center;
+    padding: 7px 3px; border: 0.75px solid ${g.line}; }
+  table.grid-tbl td { border: 0.75px solid #AABDCC; height: 26px; font-size: 12px; text-align: center; padding: 0 4px; vertical-align: middle; }
   table.grid-tbl tbody tr:nth-child(even) td { background: ${g.row}; }
-  td.h-nm, td.s-lv { text-align: ${lang === "fr" ? "left" : "right"}; padding: 0 8px; font-weight: 700; }
+  td.h-nm, td.s-lv { text-align: ${lang === "fr" ? "left" : "right"}; padding: 0 10px; font-weight: 700; font-size: 12.5px; }
   /* index (sommaire) */
   col.c-idxn { width: 34px; } col.c-idxp { width: 90px; } col.c-lt { width: 26%; }
-  table.idx-tbl td { height: 26px; }
-  td.idx-n { text-align: center; font-weight: 700; color: ${g.line}; }
-  td.idx-name { text-align: ${lang === "fr" ? "left" : "right"}; padding: 0 12px; font-weight: 700; }
+  table.idx-tbl td { height: 30px; }
+  td.idx-n { text-align: center; font-weight: 700; color: ${g.line}; font-size: 12px; }
+  td.idx-name { text-align: ${lang === "fr" ? "left" : "right"}; padding: 0 14px; font-weight: 700; font-size: 13px; }
   td.idx-pg { border-bottom: 0.75px dotted ${g.line}; }
-  td.h-dt { direction: ltr; unicode-bidi: isolate; } td.h-du { font-weight: 700; color: ${g.line}; }
+  td.h-dt { direction: ltr; unicode-bidi: isolate; font-size: 12.5px; } td.h-du { font-weight: 800; color: ${g.line}; font-size: 13px; }
   col.c-hd { width: 92px; } col.c-hu { width: 78px; }
-  table.tt-tbl td { height: 30px; } th.tt-slot { font-size: 8px; direction: ltr; unicode-bidi: isolate; }
-  td.tt-day, th.tt-day { font-weight: 800; background: ${g.row}; color: ${g.ink}; width: 70px; }
+  table.tt-tbl td { height: 34px; } th.tt-slot { font-size: 9px; direction: ltr; unicode-bidi: isolate; }
+  td.tt-day, th.tt-day { font-weight: 800; background: ${g.row}; color: ${g.ink}; width: 72px; font-size: 11px; }
   table.tt-tbl th.tt-day { background: ${g.ink}; color: #fff; }
 
   .sig-row { display: flex; gap: 10px; margin-top: 14px; }
-  .sig-box { flex: 1; border: 1px solid #8FA8BB; border-radius: 5px; min-height: 70px; }
-  .sig-lbl { background: ${g.row}; color: ${g.ink}; font-weight: 800; font-size: 10px; text-align: center; padding: 5px; border-bottom: 1px solid #8FA8BB; }
+  .sig-box { flex: 1; border: 1px solid #8FA8BB; border-radius: 5px; min-height: 74px; }
+  .sig-lbl { background: ${g.row}; color: ${g.ink}; font-weight: 800; font-size: 11px; text-align: center; padding: 6px; border-bottom: 1px solid #8FA8BB; }
 
   /* ── Level divider (full-bleed, generated background) ── */
   .ct-divider { page-break-before: always; width: 210mm; height: 297mm; overflow: hidden;
