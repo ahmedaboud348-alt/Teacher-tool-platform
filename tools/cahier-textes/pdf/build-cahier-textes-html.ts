@@ -254,10 +254,8 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
       <div class="dv-flourish">${flourish}</div>
     </div>`;
   const levelDivider = (lv: CTLevel, i: number): string => makeDivider(t(LB.level, lang), lv.name || "", i);
-  // Section separator page (decorative, matches the level dividers).
+  // Rolling index so successive dividers get varied rosette motifs.
   let secDivN = 0;
-  const secDiv = (enabled: boolean, title: string): string =>
-    enabled && config.showSectionDividers ? makeDivider("", title, secDivN++) : "";
 
   // ── Personal + professional cards ──
   const ICON_PERSON = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>`;
@@ -398,22 +396,29 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
       </div>
     </div>` : "";
 
-  const frontMatter = indexPage
-    + secDiv(config.showCards, t(LB.secCards, lang)) + cardsPage
-    + secDiv(config.showHolidays, t(LB.secHolidays, lang)) + holidaysPage
-    + secDiv(config.showLeaves, t(LB.secLeaves, lang)) + leavesPage
-    + secDiv(config.showStructure, t(LB.secStructure, lang)) + structurePage;
+  const frontMatter = indexPage + cardsPage + holidaysPage + leavesPage + structurePage;
+
+  const classDivider = (className: string): string =>
+    config.showSectionDividers ? makeDivider(t(LB.class, lang), className, secDivN++) : "";
 
   const levelsHtml = config.levels
     .map((lv) => {
       const divider = levelDivider(lv, config.levels.indexOf(lv));
-      const rosters = config.showStudentLists ? lv.classes.map(rosterHtml).join("") : "";
       const pages = Math.max(1, lv.logPagesPerClass);
-      // "level" → one running log for the whole level (class noted per row);
-      // "class" → a dedicated log block per class.
-      const logs = config.logSplit === "class" && lv.classes.length > 0
-        ? lv.classes.map((c) => Array.from({ length: pages }, () => logPage(lv.name, c.meta.className || "")).join("")).join("")
-        : Array.from({ length: pages }, () => logPage(lv.name)).join("");
+      if (config.logSplit === "class" && lv.classes.length > 0) {
+        // Each taught class is its own section: a decorative divider, then its
+        // roster, then its dedicated lesson-log pages.
+        const perClass = lv.classes.map((c) => {
+          const cn = c.meta.className || "";
+          const roster = config.showStudentLists ? rosterHtml(c) : "";
+          const logs = Array.from({ length: pages }, () => logPage(lv.name, cn)).join("");
+          return classDivider(cn) + roster + logs;
+        }).join("");
+        return divider + perClass;
+      }
+      // Level mode: one running log for the whole level.
+      const rosters = config.showStudentLists ? lv.classes.map(rosterHtml).join("") : "";
+      const logs = Array.from({ length: pages }, () => logPage(lv.name)).join("");
       return divider + rosters + logs;
     })
     .join("");
