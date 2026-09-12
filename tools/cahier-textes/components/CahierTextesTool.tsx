@@ -233,7 +233,7 @@ export function CahierTextesTool() {
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
             <Field label={T("المادة", "Matière")}><input style={inp} value={config.subject} onChange={e => setConfig(c => ({ ...c, subject: e.target.value }))} /></Field>
             <Field label={T("اسم الأستاذ(ة)", "Enseignant(e)")}><input style={inp} value={config.prof} onChange={e => setConfig(c => ({ ...c, prof: e.target.value }))} /></Field>
-            <Field label={T("الموسم الدراسي", "Année scolaire")}><input style={inp} value={config.annee} placeholder="2025/2026" onChange={e => setConfig(c => ({ ...c, annee: e.target.value }))} /></Field>
+            <Field label={T("الموسم الدراسي", "Année scolaire")}><input style={inp} value={config.annee} placeholder="2026/2027" onChange={e => setConfig(c => ({ ...c, annee: e.target.value }))} /></Field>
           </div>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <Field label={T("المديرية (اختياري)", "Direction (option.)")}><input style={inp} value={config.directorate} onChange={e => setConfig(c => ({ ...c, directorate: e.target.value }))} /></Field>

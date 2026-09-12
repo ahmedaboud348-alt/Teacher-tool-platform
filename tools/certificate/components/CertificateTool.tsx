@@ -21,7 +21,7 @@ export default function CertificateTool() {
   const [teacherName, setTeacherName] = useState("");
   const [schoolName, setSchoolName] = useState("");
   const [level, setLevel] = useState("الأولى إعدادي");
-  const [year, setYear] = useState("2025-2026");
+  const [year, setYear] = useState("2026-2027");
   const [date, setDate] = useState("");
   const [exporting, setExporting] = useState(false);
 

@@ -205,7 +205,7 @@ export function AttendanceSheetTool() {
             </div>
             <div style={{ flex: 1, minWidth: 200 }}>
               <label style={lbl}>السنة الدراسية</label>
-              <input style={inp} value={config.annee} onChange={e => setConfig(c => ({ ...c, annee: e.target.value }))} placeholder="2025/2026" />
+              <input style={inp} value={config.annee} onChange={e => setConfig(c => ({ ...c, annee: e.target.value }))} placeholder="2026/2027" />
             </div>
           </div>
 

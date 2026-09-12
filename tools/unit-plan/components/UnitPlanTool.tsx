@@ -35,7 +35,7 @@ const LEVELS: PhysicsChemistryLevelId[] = ["1ac", "2ac", "3ac"];
 export default function UnitPlanTool() {
   const [prof, setProf] = useState("");
   const [school, setSchool] = useState("");
-  const [year, setYear] = useState("2025-2026");
+  const [year, setYear] = useState("2026-2027");
   const [track, setTrack] = useState<SubjectTrack>("general");
   const [levelId, setLevelId] = useState<PhysicsChemistryLevelId>("1ac");
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
