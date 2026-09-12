@@ -210,7 +210,7 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
           <thead><tr>
             <th>${t(LB.date, lang)}</th><th>${t(LB.class, lang)}</th><th>${t(LB.activities, lang)}</th>
           </tr></thead>
-          <tbody>${emptyRows(19)}</tbody>
+          <tbody>${emptyRows(28)}</tbody>
         </table>
       </div>
       <div class="ct-notes">
@@ -246,13 +246,18 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
       + `</svg>`;
     return "data:image/svg+xml," + encodeURIComponent(svg);
   };
-  const levelDivider = (lv: CTLevel, i: number): string => `
+  const makeDivider = (kicker: string, title: string, i: number): string => `
     <div class="ct-divider" style="background-image:url('${dividerSvg(i)}')">
       <div class="dv-flourish">${flourish}</div>
-      <div class="dv-title">${t(LB.level, lang)}</div>
-      <div class="dv-name">${lv.name || ""}</div>
+      ${kicker ? `<div class="dv-title">${kicker}</div>` : ""}
+      <div class="dv-name">${title}</div>
       <div class="dv-flourish">${flourish}</div>
     </div>`;
+  const levelDivider = (lv: CTLevel, i: number): string => makeDivider(t(LB.level, lang), lv.name || "", i);
+  // Section separator page (decorative, matches the level dividers).
+  let secDivN = 0;
+  const secDiv = (enabled: boolean, title: string): string =>
+    enabled && config.showSectionDividers ? makeDivider("", title, secDivN++) : "";
 
   // ── Personal + professional cards ──
   const ICON_PERSON = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>`;
@@ -393,7 +398,11 @@ export function buildCahierTextesHtml(config: CahierTextesConfig): string {
       </div>
     </div>` : "";
 
-  const frontMatter = indexPage + cardsPage + holidaysPage + leavesPage + structurePage;
+  const frontMatter = indexPage
+    + secDiv(config.showCards, t(LB.secCards, lang)) + cardsPage
+    + secDiv(config.showHolidays, t(LB.secHolidays, lang)) + holidaysPage
+    + secDiv(config.showLeaves, t(LB.secLeaves, lang)) + leavesPage
+    + secDiv(config.showStructure, t(LB.secStructure, lang)) + structurePage;
 
   const levelsHtml = config.levels
     .map((lv) => {

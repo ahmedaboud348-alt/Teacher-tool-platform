@@ -26,7 +26,7 @@ export function CahierTextesTool() {
   const [config, setConfig] = useState<Omit<CahierTextesConfig, "lang" | "levels">>({
     coverVariant: "male", subject: "", academy: "", directorate: "", school: "", prof: "", annee: "",
     showHolidays: true, showStudentLists: true, showCards: true, showStructure: true, showIndex: true, showLeaves: true,
-    logSplit: "level",
+    logSplit: "level", showSectionDividers: true,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -254,6 +254,7 @@ export function CahierTextesTool() {
               ["showLeaves", T("جدول الرخص", "Congés du personnel")],
               ["showStructure", T("البنية التربوية + جدول الحصص", "Structure + Emploi du temps")],
               ["showStudentLists", T("لوائح التلاميذ", "Listes d'élèves")],
+              ["showSectionDividers", T("صفحات فاصلة بين الأقسام", "Pages de séparation")],
             ] as const).map(([key, label]) => {
               const on = config[key];
               return (
