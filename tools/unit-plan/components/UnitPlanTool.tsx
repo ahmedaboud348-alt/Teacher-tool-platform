@@ -44,6 +44,8 @@ export default function UnitPlanTool() {
   const units = getUnitsForLevel(levelId, track);
   const unit = units.find(u => u.id === selectedUnit) ?? null;
   const levelText = levelLabel(levelId, track);
+  const fr = track === "international";
+  const tp = (ar: string, frr: string) => (fr ? frr : ar);
   const lessons = unit ? getLessonsForUnit(unit) : [];
   const totalHours = lessons.reduce((s, l) => s + l.defaultDurationHours, 0);
 
@@ -64,7 +66,7 @@ export default function UnitPlanTool() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `تخطيط_مرحلي_${unit.domainLabel}_${levelText}_${year}.pdf`;
+      a.download = `${track === "international" ? "Planification" : "تخطيط_مرحلي"}_${unit.domainLabel}_${levelText}_${year}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -152,11 +154,11 @@ export default function UnitPlanTool() {
 
       {/* ── Preview ── */}
       {unit && (
-        <section style={pvDocStyle}>
+        <section style={{ ...pvDocStyle, direction: fr ? "ltr" : "rtl" }}>
           {/* PDF-like header */}
           <div style={pvHeaderStyle}>
-            <div style={pvEyebrowStyle}>المملكة المغربية — وزارة التربية الوطنية</div>
-            <div style={pvTitleStyle}>التوزيع المرحلي — وحدة {unit.domainLabel}</div>
+            <div style={pvEyebrowStyle}>{tp("المملكة المغربية — وزارة التربية الوطنية", "Royaume du Maroc — Ministère de l'Éducation Nationale")}</div>
+            <div style={pvTitleStyle}>{tp(`التوزيع المرحلي — وحدة ${unit.domainLabel}`, `Planification de l'unité : ${unit.domainLabel}`)}</div>
             <div style={pvSubStyle}>{levelText} — {year}</div>
             <div style={pvGoldLineStyle} />
           </div>
@@ -165,42 +167,42 @@ export default function UnitPlanTool() {
           <table style={pvMetaTableStyle}>
             <tbody>
               <tr>
-                <td style={pvMlStyle}>الأستاذ(ة)</td><td style={pvMvStyle}>{prof || "—"}</td>
-                <td style={pvMlStyle}>المؤسسة</td><td style={pvMvStyle}>{school || "—"}</td>
+                <td style={pvMlStyle}>{tp("الأستاذ(ة)", "Enseignant(e)")}</td><td style={pvMvStyle}>{prof || "—"}</td>
+                <td style={pvMlStyle}>{tp("المؤسسة", "Établissement")}</td><td style={pvMvStyle}>{school || "—"}</td>
               </tr>
               <tr>
-                <td style={pvMlStyle}>المستوى</td><td style={pvMvStyle}>{levelText}</td>
-                <td style={pvMlStyle}>المدة</td><td style={pvMvStyle}>{totalHours} ساعة</td>
+                <td style={pvMlStyle}>{tp("المستوى", "Niveau")}</td><td style={pvMvStyle}>{levelText}</td>
+                <td style={pvMlStyle}>{tp("المدة", "Durée")}</td><td style={pvMvStyle}>{totalHours} {tp("ساعة", "h")}</td>
               </tr>
             </tbody>
           </table>
 
           {/* Info sections */}
-          <PvInfoBox label="الكفاية المستهدفة"><p style={pvInfoTextStyle}>{unit.competency}</p></PvInfoBox>
-          <PvInfoBox label="القيم المدمجة">
+          <PvInfoBox label={tp("الكفاية المستهدفة", "Compétence visée")}><p style={pvInfoTextStyle}>{unit.competency}</p></PvInfoBox>
+          <PvInfoBox label={tp("القيم المدمجة", "Valeurs intégrées")}>
             {unit.values.map((v, i) => <div key={i} style={pvBulletStyle}><span style={pvDotStyle}>●</span>{v}</div>)}
           </PvInfoBox>
-          <PvInfoBox label="المكتسبات السابقة">
+          <PvInfoBox label={tp("المكتسبات السابقة", "Prérequis")}>
             {unit.prerequisites.map((p, i) => <div key={i} style={pvBulletStyle}><span style={pvDotStyle}>●</span>{p}</div>)}
           </PvInfoBox>
 
           {/* Lessons table */}
-          <div style={pvSecHeadStyle}><div style={pvSecBarStyle} /><span>جدول الدروس والأهداف</span></div>
+          <div style={pvSecHeadStyle}><div style={pvSecBarStyle} /><span>{tp("جدول الدروس والأهداف", "Leçons et objectifs d'apprentissage")}</span></div>
           <div style={pvTableWrapStyle}>
             <table style={pvTableStyle}>
               <thead>
                 <tr>
-                  <th style={pvThStyle}>الدروس</th>
-                  <th style={{ ...pvThStyle, width: 50 }}>المدة</th>
-                  <th style={pvThStyle}>الأهداف التعلمية</th>
+                  <th style={pvThStyle}>{tp("الدروس", "Leçons")}</th>
+                  <th style={{ ...pvThStyle, width: 50 }}>{tp("المدة", "Durée")}</th>
+                  <th style={pvThStyle}>{tp("الأهداف التعلمية", "Objectifs d'apprentissage")}</th>
                 </tr>
               </thead>
               <tbody>
                 {lessons.map((l, i) => (
                   <tr key={l.id} style={{ backgroundColor: i % 2 === 0 ? "#F8FAFC" : "#fff" }}>
-                    <td style={{ ...pvTdStyle, fontWeight: 900, color: NAVY, minWidth: 100, fontSize: 13 }}>{l.label}</td>
-                    <td style={{ ...pvTdStyle, textAlign: "center", fontWeight: 800 }}>{l.defaultDurationHours} س</td>
-                    <td style={pvTdStyle}>
+                    <td style={{ ...pvTdStyle, fontWeight: 900, color: NAVY, minWidth: 100, fontSize: 13, textAlign: fr ? "left" : "right" }}>{l.label}</td>
+                    <td style={{ ...pvTdStyle, textAlign: "center", fontWeight: 800 }}>{l.defaultDurationHours} {tp("س", "h")}</td>
+                    <td style={{ ...pvTdStyle, textAlign: fr ? "left" : "right" }}>
                       {l.defaultObjectives.map((o, j) => <div key={j} style={pvObjStyle}><span style={pvDotStyle}>●</span>{o}</div>)}
                     </td>
                   </tr>
@@ -213,7 +215,7 @@ export default function UnitPlanTool() {
           <div style={pvFooterStyle}>
             <button onClick={handleDownload} disabled={exporting}
               style={{ ...pvDlBtnStyle, opacity: exporting ? 0.6 : 1, cursor: exporting ? "not-allowed" : "pointer" }}>
-              {exporting ? "جارٍ الإنشاء..." : "⬇ تحميل PDF"}
+              {exporting ? tp("جارٍ الإنشاء...", "Génération...") : tp("⬇ تحميل PDF", "⬇ Télécharger PDF")}
             </button>
           </div>
         </section>
@@ -223,7 +225,7 @@ export default function UnitPlanTool() {
       {unit && (
         <button onClick={handleDownload} disabled={exporting}
           style={{ ...dlBtnFullStyle, opacity: exporting ? 0.6 : 1, cursor: exporting ? "not-allowed" : "pointer" }}>
-          {exporting ? "جارٍ الإنشاء..." : "⬇  تحميل PDF التخطيط المرحلي"}
+          {exporting ? tp("جارٍ الإنشاء...", "Génération...") : tp("⬇  تحميل PDF التخطيط المرحلي", "⬇  Télécharger la planification PDF")}
         </button>
       )}
     </div>
