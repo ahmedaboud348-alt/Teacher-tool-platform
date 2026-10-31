@@ -52,6 +52,10 @@ export type RenderOptions = {
    *  multi-section docs where a full-bleed cover and margined inner pages
    *  coexist via named pages). When set, Puppeteer adds no margin of its own. */
   cssMargins?: boolean;
+  /** Let the document's own CSS @page `size` control page dimensions and
+   *  orientation — required for mixed orientation (e.g. a portrait cover with
+   *  landscape inner pages via named @page rules). */
+  cssPageSize?: boolean;
 };
 
 export async function renderPdf(
@@ -81,6 +85,7 @@ export async function renderPdf(
     const pdfOptions: Parameters<typeof page.pdf>[0] = {
       format: "A4",
       landscape: !!opts.landscape,
+      preferCSSPageSize: !!opts.cssPageSize,
       printBackground: true,
       timeout: 20000,
     };

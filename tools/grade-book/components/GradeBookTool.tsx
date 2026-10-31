@@ -29,6 +29,7 @@ export function GradeBookTool() {
     evalCount:       3,
     showActivites:   true,
     showObservation: true,
+    detailedActivities: false,
     coverVariant:    "male",
     tier:            "الثانوي الإعدادي",
     directorate:     "",
@@ -308,6 +309,7 @@ export function GradeBookTool() {
                   <div style={togglesStyle}>
                     <Toggle checked={config.showActivites}   onChange={v => patch("showActivites", v)}   label="عمود الأنشطة المندمجة" />
                     <Toggle checked={config.showObservation} onChange={v => patch("showObservation", v)} label="عمود الملاحظة" />
+                    <Toggle checked={config.detailedActivities} onChange={v => patch("detailedActivities", v)} label="تنسيق أفقي موسّع — 5 معايير للأنشطة (الدفتر · المشاركة · الانضباط · الحفظ · التمارين) /4" />
                   </div>
                 </div>
 

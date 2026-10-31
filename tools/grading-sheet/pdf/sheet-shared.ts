@@ -12,7 +12,7 @@ import type { Lang } from "./labels";
 
 export type SheetConfig = Pick<
   GradingSheetConfig,
-  "evalCount" | "showActivites" | "showObservation" | "lang"
+  "evalCount" | "showActivites" | "showObservation" | "lang" | "detailedActivities"
 >;
 
 /** Bilingual column / label strings for the grading table. */
@@ -25,6 +25,12 @@ const SHEET_L = {
   thc:        { ar: "ع.خ.ق<br/>/5", fr: "T.H.C<br/>/5" },
   cahier:     { ar: "دفتر<br/>/5", fr: "Cahier<br/>/5" },
   disc:       { ar: "انضباط<br/>/5", fr: "Disc.<br/>/5" },
+  // Detailed activities (landscape) — 5 criteria, each out of 4
+  dCahier:    { ar: "الدفتر<br/>/4", fr: "Cahier<br/>/4" },
+  dPart:      { ar: "المشاركة<br/>/4", fr: "Particip.<br/>/4" },
+  dDisc:      { ar: "الانضباط<br/>/4", fr: "Discipline<br/>/4" },
+  dHifz:      { ar: "الحفظ<br/>/4", fr: "Récitation<br/>/4" },
+  dExo:       { ar: "التمارين<br/>/4", fr: "Exercices<br/>/4" },
   total:      { ar: "المجموع<br/>/20", fr: "Total<br/>/20" },
   evalGroup:  { ar: "الفروض /20", fr: "Évaluations /20" },
   cc:         { ar: "فرض", fr: "CC" },
@@ -73,7 +79,9 @@ export const ROSE_SCHEME: SheetScheme = {
   row: "#F7EEF1", subTxt: "#E7CFD7", goldLt: "#F3E3D8", bannerSub: "#C9A2AE",
 };
 
-export function sheetCss(s: SheetScheme = NAVY_SCHEME): string {
+export function sheetCss(s: SheetScheme = NAVY_SCHEME, detailed = false): string {
+  // Stronger, darker grid lines read far better once printed in black & white.
+  const cell = "#7E93A6";
   return `
   .sheet-official {
     display: flex; align-items: center; justify-content: space-between;
@@ -109,31 +117,32 @@ export function sheetCss(s: SheetScheme = NAVY_SCHEME): string {
 
   table.sheet-tbl {
     width: 100%; border-collapse: collapse; table-layout: fixed;
-    border: 1px solid #8FA8BB;
+    border: 1.25px solid #5E7489;
   }
-  table.sheet-tbl col.c-num   { width: 30px; }
-  table.sheet-tbl col.c-diag  { width: 46px; }
+  table.sheet-tbl col.c-num   { width: ${detailed ? 34 : 30}px; }
+  table.sheet-tbl col.c-diag  { width: ${detailed ? 52 : 46}px; }
   table.sheet-tbl col.c-act   { width: 36px; }
-  table.sheet-tbl col.c-total { width: 46px; }
-  table.sheet-tbl col.c-eval  { width: 46px; }
-  table.sheet-tbl col.c-obs   { width: 96px; }
+  table.sheet-tbl col.c-act5  { width: 64px; }
+  table.sheet-tbl col.c-total { width: ${detailed ? 52 : 46}px; }
+  table.sheet-tbl col.c-eval  { width: ${detailed ? 54 : 46}px; }
+  table.sheet-tbl col.c-obs   { width: ${detailed ? 130 : 96}px; }
 
   table.sheet-tbl thead { display: table-header-group; }
   table.sheet-tbl th {
-    background: ${s.ink}; color: #FFFFFF; font-weight: 900; font-size: 9.5px;
-    text-align: center; padding: 4px 2px; border: 0.75px solid ${s.line};
-    line-height: 1.2;
+    background: ${s.ink}; color: #FFFFFF; font-weight: 900; font-size: ${detailed ? 10.5 : 9.5}px;
+    text-align: center; padding: ${detailed ? "6px 2px" : "4px 2px"}; border: 0.75px solid ${s.line};
+    line-height: 1.25;
   }
-  table.sheet-tbl th.sub { background: ${s.ink2}; color: ${s.subTxt}; font-weight: 700; font-size: 8px; }
+  table.sheet-tbl th.sub { background: ${s.ink2}; color: ${s.subTxt}; font-weight: 700; font-size: ${detailed ? 8.5 : 8}px; }
   table.sheet-tbl th.h-total { color: #C8960C; border-left: 1.5px solid #C8960C; border-right: 1.5px solid #C8960C; }
-  table.sheet-tbl th.h-diag { font-size: 6.5px; line-height: 1.2; }
+  table.sheet-tbl th.h-diag { font-size: ${detailed ? 8 : 6.5}px; line-height: 1.2; }
 
   table.sheet-tbl td {
-    border: 0.75px solid #AABDCC; height: 22px; font-size: 9px;
+    border: 0.75px solid ${cell}; height: ${detailed ? 24 : 22}px; font-size: 9px;
     padding: 0 4px;
   }
   table.sheet-tbl td.t-num  { text-align: center; color: #3D5A6E; font-weight: 700; }
-  table.sheet-tbl td.t-name { text-align: right; direction: rtl; color: #0D1117; font-weight: 700; font-size: 11px; }
+  table.sheet-tbl td.t-name { text-align: right; direction: rtl; color: #0D1117; font-weight: 700; font-size: ${detailed ? 12 : 11}px; }
   table.sheet-tbl td.t-total { background: #FFF8E6; border-left: 1.5px solid #C8960C; border-right: 1.5px solid #C8960C; }
   table.sheet-tbl td.t-diag { background: #FBF3E0; }
   table.sheet-tbl tbody tr:nth-child(even) td { background: ${s.row}; }
@@ -206,13 +215,17 @@ export function sheetTableHtml(
   config: SheetConfig,
   showDiagnostic = false
 ): string {
-  const { evalCount, showActivites, showObservation, lang } = config;
+  const { evalCount, showObservation, lang } = config;
+  const detailed = !!config.detailedActivities;
+  // Detailed mode always shows the 5-criteria activity block.
+  const showActivites = detailed ? true : config.showActivites;
+  const actN = detailed ? 5 : 4;
 
   const cols = [
     `<col class="c-num"/>`,
     `<col/>`, // name — absorbs remaining width
     ...(showDiagnostic ? [`<col class="c-diag"/>`] : []),
-    ...(showActivites ? Array(4).fill(`<col class="c-act"/>`) : []),
+    ...(showActivites ? Array(actN).fill(`<col class="${detailed ? "c-act5" : "c-act"}"/>`) : []),
     `<col class="c-total"/>`,
     ...Array(evalCount).fill(`<col class="c-eval"/>`),
     ...(showObservation ? [`<col class="c-obs"/>`] : []),
@@ -222,13 +235,15 @@ export function sheetTableHtml(
   const diagCell = showDiagnostic ? `<td class="t-diag"></td>` : "";
 
   const actGroupHead = showActivites
-    ? `<th colspan="4">${L(SHEET_L.actGroup, lang)}</th>`
+    ? `<th colspan="${actN}">${L(SHEET_L.actGroup, lang)}</th>`
     : "";
   const evalGroupHead = `<th colspan="${evalCount}">${L(SHEET_L.evalGroup, lang)}</th>`;
   const obsHead = showObservation ? `<th rowspan="2">${L(SHEET_L.obs, lang)}</th>` : "";
 
   const actSubHead = showActivites
-    ? `<th class="sub">${L(SHEET_L.part, lang)}</th><th class="sub">${L(SHEET_L.thc, lang)}</th><th class="sub">${L(SHEET_L.cahier, lang)}</th><th class="sub">${L(SHEET_L.disc, lang)}</th>`
+    ? (detailed
+        ? `<th class="sub">${L(SHEET_L.dCahier, lang)}</th><th class="sub">${L(SHEET_L.dPart, lang)}</th><th class="sub">${L(SHEET_L.dDisc, lang)}</th><th class="sub">${L(SHEET_L.dHifz, lang)}</th><th class="sub">${L(SHEET_L.dExo, lang)}</th>`
+        : `<th class="sub">${L(SHEET_L.part, lang)}</th><th class="sub">${L(SHEET_L.thc, lang)}</th><th class="sub">${L(SHEET_L.cahier, lang)}</th><th class="sub">${L(SHEET_L.disc, lang)}</th>`)
     : "";
   const evalSubHead = Array.from({ length: evalCount }, (_, i) => `<th class="sub">${L(SHEET_L.cc, lang)} ${i + 1}</th>`).join("");
 
@@ -249,7 +264,7 @@ export function sheetTableHtml(
       </tr>
     </thead>`;
 
-  const actCells = showActivites ? `<td></td><td></td><td></td><td></td>` : "";
+  const actCells = showActivites ? Array(actN).fill(`<td></td>`).join("") : "";
   const evalCells = Array(evalCount).fill(`<td></td>`).join("");
   const obsCell = showObservation ? `<td></td>` : "";
 
@@ -272,7 +287,7 @@ export function sheetTableHtml(
 }
 
 export function legendHtml(config: SheetConfig): string {
-  if (!config.showActivites) return "";
+  if (!config.showActivites || config.detailedActivities) return "";
   const items = config.lang === "fr"
     ? [
         ["Part. :", "Participation"],

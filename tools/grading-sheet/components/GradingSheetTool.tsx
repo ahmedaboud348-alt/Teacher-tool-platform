@@ -22,6 +22,7 @@ export function GradingSheetTool() {
     evalCount: 3,
     showActivites: true,
     showObservation: true,
+    detailedActivities: false,
     lang: "fr",
   });
 
@@ -210,6 +211,11 @@ export function GradingSheetTool() {
                       checked={config.showObservation}
                       onChange={v => patch("showObservation", v)}
                       label="عمود الملاحظة"
+                    />
+                    <Toggle
+                      checked={config.detailedActivities}
+                      onChange={v => patch("detailedActivities", v)}
+                      label="تنسيق أفقي موسّع — 5 معايير للأنشطة (الدفتر · المشاركة · الانضباط · الحفظ · التمارين) كل معيار /4"
                     />
                   </div>
                 </div>

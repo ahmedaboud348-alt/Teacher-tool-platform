@@ -15,6 +15,7 @@ export type GradeBookConfig = {
   evalCount:      1 | 2 | 3 | 4;
   showActivites:  boolean;
   showObservation: boolean;
+  detailedActivities: boolean; // ورقة أفقية موسّعة بـ5 معايير للأنشطة (كل معيار /4)
   coverVariant:   CoverVariant;
   tier:           string; // المستوى التعليمي على الغلاف — اختياري (فارغ = يختفي)
   directorate:    string; // المديرية على الغلاف — اختياري (فارغ = يختفي)

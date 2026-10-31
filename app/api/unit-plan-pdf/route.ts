@@ -144,11 +144,11 @@ export async function POST(req: NextRequest) {
         break;
       case "grading-sheet":
         html = buildGradingSheetHtml(payload.data, payload.config);
-        opts = { cssMargins: true };
+        opts = { cssMargins: true, cssPageSize: true };
         break;
       case "grade-book":
         html = buildGradeBookHtml(payload.entries, payload.config);
-        opts = { cssMargins: true };
+        opts = { cssMargins: true, cssPageSize: true };
         break;
       case "attendance":
         html = buildAttendanceHtml(payload.classes, payload.config);

@@ -29,6 +29,8 @@ export type GradingSheetConfig = {
   evalCount: 1 | 2 | 3 | 4;
   showActivites: boolean;
   showObservation: boolean;
+  // Wide landscape sheet with 5 detailed activity criteria (each /4)
+  detailedActivities: boolean;
   // Output language for all generated labels
   lang: "ar" | "fr";
 };

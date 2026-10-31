@@ -20,13 +20,13 @@ export function buildGradingSheetHtml(data: MassarData, config: GradingSheetConf
 <meta charset="UTF-8">
 <style>
   /* Margins on @page repeat on every page, incl. continuation pages. */
-  @page { size: A4 portrait; margin: 11mm 9mm; }
+  @page { size: A4 ${config.detailedActivities ? "landscape" : "portrait"}; margin: 10mm 8mm; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Cairo', sans-serif; color: #0D1117;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
-  ${sheetCss()}
+  ${sheetCss(undefined, config.detailedActivities)}
 </style>
 </head>
 <body>

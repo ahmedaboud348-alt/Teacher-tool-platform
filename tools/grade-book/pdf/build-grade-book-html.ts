@@ -75,7 +75,7 @@ export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookC
   /* Cover prints full-bleed; class sheets use a named page so their margin
      repeats on every page (including continuation pages). */
   @page { size: A4 portrait; margin: 0; }
-  @page sheet { size: A4 portrait; margin: 11mm 9mm; }
+  @page sheet { size: A4 ${config.detailedActivities ? "landscape" : "portrait"}; margin: 11mm 9mm; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Cairo', sans-serif; color: #0D1117;
@@ -121,7 +121,7 @@ export function buildGradeBookHtml(entries: GradeBookEntry[], config: GradeBookC
   /* Arabic reads right-to-left, so the whole sheet (info strip + grading table
      + legend) flows RTL; the French version stays LTR. */
   .gb-class { page: sheet; page-break-before: always; direction: ${lang === "fr" ? "ltr" : "rtl"}; }
-  ${sheetCss(config.coverVariant === "female" ? ROSE_SCHEME : NAVY_SCHEME)}
+  ${sheetCss(config.coverVariant === "female" ? ROSE_SCHEME : NAVY_SCHEME, config.detailedActivities)}
 </style>
 </head>
 <body>
