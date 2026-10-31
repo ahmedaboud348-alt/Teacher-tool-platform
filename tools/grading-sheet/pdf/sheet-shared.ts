@@ -122,7 +122,7 @@ export function sheetCss(s: SheetScheme = NAVY_SCHEME, detailed = false): string
   table.sheet-tbl col.c-num   { width: ${detailed ? 34 : 30}px; }
   table.sheet-tbl col.c-diag  { width: ${detailed ? 52 : 46}px; }
   table.sheet-tbl col.c-act   { width: 36px; }
-  table.sheet-tbl col.c-act5  { width: 64px; }
+  table.sheet-tbl col.c-act5  { width: 92px; }
   table.sheet-tbl col.c-total { width: ${detailed ? 52 : 46}px; }
   table.sheet-tbl col.c-eval  { width: ${detailed ? 54 : 46}px; }
   table.sheet-tbl col.c-obs   { width: ${detailed ? 130 : 96}px; }
@@ -133,7 +133,7 @@ export function sheetCss(s: SheetScheme = NAVY_SCHEME, detailed = false): string
     text-align: center; padding: ${detailed ? "6px 2px" : "4px 2px"}; border: 0.75px solid ${s.line};
     line-height: 1.25;
   }
-  table.sheet-tbl th.sub { background: ${s.ink2}; color: ${s.subTxt}; font-weight: 700; font-size: ${detailed ? 8.5 : 8}px; }
+  table.sheet-tbl th.sub { background: ${s.ink2}; color: ${s.subTxt}; font-weight: 700; font-size: ${detailed ? 9.5 : 8}px; }
   table.sheet-tbl th.h-total { color: #C8960C; border-left: 1.5px solid #C8960C; border-right: 1.5px solid #C8960C; }
   table.sheet-tbl th.h-diag { font-size: ${detailed ? 8 : 6.5}px; line-height: 1.2; }
 
