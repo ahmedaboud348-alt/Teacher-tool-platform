@@ -1,7 +1,10 @@
 import type { CSSProperties } from "react";
 import { ExamSheetDocumentModel } from "../types/exam-sheet-document";
-import { ds } from "../ui/design-system";
 import { getUILabels, getTrackLabelI18n, formatTermI18n, formatDurationI18n } from "../i18n";
+
+const NAVY = "#1A3055";
+const NAVY_DEEP = "#0F1E35";
+const GOLD = "#C8960C";
 
 type Props = {
   documentModel: ExamSheetDocumentModel | null;
@@ -10,17 +13,11 @@ type Props = {
 export function PreviewPanel({ documentModel }: Props) {
   if (!documentModel) {
     return (
-      <aside dir="rtl" style={previewShellStyle}>
-        <div style={documentSheetStyle}>
-          <div style={documentHeaderStyle}>
-            <div>
-              <div style={documentEyebrowStyle}>معاينة الوثيقة</div>
-              <h3 style={documentTitleStyle}>جذاذة الفرض المحروس</h3>
-            </div>
-          </div>
-          <div style={emptyStateStyle}>
-            تعذر بناء المعاينة من المعطيات الحالية.
-          </div>
+      <aside dir="rtl" style={shellStyle}>
+        <div style={emptyStyle}>
+          <span style={{ fontSize: 40, marginBottom: 12 }}>📄</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>معاينة الوثيقة</span>
+          <span style={{ fontSize: 12, color: "#64748B" }}>أدخل المعطيات لرؤية المعاينة</span>
         </div>
       </aside>
     );
@@ -31,158 +28,130 @@ export function PreviewPanel({ documentModel }: Props) {
   const L = getUILabels(track);
 
   return (
-    <aside
-      dir={isRtl ? "rtl" : "ltr"}
-      style={{ ...previewShellStyle, textAlign: isRtl ? "right" : "left" }}
-    >
-      <article style={documentSheetStyle}>
-        <header style={documentHeaderStyle}>
-          <div>
-            <div style={documentEyebrowStyle}>{L.previewEyebrow}</div>
-            <h3 style={documentTitleStyle}>
-              {documentModel.meta.title || L.previewDefault}
-            </h3>
-          </div>
+    <aside dir={isRtl ? "rtl" : "ltr"} style={{ ...shellStyle, textAlign: isRtl ? "right" : "left" }}>
+      <article style={docStyle}>
 
-          <div style={documentMetaBadgeStyle}>
-            <span>{L.previewTrackLabel}</span>
-            <strong>{getTrackLabelI18n(track)}</strong>
+        {/* ── Header ── */}
+        <header style={headerStyle}>
+          <div style={eyebrowStyle}>المملكة المغربية — وزارة التربية الوطنية</div>
+          <h3 style={titleStyle}>{documentModel.meta.title || L.previewDefault}</h3>
+          <div style={subtitleStyle}>
+            {documentModel.meta.levelLabel || "—"} — {getTrackLabelI18n(track)} — {formatTermI18n(documentModel.meta.term, track)}
           </div>
+          <div style={goldLineStyle} />
         </header>
 
+        {/* ── Meta ── */}
         {documentModel.sections.includes("metadata") && (
           <section style={sectionStyle}>
-            <SectionTitle title={L.metaSection} />
-
-            <div style={metadataGridStyle}>
-              <MetadataItem label={L.metaInstitution} value={documentModel.meta.institutionName} />
-              <MetadataItem label={L.metaTeacher} value={documentModel.meta.teacherName} />
-              <MetadataItem label={L.metaSubject} value={documentModel.meta.subjectLabel} />
-              <MetadataItem label={L.metaLevel} value={documentModel.meta.levelLabel} />
-              <MetadataItem label={L.metaTerm} value={formatTermI18n(documentModel.meta.term, track)} />
-              <MetadataItem
-                label={L.metaDuration}
-                value={formatDurationI18n(documentModel.meta.examDurationHours, track)}
-              />
-              <MetadataItem
-                label={L.metaTotal}
-                value={formatNumber(documentModel.meta.totalPoints)}
-              />
-            </div>
+            <table style={metaTableStyle}>
+              <tbody>
+                <tr>
+                  <td style={mlStyle}>{L.metaInstitution}</td>
+                  <td style={mvStyle}>{documentModel.meta.institutionName || "—"}</td>
+                  <td style={mlStyle}>{L.metaSubject}</td>
+                  <td style={mvStyle}>{documentModel.meta.subjectLabel || "—"}</td>
+                </tr>
+                <tr>
+                  <td style={mlStyle}>{L.metaTeacher}</td>
+                  <td style={mvStyle}>{documentModel.meta.teacherName || "—"}</td>
+                  <td style={mlStyle}>{L.metaLevel}</td>
+                  <td style={mvStyle}>{documentModel.meta.levelLabel || "—"}</td>
+                </tr>
+                <tr>
+                  <td style={mlStyle}>{L.metaTerm}</td>
+                  <td style={mvStyle}>{formatTermI18n(documentModel.meta.term, track)}</td>
+                  <td style={mlStyle}>{L.metaDuration}</td>
+                  <td style={mvStyle}>{formatDurationI18n(documentModel.meta.examDurationHours, track)}</td>
+                </tr>
+                <tr>
+                  <td style={mlStyle}>المسار</td>
+                  <td style={mvStyle}>{getTrackLabelI18n(track)}</td>
+                  <td style={mlStyle}>{L.metaTotal}</td>
+                  <td style={mvStyle}>{fmt(documentModel.meta.totalPoints)} نقطة</td>
+                </tr>
+              </tbody>
+            </table>
           </section>
         )}
 
+        {/* ── Lessons ── */}
         {documentModel.sections.includes("lessons") && (
           <section style={sectionStyle}>
             <SectionTitle title={L.previewLessons} />
-
-            <div style={lessonsListStyle}>
-              {documentModel.lessons.map((lesson, index) => (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {documentModel.lessons.map((lesson, i) => (
                 <div key={lesson.id} style={lessonCardStyle}>
                   <div style={lessonHeaderStyle}>
-                    <div style={lessonTitleWrapStyle}>
-                      <div style={lessonIndexStyle}>{index + 1}</div>
-                      <div>
-                        <div style={lessonTitleStyle}>{lesson.label}</div>
-                        <div style={lessonMetaStyle}>
-                          {L.lessonDurationPrefix} {formatDurationI18n(lesson.hours, track)}
-                        </div>
-                      </div>
+                    <div style={lessonNumStyle}>{i + 1}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={lessonNameStyle}>{lesson.label}</div>
+                      <div style={lessonDurStyle}>{L.lessonDurationPrefix} {formatDurationI18n(lesson.hours, track)}</div>
                     </div>
                   </div>
-
-                  <div style={objectivesBlockStyle}>
-                    <div style={objectivesTitleStyle}>{L.objectivesTitlePrev}</div>
-
-                    {lesson.objectives.length > 0 ? (
-                      <ul style={objectivesListStyle}>
-                        {lesson.objectives.map((objective) => (
-                          <li key={objective.id} style={objectiveItemStyle}>
-                            <span style={objectiveBulletStyle}>•</span>
-                            <span style={objectiveTextStyle}>
-                              {objective.text || "—"}
-                            </span>
+                  {lesson.objectives.length > 0 && (
+                    <div style={objAreaStyle}>
+                      <ul style={objListStyle}>
+                        {lesson.objectives.map(o => (
+                          <li key={o.id} style={objItemStyle}>
+                            <span style={objBulletStyle}>●</span>
+                            <span>{o.text || "—"}</span>
                           </li>
                         ))}
                       </ul>
-                    ) : (
-                      <div style={objectivesEmptyStyle}>{L.objectivesEmptyPrev}</div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </section>
         )}
 
+        {/* ── Allocation Table ── */}
         {documentModel.sections.includes("allocation-table") && (
           <section style={sectionStyle}>
             <SectionTitle title={L.tableSection} />
-
-            <div style={tableWrapperStyle}>
-              <table style={tableStyle}>
+            <div style={tableWrapStyle}>
+              <table style={allocTableStyle}>
                 <thead>
                   <tr>
-                    <th style={{ ...headerCellStyle, ...lessonColumnStyle }}>{L.thLesson}</th>
-                    <th style={headerCellStyle}>{L.thPercent}</th>
-                    <th style={headerCellStyle}>{L.thNote}</th>
-
-                    {documentModel.allocation.table.columns.map((column) => (
-                      <th key={column.skillId} style={headerCellStyle}>
-                        <div style={skillHeaderLabelStyle}>{column.skillLabel}</div>
-                        <div style={skillHeaderPercentageStyle}>
-                          {formatNumber(column.percentage)}%
-                        </div>
+                    <th style={{ ...thStyle, minWidth: 100, textAlign: isRtl ? "right" : "left" }}>{L.thLesson}</th>
+                    <th style={thStyle}>{L.thPercent}</th>
+                    <th style={thStyle}>{L.thNote}</th>
+                    {documentModel.allocation.table.columns.map(col => (
+                      <th key={col.skillId} style={thStyle}>
+                        <div>{col.skillLabel}</div>
+                        <div style={thPctStyle}>{fmt(col.percentage)}%</div>
                       </th>
                     ))}
                   </tr>
                 </thead>
-
                 <tbody>
-                  {documentModel.allocation.table.rows.map((row) => (
-                    <tr key={row.lessonId}>
-                      <td style={{ ...bodyCellStyle, ...lessonNameCellStyle }}>
-                        {row.lessonLabel}
+                  {documentModel.allocation.table.rows.map((row, ri) => (
+                    <tr key={row.lessonId} style={{ backgroundColor: ri % 2 === 0 ? "#fff" : "#F8FAFC" }}>
+                      <td style={{ ...tdStyle, fontWeight: 800, textAlign: isRtl ? "right" : "left", color: NAVY }}>{row.lessonLabel}</td>
+                      <td style={tdCenterStyle}>{fmt(row.lessonPercentage)}%</td>
+                      <td style={tdCenterStyle}>
+                        <CellVal value={row.lessonPoints} adj={row.lessonAdjustment} />
                       </td>
-
-                      <td style={numericBodyCellStyle}>
-                        {formatNumber(row.lessonPercentage)}%
-                      </td>
-
-                      <td style={numericBodyCellStyle}>
-                        <CellValueWithAdjustment
-                          value={row.lessonPoints}
-                          adjustment={row.lessonAdjustment}
-                        />
-                      </td>
-
-                      {row.skillCells.map((cell) => (
-                        <td
-                          key={`${row.lessonId}-${cell.skillId}`}
-                          style={numericBodyCellStyle}
-                        >
-                          <CellValueWithAdjustment
-                            value={cell.value}
-                            adjustment={cell.adjustment}
-                          />
-                        </td>
-                      ))}
+                      {row.skillCells.map((cell, ci) => {
+                        const isSit = ["الوضعية المشكلة", "Situation-problème"].includes(documentModel.allocation.table.columns[ci]?.skillLabel ?? "");
+                        return (
+                          <td key={`${row.lessonId}-${cell.skillId}`} style={tdCenterStyle}>
+                            {isSit ? "—" : <CellVal value={cell.value} adj={cell.adjustment} />}
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>
-
                 <tfoot>
                   <tr>
-                    <td style={{ ...footerCellStyle, ...lessonNameCellStyle }}>{L.tfTotal}</td>
-                    <td style={footerCellStyle}>100%</td>
-                    <td style={footerCellStyle}>
-                      {formatNumber(documentModel.allocation.table.footer.grandTotal)}
-                    </td>
-
-                    {documentModel.allocation.table.footer.skillTotals.map((value, index) => (
-                      <td key={`footer-skill-${index}`} style={footerCellStyle}>
-                        {formatNumber(value)}
-                      </td>
+                    <td style={tfStyle}>{L.tfTotal}</td>
+                    <td style={tfStyle}>100%</td>
+                    <td style={tfStyle}>{fmt(documentModel.allocation.table.footer.grandTotal)}</td>
+                    {documentModel.allocation.table.footer.skillTotals.map((v, i) => (
+                      <td key={i} style={tfStyle}>{fmt(v)}</td>
                     ))}
                   </tr>
                 </tfoot>
@@ -191,446 +160,170 @@ export function PreviewPanel({ documentModel }: Props) {
           </section>
         )}
 
+        {/* ── Skills Summary ── */}
         {documentModel.sections.includes("skills-summary") && (
           <section style={sectionStyle}>
             <SectionTitle title={L.skillsPreviewSection} />
-
-            <div style={skillTotalsListStyle}>
-              {documentModel.allocation.skillTotals.map((skillTotal) => (
-                <div key={skillTotal.skillId} style={skillTotalCardStyle}>
-                  <div style={skillTotalTextWrapStyle}>
-                    <div style={skillTotalLabelStyle}>{skillTotal.skillLabel}</div>
-                    <div style={skillTotalPercentageStyle}>
-                      {formatNumber(skillTotal.percentage)}%
-                    </div>
-                  </div>
-
-                  <div style={skillTotalValueStyle}>
-                    {formatNumber(skillTotal.value)}
-                  </div>
+            <div style={skillsRowStyle}>
+              {documentModel.allocation.skillTotals.map(sk => (
+                <div key={sk.skillId} style={skillCardStyle}>
+                  <div style={skillNameStyle}>{sk.skillLabel}</div>
+                  <div style={skillNumStyle}>{fmt(sk.value)}</div>
+                  <div style={skillMetaStyle}>{fmt(sk.percentage)}%</div>
                 </div>
               ))}
             </div>
           </section>
         )}
+
       </article>
     </aside>
   );
 }
 
+/* ── Helpers ── */
+
 function SectionTitle({ title }: { title: string }) {
   return (
-    <div style={sectionHeaderWrapStyle}>
-      <h4 style={sectionTitleStyle}>{title}</h4>
+    <div style={secHeadStyle}>
+      <div style={secBarStyle} />
+      <h4 style={secTitleStyle}>{title}</h4>
     </div>
   );
 }
 
-function MetadataItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number | null | undefined;
-}) {
-  const displayValue =
-    value === null || value === undefined || value === "" ? "—" : String(value);
-
+function CellVal({ value, adj }: { value: number; adj: number }) {
   return (
-    <div style={metadataItemStyle}>
-      <div style={metadataLabelStyle}>{label}</div>
-      <div style={metadataValueStyle}>{displayValue}</div>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+      <span style={{ fontWeight: 700 }}>{fmt(value)}</span>
+      {adj !== 0 && (
+        <span style={{ fontSize: 10, fontWeight: 800, color: adj > 0 ? "#15803D" : "#B91C1C" }}>
+          {adj > 0 ? "+" : ""}{fmt(adj)}
+        </span>
+      )}
     </div>
   );
 }
 
-function CellValueWithAdjustment({
-  value,
-  adjustment,
-}: {
-  value: number;
-  adjustment: number;
-}) {
-  return (
-    <div style={cellStackStyle}>
-      <div style={cellMainValueStyle}>{formatNumber(value)}</div>
-      <AdjustmentText value={adjustment} />
-    </div>
-  );
+function fmt(v: number): string {
+  if (!Number.isFinite(v)) return "—";
+  const r = Math.round(v * 100) / 100;
+  return r.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
 }
 
-function AdjustmentText({ value }: { value: number }) {
-  if (value === 0) {
-    return null;
-  }
+/* ── Styles ── */
 
-  return (
-    <div
-      style={{
-        ...adjustmentTextStyle,
-        color: value > 0 ? ds.colors.success : ds.colors.danger,
-      }}
-    >
-      {formatAdjustment(value)}
-    </div>
-  );
-}
+const shellStyle: CSSProperties = { width: "100%" };
 
-function formatNumber(value: number): string {
-  if (!Number.isFinite(value)) {
-    return "—";
-  }
-
-  const rounded = Math.round(value * 100) / 100;
-  const fixed = rounded.toFixed(2);
-
-  return fixed.replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
-}
-
-function formatAdjustment(value: number): string {
-  const sign = value > 0 ? "+" : "-";
-  return `${sign}${formatNumber(Math.abs(value))}`;
-}
-
-
-const previewShellStyle: CSSProperties = {
-  alignSelf: "start",
-  width: "100%",
-  display: "flex",
-  justifyContent: "center",
+const emptyStyle: CSSProperties = {
+  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+  padding: "60px 24px", backgroundColor: "#F8FAFC",
+  border: "2px dashed #CBD5E1", borderRadius: 12, gap: 4,
 };
 
-const documentSheetStyle: CSSProperties = {
-  width: "100%",
-  maxWidth: 780,
-  backgroundColor: "#ffffff",
-  border: `1px solid ${ds.colors.borderSoft}`,
-  borderRadius: ds.radius.xl,
-  padding: ds.spacing[6],
-  boxShadow: ds.shadow.md,
-  boxSizing: "border-box",
+const docStyle: CSSProperties = {
+  width: "100%", maxWidth: 780, margin: "0 auto",
+  backgroundColor: "#fff", borderWidth: 1, borderStyle: "solid", borderColor: "#D1D5DB",
+  borderRadius: 4, padding: "28px 24px",
+  boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
 };
 
-const documentHeaderStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
-  gap: ds.spacing[4],
-  paddingBottom: ds.spacing[4],
-  marginBottom: ds.spacing[5],
-  borderBottom: `2px solid ${ds.colors.borderSoft}`,
+// Header
+const headerStyle: CSSProperties = {
+  textAlign: "center", paddingBottom: 16, marginBottom: 18,
+  borderBottomWidth: 3, borderBottomStyle: "double", borderBottomColor: NAVY,
+};
+const eyebrowStyle: CSSProperties = { fontSize: 10, fontWeight: 700, color: "#64748B", marginBottom: 6 };
+const titleStyle: CSSProperties = { fontSize: 22, fontWeight: 900, color: NAVY, lineHeight: 1.3, margin: "0 0 4px" };
+const subtitleStyle: CSSProperties = { fontSize: 11, fontWeight: 700, color: GOLD };
+const goldLineStyle: CSSProperties = { width: 60, height: 3, background: GOLD, margin: "8px auto 0", borderRadius: 2 };
+
+// Sections
+const sectionStyle: CSSProperties = { marginBottom: 18 };
+const secHeadStyle: CSSProperties = {
+  display: "flex", alignItems: "center", gap: 8,
+  marginBottom: 8, paddingBottom: 4,
+  borderBottomWidth: 2, borderBottomStyle: "solid", borderBottomColor: NAVY,
+};
+const secBarStyle: CSSProperties = { width: 4, height: 16, background: GOLD, borderRadius: 1, flexShrink: 0 };
+const secTitleStyle: CSSProperties = { fontSize: 13, fontWeight: 900, color: NAVY, margin: 0 };
+
+// Meta table
+const metaTableStyle: CSSProperties = {
+  width: "100%", borderCollapse: "collapse",
+  borderWidth: 2, borderStyle: "solid", borderColor: NAVY, fontSize: 11,
+};
+const mlStyle: CSSProperties = {
+  background: NAVY, color: "#fff", fontWeight: 800, fontSize: 11,
+  padding: "6px 10px", textAlign: "center", whiteSpace: "nowrap",
+  borderWidth: 1, borderStyle: "solid", borderColor: "#CBD5E1", width: "12%",
+};
+const mvStyle: CSSProperties = {
+  fontWeight: 700, color: "#1E293B", fontSize: 12,
+  padding: "6px 10px", background: "#fff",
+  borderWidth: 1, borderStyle: "solid", borderColor: "#CBD5E1", width: "38%",
 };
 
-const documentEyebrowStyle: CSSProperties = {
-  ...ds.typography.meta,
-  color: ds.colors.textMuted,
-  marginBottom: ds.spacing[1],
-};
-
-const documentTitleStyle: CSSProperties = {
-  fontSize: 32,
-  lineHeight: 1.25,
-  fontWeight: 800,
-  color: ds.colors.textPrimary,
-  margin: 0,
-};
-
-const documentMetaBadgeStyle: CSSProperties = {
-  minWidth: 110,
-  display: "flex",
-  flexDirection: "column",
-  gap: 4,
-  padding: "9px 11px",
-  borderRadius: ds.radius.md,
-  backgroundColor: ds.colors.bgSubtle,
-  border: `1px solid ${ds.colors.borderSoft}`,
-  ...ds.typography.meta,
-  color: ds.colors.textSecondary,
-};
-
-const sectionStyle: CSSProperties = {
-  marginBottom: ds.spacing[5],
-};
-
-const sectionHeaderWrapStyle: CSSProperties = {
-  marginBottom: ds.spacing[3],
-  paddingBottom: ds.spacing[2],
-  borderBottom: `1px solid ${ds.colors.borderStrong}`,
-};
-
-const sectionTitleStyle: CSSProperties = {
-  ...ds.typography.section,
-  color: ds.colors.textPrimary,
-  margin: 0,
-};
-
-const metadataGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(2, minmax(240px, 1fr))",
-  gap: ds.spacing[2],
-};
-
-const metadataItemStyle: CSSProperties = {
-  border: `1px solid ${ds.colors.borderMuted}`,
-  borderRadius: ds.radius.md,
-  padding: "10px 12px",
-  backgroundColor: ds.colors.bgSubtle,
-};
-
-const metadataLabelStyle: CSSProperties = {
-  ...ds.typography.label,
-  color: ds.colors.textMuted,
-  marginBottom: 2,
-};
-
-const metadataValueStyle: CSSProperties = {
-  ...ds.typography.body,
-  fontWeight: 600,
-  color: ds.colors.textPrimary,
-  lineHeight: 1.55,
-  wordBreak: "break-word",
-};
-
-const lessonsListStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: ds.spacing[2],
-};
-
+// Lessons
 const lessonCardStyle: CSSProperties = {
-  padding: ds.spacing[2],
-  borderRadius: ds.radius.lg,
-  backgroundColor: ds.colors.bgSubtle,
-  border: `1px solid ${ds.colors.borderMuted}`,
+  borderWidth: 2, borderStyle: "solid", borderColor: "#D1D5DB",
+  overflow: "hidden",
 };
-
 const lessonHeaderStyle: CSSProperties = {
-  marginBottom: ds.spacing[2],
+  display: "flex", alignItems: "stretch",
+};
+const lessonNumStyle: CSSProperties = {
+  width: 32, background: NAVY, display: "flex", alignItems: "center", justifyContent: "center",
+  fontSize: 14, fontWeight: 900, color: GOLD, flexShrink: 0,
+};
+const lessonNameStyle: CSSProperties = {
+  fontSize: 12, fontWeight: 900, color: NAVY, padding: "6px 10px 0",
+};
+const lessonDurStyle: CSSProperties = {
+  fontSize: 10, fontWeight: 700, color: "#64748B", padding: "0 10px 6px",
+};
+const objAreaStyle: CSSProperties = {
+  borderTopWidth: 1, borderTopStyle: "solid", borderTopColor: "#E2E8F0",
+  padding: "6px 10px",
+};
+const objListStyle: CSSProperties = { listStyle: "none", margin: 0, padding: 0 };
+const objItemStyle: CSSProperties = {
+  display: "flex", alignItems: "flex-start", gap: 6,
+  fontSize: 11, fontWeight: 600, color: "#334155", lineHeight: 1.7,
+};
+const objBulletStyle: CSSProperties = { color: GOLD, fontSize: 8, marginTop: 5 };
+
+// Allocation table
+const tableWrapStyle: CSSProperties = {
+  borderWidth: 2, borderStyle: "solid", borderColor: NAVY, overflow: "hidden",
+};
+const allocTableStyle: CSSProperties = {
+  width: "100%", borderCollapse: "collapse", fontSize: 11,
+};
+const thStyle: CSSProperties = {
+  background: NAVY, color: "#fff", fontWeight: 800, fontSize: 11,
+  padding: "8px 6px", textAlign: "center",
+  borderWidth: 1, borderStyle: "solid", borderColor: NAVY_DEEP,
+};
+const thPctStyle: CSSProperties = { fontSize: 9, fontWeight: 600, color: "#FEF3C7", marginTop: 2 };
+const tdStyle: CSSProperties = {
+  padding: "6px 6px", borderWidth: 1, borderStyle: "solid", borderColor: "#D1D5DB",
+  fontSize: 12, fontWeight: 600,
+};
+const tdCenterStyle: CSSProperties = { ...tdStyle, textAlign: "center" };
+const tfStyle: CSSProperties = {
+  background: NAVY, color: "#fff", fontWeight: 900, fontSize: 12,
+  padding: "8px 6px", textAlign: "center",
+  borderWidth: 1, borderStyle: "solid", borderColor: NAVY_DEEP,
 };
 
-const lessonTitleWrapStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "flex-start",
-  gap: ds.spacing[2],
+// Skills
+const skillsRowStyle: CSSProperties = { display: "flex", gap: 8 };
+const skillCardStyle: CSSProperties = {
+  flex: 1, borderWidth: 2, borderStyle: "solid", borderColor: "#D1D5DB",
+  borderTopWidth: 4, borderTopColor: GOLD,
+  padding: "10px 12px", textAlign: "center", background: "#F8FAFC",
 };
-
-const lessonIndexStyle: CSSProperties = {
-  minWidth: 26,
-  height: 26,
-  borderRadius: ds.radius.pill,
-  backgroundColor: ds.colors.bgMuted,
-  color: ds.colors.textSecondary,
-  border: `1px solid ${ds.colors.borderStrong}`,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  fontSize: 11,
-  fontWeight: 800,
-};
-
-const lessonTitleStyle: CSSProperties = {
-  fontSize: 14,
-  fontWeight: 800,
-  color: ds.colors.textPrimary,
-  lineHeight: 1.55,
-};
-
-const lessonMetaStyle: CSSProperties = {
-  marginTop: 2,
-  ...ds.typography.meta,
-  color: ds.colors.textMuted,
-};
-
-const objectivesBlockStyle: CSSProperties = {
-  borderTop: `1px solid ${ds.colors.borderMuted}`,
-  paddingTop: ds.spacing[2],
-};
-
-const objectivesTitleStyle: CSSProperties = {
-  ...ds.typography.label,
-  color: ds.colors.textSecondary,
-  marginBottom: ds.spacing[1],
-};
-
-const objectivesListStyle: CSSProperties = {
-  margin: 0,
-  padding: 0,
-  listStyle: "none",
-  display: "flex",
-  flexDirection: "column",
-  gap: 6,
-};
-
-const objectiveItemStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "flex-start",
-  gap: ds.spacing[2],
-  ...ds.typography.body,
-  color: ds.colors.textSecondary,
-  lineHeight: 1.6,
-};
-
-const objectiveBulletStyle: CSSProperties = {
-  color: ds.colors.textMuted,
-  fontWeight: 800,
-  lineHeight: 1.6,
-};
-
-const objectiveTextStyle: CSSProperties = {
-  flex: 1,
-};
-
-const objectivesEmptyStyle: CSSProperties = {
-  ...ds.typography.body,
-  color: ds.colors.textMuted,
-  backgroundColor: ds.colors.bgMuted,
-  borderRadius: ds.radius.md,
-  padding: "10px 12px",
-};
-
-const tableWrapperStyle: CSSProperties = {
-  overflowX: "auto",
-  border: `1px solid ${ds.colors.borderStrong}`,
-  borderRadius: ds.radius.lg,
-  backgroundColor: "#ffffff",
-};
-
-const tableStyle: CSSProperties = {
-  width: "100%",
-  borderCollapse: "separate",
-  borderSpacing: 0,
-  fontSize: 13,
-};
-
-const headerCellStyle: CSSProperties = {
-  padding: "12px 10px",
-  borderBottom: `2px solid ${ds.colors.borderStrong}`,
-  borderInlineStart: `1px solid ${ds.colors.borderSoft}`,
-  backgroundColor: ds.colors.bgMuted,
-  color: ds.colors.textSecondary,
-  fontWeight: 800,
-  textAlign: "center",
-  verticalAlign: "middle",
-  whiteSpace: "nowrap",
-};
-
-const bodyCellStyle: CSSProperties = {
-  padding: "10px 10px",
-  borderBottom: `1px solid ${ds.colors.borderMuted}`,
-  borderInlineStart: `1px solid ${ds.colors.borderMuted}`,
-  textAlign: "center",
-  verticalAlign: "top",
-  color: ds.colors.textPrimary,
-  backgroundColor: "#ffffff",
-};
-
-const numericBodyCellStyle: CSSProperties = {
-  ...bodyCellStyle,
-  fontVariantNumeric: "tabular-nums",
-};
-
-const footerCellStyle: CSSProperties = {
-  padding: "11px 10px",
-  borderTop: `2px solid ${ds.colors.borderStrong}`,
-  borderInlineStart: `1px solid ${ds.colors.borderSoft}`,
-  backgroundColor: ds.colors.bgMuted,
-  color: ds.colors.textPrimary,
-  fontWeight: 800,
-  textAlign: "center",
-  verticalAlign: "middle",
-  fontVariantNumeric: "tabular-nums",
-};
-
-const lessonColumnStyle: CSSProperties = {
-  minWidth: 260,
-  borderInlineStart: "none",
-};
-
-const lessonNameCellStyle: CSSProperties = {
-  textAlign: "right",
-  minWidth: 260,
-  fontWeight: 700,
-  lineHeight: 1.55,
-  borderInlineStart: "none",
-};
-
-const skillHeaderLabelStyle: CSSProperties = {
-  fontSize: 13,
-  fontWeight: 800,
-  lineHeight: 1.35,
-};
-
-const skillHeaderPercentageStyle: CSSProperties = {
-  ...ds.typography.small,
-  color: ds.colors.textMuted,
-  marginTop: 3,
-};
-
-const cellStackStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 3,
-};
-
-const cellMainValueStyle: CSSProperties = {
-  fontWeight: 600,
-  color: ds.colors.textPrimary,
-  fontVariantNumeric: "tabular-nums",
-};
-
-const adjustmentTextStyle: CSSProperties = {
-  ...ds.typography.small,
-  fontVariantNumeric: "tabular-nums",
-};
-
-const skillTotalsListStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
-  gap: ds.spacing[2],
-};
-
-const skillTotalCardStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: ds.spacing[2],
-  padding: "10px 12px",
-  borderRadius: ds.radius.md,
-  backgroundColor: ds.colors.bgSubtle,
-  border: `1px solid ${ds.colors.borderMuted}`,
-  minHeight: 60,
-};
-
-const skillTotalTextWrapStyle: CSSProperties = {
-  minWidth: 0,
-};
-
-const skillTotalLabelStyle: CSSProperties = {
-  ...ds.typography.body,
-  fontWeight: 700,
-  color: ds.colors.textPrimary,
-  lineHeight: 1.35,
-};
-
-const skillTotalPercentageStyle: CSSProperties = {
-  marginTop: 2,
-  ...ds.typography.meta,
-  color: ds.colors.textMuted,
-};
-
-const skillTotalValueStyle: CSSProperties = {
-  fontSize: 22,
-  fontWeight: 800,
-  color: ds.colors.textPrimary,
-  fontVariantNumeric: "tabular-nums",
-  lineHeight: 1,
-};
-
-const emptyStateStyle: CSSProperties = {
-  borderRadius: ds.radius.md,
-  padding: ds.spacing[4],
-  backgroundColor: ds.colors.bgSubtle,
-  color: ds.colors.textMuted,
-  ...ds.typography.body,
-};
+const skillNameStyle: CSSProperties = { fontSize: 11, fontWeight: 900, color: NAVY, marginBottom: 4 };
+const skillNumStyle: CSSProperties = { fontSize: 22, fontWeight: 900, color: NAVY, lineHeight: 1 };
+const skillMetaStyle: CSSProperties = { fontSize: 10, fontWeight: 700, color: "#64748B", marginTop: 3 };

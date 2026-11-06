@@ -5,9 +5,9 @@ import type { ExamData, ExamStats } from "../types";
 import { parseExamFile } from "../parser";
 import { computeExamStats } from "../stats";
 
-const ACCENT = "#0284C7";
-const ACCENT_LIGHT = "#E0F2FE";
-const ACCENT_BORDER = "#BAE6FD";
+const ACCENT = "#0F766E";
+const ACCENT_LIGHT = "#F0FDFA";
+const ACCENT_BORDER = "#99F6E4";
 
 type ExamIndex = 0 | 1 | 2;
 const EXAM_OPTIONS: { idx: ExamIndex; label: string }[] = [
@@ -55,8 +55,20 @@ export default function ExamStatsTool() {
     if (!data) return;
     setExporting(true);
     try {
-      const { downloadExamStatsPdf } = await import("../pdf/render-exam-stats-pdf");
-      await downloadExamStatsPdf(data, [...selected].sort() as (0 | 1 | 2)[]);
+      const indices = [...selected].sort();
+      const res = await fetch("/api/unit-plan-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tool: "exam-stats", payload: { data, indices } }),
+      });
+      if (!res.ok) throw new Error("PDF generation failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `احصائيات_${data.meta.className}_${data.meta.year}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
     } finally {
       setExporting(false);
     }
@@ -154,7 +166,7 @@ function StatsCard({ stats }: { stats: ExamStats }) {
       {/* KPI row 1 */}
       <div style={kpiRowStyle}>
         <KPI label="المعدل العام" value={fmt(stats.avg)} unit="/20" color={ACCENT} />
-        <KPI label="الوسيط" value={fmt(stats.median)} unit="/20" color="#7C3AED" />
+        <KPI label="الوسيط" value={fmt(stats.median)} unit="/20" color="#0D9488" />
         <KPI label="الانحراف المعياري" value={fmt(stats.stdDev)} unit="" color="#0891B2" />
       </div>
 
