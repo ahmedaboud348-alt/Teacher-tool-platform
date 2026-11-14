@@ -2,7 +2,17 @@
 
 import { useState, type CSSProperties } from "react";
 import { ExamTrack } from "../types/exam-sheet-draft";
-import { ds, getLevelLabel } from "../ui/design-system";
+import Link from "next/link";
+
+const NAVY = "#1A3055";
+const NAVY_DEEP = "#0F1E35";
+const GOLD = "#C8960C";
+
+const LEVEL_LABELS: Record<string, string> = {
+  "1ac": "الأولى إعدادي",
+  "2ac": "الثانية إعدادي",
+  "3ac": "الثالثة إعدادي",
+};
 
 type Props = {
   selectedLevelId: string;
@@ -12,101 +22,72 @@ type Props = {
 
 export function TrackSelectionStep({ selectedLevelId, onSelectTrack, onBack }: Props) {
   const [hovered, setHovered] = useState<ExamTrack | null>(null);
+  const levelLabel = LEVEL_LABELS[selectedLevelId] || selectedLevelId;
 
   return (
     <section dir="rtl" style={pageStyle}>
 
-      {/* ── App Bar ── */}
-      <nav style={appBarStyle}>
-        <div style={appBarInnerStyle}>
-          <div style={brandWrapStyle}>
-            <div style={logoMarkStyle}>م</div>
-            <div>
-              <div style={brandNameStyle}>منصة الأدوات التربوية</div>
-              <div style={brandSubStyle}>أدوات رقمية للأساتذة</div>
-            </div>
-          </div>
-          <button type="button" style={backBtnStyle} onClick={onBack}>
-            ← تغيير المستوى
-          </button>
+      {/* ── Nav ── */}
+      <nav style={navStyle}>
+        <div style={navInnerStyle}>
+          <button type="button" style={backBtnStyle} onClick={onBack}>← تغيير المستوى</button>
+          <span style={navTitleStyle}>جذاذة الفرض المحروس</span>
         </div>
       </nav>
 
       {/* ── Hero ── */}
-      <div style={heroWrapStyle}>
-        <div style={heroBgPatternStyle} />
-        <div style={heroInnerStyle}>
-          <div style={levelPillStyle} className="hero-eyebrow">
-            {getLevelLabel(selectedLevelId)}
-          </div>
-          <h1 style={heroTitleStyle} className="hero-title">
-            اختر مسارك الدراسي
-          </h1>
-          <p style={heroDescStyle} className="hero-desc">
-            الوثيقة تُنشأ بلغة ومحتوى المسار الذي تختاره
-          </p>
+      <div style={heroStyle}>
+        <div style={heroPatternStyle} />
+        <div style={heroContentStyle}>
+          <div style={levelBadgeStyle}>{levelLabel}</div>
+          <h1 style={h1Style}>اختر المسار الدراسي</h1>
+          <p style={heroDescStyle}>الوثيقة تُنشأ بلغة ومحتوى المسار الذي تختاره</p>
+          <div style={goldLineStyle} />
         </div>
-        <div style={heroCurveStyle} />
       </div>
 
       {/* ── Cards ── */}
       <div style={bodyStyle}>
-        <div style={cardsWrapStyle}>
+        <div style={gridStyle}>
 
-          {/* General Track */}
+          {/* المسار العام */}
           <button
             type="button"
-            className="track-card"
-            style={{
-              ...cardBaseStyle,
-              ...generalCardStyle,
-              ...(hovered === "general" ? generalHoveredStyle : {}),
-            }}
+            style={{ ...cardStyle, ...(hovered === "general" ? cardHoverStyle : {}) }}
             onMouseEnter={() => setHovered("general")}
             onMouseLeave={() => setHovered(null)}
             onClick={() => onSelectTrack("general")}
           >
-            <div style={cardPatternStyle} />
-            <div style={generalIconBoxStyle}>📘</div>
-            <div style={{ ...trackBadgeStyle, ...generalBadgeStyle }}>
-              المسار الرسمي
+            <div style={{ ...cardGoldBar, opacity: hovered === "general" ? 1 : 0.7 }} />
+            <div style={cardBodyStyle}>
+              <span style={{ fontSize: 36, marginBottom: 8 }}>📘</span>
+              <span style={tagStyle}>المسار الرسمي</span>
+              <div style={cardTitleStyle}>المسار العام</div>
+              <div style={cardDescStyle}>الوثيقة باللغة العربية — مطابقة للمنهج الرسمي</div>
             </div>
-            <div style={trackTitleStyle}>المسار العام</div>
-            <div style={trackDescStyle}>
-              الوثيقة باللغة العربية — الاتجاه من اليمين لليسار — مطابق للمنهج الرسمي
-            </div>
-            <div style={{ ...ctaRowStyle, ...generalCtaStyle }}>
-              <span>الدخول إلى الأداة</span>
+            <div style={{ ...cardFootStyle, ...(hovered === "general" ? cardFootActiveStyle : {}) }}>
+              <span>الدخول</span>
               <span>←</span>
             </div>
           </button>
 
-          {/* International Track */}
+          {/* المسار الدولي */}
           <button
             type="button"
-            className="track-card"
-            style={{
-              ...cardBaseStyle,
-              ...intlCardStyle,
-              ...(hovered === "international" ? intlHoveredStyle : {}),
-            }}
+            style={{ ...cardDarkStyle, ...(hovered === "international" ? cardDarkHoverStyle : {}) }}
             onMouseEnter={() => setHovered("international")}
             onMouseLeave={() => setHovered(null)}
             onClick={() => onSelectTrack("international")}
           >
-            <div style={{ ...cardPatternStyle, backgroundImage: "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)" }} />
-            <div style={intlIconBoxStyle}>📗</div>
-            <div style={{ ...trackBadgeStyle, ...intlBadgeStyle }}>
-              Filière Internationale
+            <div style={{ height: 4, background: "linear-gradient(90deg, #3B82F6, #60A5FA)", opacity: hovered === "international" ? 1 : 0.7, transition: "opacity 200ms" }} />
+            <div style={cardBodyStyle}>
+              <span style={{ fontSize: 36, marginBottom: 8 }}>📗</span>
+              <span style={tagDarkStyle}>Filière Internationale</span>
+              <div style={{ ...cardTitleStyle, color: "#fff" }}>المسار الدولي</div>
+              <div style={{ ...cardDescStyle, color: "rgba(255,255,255,0.6)" }}>Document en français — conforme au programme officiel</div>
             </div>
-            <div style={{ ...trackTitleStyle, color: "#fff" }}>
-              المسار الدولي
-            </div>
-            <div style={{ ...trackDescStyle, color: "rgba(255,255,255,0.65)" }}>
-              Le document en français — de gauche à droite — conforme au programme officiel
-            </div>
-            <div style={{ ...ctaRowStyle, ...intlCtaStyle }}>
-              <span>Accéder à l&apos;outil</span>
+            <div style={cardFootDarkStyle}>
+              <span>Accéder</span>
               <span>→</span>
             </div>
           </button>
@@ -120,278 +101,124 @@ export function TrackSelectionStep({ selectedLevelId, onSelectTrack, onBack }: P
 /* ── Styles ── */
 
 const pageStyle: CSSProperties = {
-  minHeight: "100vh",
-  backgroundColor: ds.colors.bgPage,
+  minHeight: "100vh", backgroundColor: "#F8FAFC",
   fontFamily: "Cairo, system-ui, sans-serif",
 };
 
-const appBarStyle: CSSProperties = {
-  position: "sticky",
-  top: 0,
-  zIndex: 40,
-  backgroundColor: "rgba(255,255,255,0.96)",
-  backdropFilter: "blur(16px)",
-  borderBottom: "1px solid rgba(124,58,237,0.10)",
-  boxShadow: "0 1px 0 rgba(124,58,237,0.06), 0 4px 16px rgba(0,0,0,0.04)",
+const navStyle: CSSProperties = {
+  position: "sticky", top: 0, zIndex: 40,
+  backgroundColor: "rgba(255,255,255,0.95)", backdropFilter: "blur(16px)",
+  borderBottom: "1px solid #E2E8F0", boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
 };
-
-const appBarInnerStyle: CSSProperties = {
-  maxWidth: ds.layout.maxWidth,
-  margin: "0 auto",
-  padding: "0 24px",
-  height: 64,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
+const navInnerStyle: CSSProperties = {
+  maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 56,
+  display: "flex", alignItems: "center", justifyContent: "space-between",
 };
-
-const brandWrapStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 12,
-};
-
-const logoMarkStyle: CSSProperties = {
-  width: 36,
-  height: 36,
-  borderRadius: 10,
-  background: "linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: "#fff",
-  fontWeight: 900,
-  fontSize: 18,
-  boxShadow: "0 4px 12px rgba(124,58,237,0.35)",
-  flexShrink: 0,
-};
-
-const brandNameStyle: CSSProperties = {
-  fontSize: 14,
-  fontWeight: 800,
-  color: ds.colors.textPrimary,
-  lineHeight: 1.2,
-};
-
-const brandSubStyle: CSSProperties = {
-  fontSize: 11,
-  fontWeight: 500,
-  color: ds.colors.textMuted,
-  lineHeight: 1,
-};
-
 const backBtnStyle: CSSProperties = {
-  fontSize: 13,
-  fontWeight: 700,
-  color: ds.colors.primary600,
-  backgroundColor: ds.colors.primary100,
-  border: `1.5px solid ${ds.colors.primary200}`,
-  borderRadius: 10,
-  padding: "8px 16px",
-  cursor: "pointer",
-  transition: "background-color 150ms ease",
+  fontSize: 13, fontWeight: 700, color: GOLD,
+  backgroundColor: "transparent", border: `1.5px solid ${GOLD}`,
+  borderRadius: 10, padding: "7px 16px", cursor: "pointer",
+  fontFamily: "Cairo, sans-serif",
 };
+const navTitleStyle: CSSProperties = { fontSize: 14, fontWeight: 900, color: NAVY };
 
-/* Hero */
-const heroWrapStyle: CSSProperties = {
-  position: "relative",
-  background: "linear-gradient(140deg, #3B0764 0%, #6D28D9 55%, #7C3AED 100%)",
-  paddingTop: 72,
-  paddingBottom: 120,
-  paddingLeft: 24,
-  paddingRight: 24,
-  overflow: "hidden",
+const heroStyle: CSSProperties = {
+  position: "relative", overflow: "hidden",
+  background: `linear-gradient(160deg, ${NAVY_DEEP} 0%, ${NAVY} 50%, #243F63 100%)`,
+  paddingTop: 80, paddingBottom: 100,
 };
-
-const heroBgPatternStyle: CSSProperties = {
-  position: "absolute",
-  inset: 0,
-  backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)",
-  backgroundSize: "28px 28px",
-  pointerEvents: "none",
+const heroPatternStyle: CSSProperties = {
+  position: "absolute", inset: 0, pointerEvents: "none",
+  backgroundImage: "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
+  backgroundSize: "40px 40px",
 };
-
-const heroInnerStyle: CSSProperties = {
-  position: "relative",
-  zIndex: 1,
-  maxWidth: 600,
-  margin: "0 auto",
-  textAlign: "center",
+const heroContentStyle: CSSProperties = {
+  position: "relative", zIndex: 1, textAlign: "center",
+  maxWidth: 600, margin: "0 auto", padding: "0 24px",
 };
-
-const levelPillStyle: CSSProperties = {
-  display: "inline-block",
-  fontSize: 13,
-  fontWeight: 800,
-  color: "#7C3AED",
-  backgroundColor: "rgba(255,255,255,0.92)",
-  borderRadius: 999,
-  padding: "6px 18px",
-  marginBottom: 20,
+const levelBadgeStyle: CSSProperties = {
+  display: "inline-block", fontSize: 13, fontWeight: 900,
+  color: NAVY, backgroundColor: "rgba(255,255,255,0.92)",
+  borderRadius: 999, padding: "6px 20px", marginBottom: 24,
 };
-
-const heroTitleStyle: CSSProperties = {
-  fontSize: 44,
-  fontWeight: 900,
-  color: "#FFFFFF",
-  lineHeight: 1.15,
-  margin: "0 0 14px",
+const h1Style: CSSProperties = {
+  fontSize: 44, fontWeight: 900, color: "#fff",
+  lineHeight: 1.2, margin: "0 0 12px",
 };
-
 const heroDescStyle: CSSProperties = {
-  fontSize: 15,
-  color: "rgba(255,255,255,0.65)",
-  lineHeight: 1.7,
-  margin: 0,
+  fontSize: 16, color: "rgba(255,255,255,0.55)", lineHeight: 1.7, margin: "0 0 20px",
+};
+const goldLineStyle: CSSProperties = {
+  width: 50, height: 3, background: GOLD, margin: "0 auto", borderRadius: 2,
 };
 
-const heroCurveStyle: CSSProperties = {
-  position: "absolute",
-  bottom: -2,
-  left: 0,
-  right: 0,
-  height: 60,
-  backgroundColor: ds.colors.bgPage,
-  borderRadius: "60% 60% 0 0 / 100% 100% 0 0",
-};
-
-/* Body */
 const bodyStyle: CSSProperties = {
-  padding: "0 24px 64px",
-  marginTop: -40,
-  position: "relative",
-  zIndex: 2,
+  padding: "0 24px 64px", marginTop: -36, position: "relative", zIndex: 2,
+};
+const gridStyle: CSSProperties = {
+  display: "grid", gridTemplateColumns: "repeat(2, 1fr)",
+  gap: 20, maxWidth: 700, margin: "0 auto",
 };
 
-const cardsWrapStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-  gap: 20,
-  maxWidth: 760,
-  margin: "0 auto",
+const cardStyle: CSSProperties = {
+  position: "relative", backgroundColor: "#fff",
+  border: "1.5px solid #E2E8F0", borderRadius: 16, overflow: "hidden",
+  cursor: "pointer", display: "flex", flexDirection: "column",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.04)", textAlign: "right", padding: 0,
+  transition: "transform 250ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 250ms ease, border-color 250ms ease",
 };
-
-/* Cards */
-const cardBaseStyle: CSSProperties = {
-  position: "relative",
-  borderRadius: 20,
-  padding: "28px 28px 0",
-  minHeight: 300,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "stretch",
-  cursor: "pointer",
-  overflow: "hidden",
-  border: "none",
-  transition: "transform 180ms cubic-bezier(0.4,0,0.2,1), box-shadow 180ms cubic-bezier(0.4,0,0.2,1)",
-  textAlign: "right",
-  boxSizing: "border-box",
+const cardHoverStyle: CSSProperties = {
+  transform: "translateY(-8px)",
+  boxShadow: `0 20px 40px rgba(26,48,85,0.15), 0 0 0 2px ${GOLD}`,
+  borderColor: GOLD,
 };
-
-const cardPatternStyle: CSSProperties = {
-  position: "absolute",
-  inset: 0,
-  backgroundImage: "radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px)",
-  backgroundSize: "20px 20px",
-  pointerEvents: "none",
+const cardGoldBar: CSSProperties = {
+  height: 4, background: `linear-gradient(90deg, ${GOLD}, #D4A017)`,
+  transition: "opacity 200ms",
 };
-
-const generalCardStyle: CSSProperties = {
-  backgroundColor: "#fff",
-  boxShadow: "0 4px 16px rgba(124,58,237,0.08), 0 0 0 1.5px rgba(124,58,237,0.12)",
+const cardBodyStyle: CSSProperties = {
+  padding: "24px 24px 16px", flex: 1, display: "flex",
+  flexDirection: "column", gap: 4, position: "relative", zIndex: 1,
 };
-
-const generalHoveredStyle: CSSProperties = {
-  transform: "translateY(-6px)",
-  boxShadow: "0 24px 56px rgba(124,58,237,0.20), 0 0 0 2px rgba(124,58,237,0.40)",
+const tagStyle: CSSProperties = {
+  display: "inline-block", alignSelf: "flex-start",
+  fontSize: 11, fontWeight: 800, color: NAVY,
+  backgroundColor: "#F1F5F9", border: "1.5px solid #E2E8F0",
+  borderRadius: 8, padding: "3px 10px", marginBottom: 4,
 };
-
-const intlCardStyle: CSSProperties = {
-  background: "linear-gradient(145deg, #1E1B4B 0%, #312E81 100%)",
-  boxShadow: "0 4px 16px rgba(30,27,75,0.25)",
+const cardTitleStyle: CSSProperties = {
+  fontSize: 24, fontWeight: 900, color: NAVY, lineHeight: 1.3,
 };
-
-const intlHoveredStyle: CSSProperties = {
-  transform: "translateY(-6px)",
-  boxShadow: "0 24px 56px rgba(30,27,75,0.40)",
+const cardDescStyle: CSSProperties = {
+  fontSize: 12, fontWeight: 600, color: "#64748B", lineHeight: 1.6,
 };
-
-const generalIconBoxStyle: CSSProperties = {
-  fontSize: 40,
-  marginBottom: 12,
-  position: "relative",
-  zIndex: 1,
+const cardFootStyle: CSSProperties = {
+  padding: "12px 24px", borderTop: "1px solid #F1F5F9",
+  display: "flex", alignItems: "center", justifyContent: "space-between",
+  fontSize: 13, fontWeight: 800, color: "#94A3B8", transition: "color 200ms",
 };
+const cardFootActiveStyle: CSSProperties = { color: GOLD };
 
-const intlIconBoxStyle: CSSProperties = {
-  ...generalIconBoxStyle,
+const cardDarkStyle: CSSProperties = {
+  ...cardStyle,
+  background: `linear-gradient(145deg, ${NAVY_DEEP} 0%, ${NAVY} 100%)`,
+  border: "1.5px solid #243F63",
+  boxShadow: "0 4px 16px rgba(15,30,53,0.25)",
 };
-
-const trackBadgeStyle: CSSProperties = {
-  display: "inline-block",
-  fontSize: 11,
-  fontWeight: 800,
-  borderRadius: 8,
-  padding: "4px 12px",
-  marginBottom: 10,
-  position: "relative",
-  zIndex: 1,
-  letterSpacing: "0.04em",
+const cardDarkHoverStyle: CSSProperties = {
+  transform: "translateY(-8px)",
+  boxShadow: "0 20px 40px rgba(15,30,53,0.35), 0 0 0 2px #3B82F6",
+  borderColor: "#3B82F6",
 };
-
-const generalBadgeStyle: CSSProperties = {
-  color: ds.colors.primary700,
-  backgroundColor: ds.colors.primary100,
-  border: `1px solid ${ds.colors.primary200}`,
+const tagDarkStyle: CSSProperties = {
+  ...tagStyle,
+  color: "#60A5FA", backgroundColor: "rgba(59,130,246,0.12)",
+  border: "1.5px solid rgba(59,130,246,0.25)",
 };
-
-const intlBadgeStyle: CSSProperties = {
-  color: "#FB923C",
-  backgroundColor: "rgba(251,146,60,0.15)",
-  border: "1px solid rgba(251,146,60,0.30)",
-};
-
-const trackTitleStyle: CSSProperties = {
-  fontSize: 26,
-  fontWeight: 900,
-  color: ds.colors.textPrimary,
-  lineHeight: 1.15,
-  marginBottom: 10,
-  position: "relative",
-  zIndex: 1,
-};
-
-const trackDescStyle: CSSProperties = {
-  fontSize: 13,
-  fontWeight: 400,
-  color: ds.colors.textSecondary,
-  lineHeight: 1.7,
-  flex: 1,
-  position: "relative",
-  zIndex: 1,
-};
-
-const ctaRowStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "16px 0",
-  marginTop: 20,
-  fontSize: 13,
-  fontWeight: 800,
-  position: "relative",
-  zIndex: 1,
-  borderTop: "1px solid",
-};
-
-const generalCtaStyle: CSSProperties = {
-  color: ds.colors.primary600,
-  borderTopColor: ds.colors.primary200,
-};
-
-const intlCtaStyle: CSSProperties = {
-  color: "#FB923C",
-  borderTopColor: "rgba(251,146,60,0.25)",
+const cardFootDarkStyle: CSSProperties = {
+  ...cardFootStyle,
+  borderTopColor: "rgba(255,255,255,0.1)",
+  color: "rgba(255,255,255,0.4)",
+  flexDirection: "row-reverse",
   textAlign: "left",
-  flexDirection: "row-reverse" as const,
 };

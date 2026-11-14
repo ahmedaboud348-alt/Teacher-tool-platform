@@ -13,6 +13,11 @@ import { PreviewPanel } from "./PreviewPanel";
 import { ExportPdfButton } from "./ExportPdfButton";
 import { ds, ui } from "../ui/design-system";
 import { getUILabels, getLevelLabelI18n, getTrackLabelI18n } from "../i18n";
+import Link from "next/link";
+
+const NAVY = "#1A3055";
+const NAVY_DEEP = "#0F1E35";
+const GOLD = "#C8960C";
 
 type Props = {
   draft: ExamSheetDraft;
@@ -71,46 +76,45 @@ export function ExamSheetWorkspace({
   const dir = track === "general" ? "rtl" : "ltr";
 
   return (
-    <div style={{ ...ui.pageShell(dir), fontFamily: "Cairo, system-ui, sans-serif" }}>
-      {/* ── App Bar ── */}
-      <nav style={appBarStyle}>
-        <div style={appBarInnerStyle}>
-          <div style={brandWrapStyle}>
-            <div style={logoMarkStyle}>م</div>
-            <div>
-              <div style={brandNameStyle}>{L.brand}</div>
-              <div style={brandSubStyle}>{L.toolTitle}</div>
-            </div>
+    <div style={{ ...ui.pageShell(dir), fontFamily: "Cairo, system-ui, sans-serif", backgroundColor: "#F8FAFC" }}>
+      {/* ── Nav ── */}
+      <nav style={navStyle}>
+        <div style={navInnerStyle}>
+          <div style={navLeftStyle}>
+            <Link href="/" style={navBackStyle}>← الرئيسية</Link>
+            <span style={navSepStyle}>|</span>
+            <span style={navTitleStyle}>جذاذة الفرض المحروس</span>
           </div>
-          <div style={appBarMetaStyle}>
-            <span style={appBarLevelBadgeStyle}>
+          <div style={navBadgesStyle}>
+            <span style={navLevelBadgeStyle}>
               {getLevelLabelI18n(draft.meta.levelId, track)}
             </span>
-            <span style={appBarTrackBadgeStyle}>
+            <span style={navTrackBadgeStyle}>
               {getTrackLabelI18n(track)}
             </span>
           </div>
         </div>
-        <div style={appBarAccentLineStyle} />
+        <div style={navLineStyle} />
       </nav>
 
-      <div style={pageBodyStyle}>
-        <div style={ui.pageFrame}>
-          {/* ── Hero header ── */}
-          <header style={heroStyle}>
-            <div style={heroBgStyle} />
-            <div style={heroContentStyle}>
+      {/* ── Hero ── */}
+      <div style={heroStyle}>
+        <div style={heroPatternStyle} />
+        <div style={heroContentStyle}>
+          <div style={heroInnerStyle}>
+            <div>
               <div style={heroEyebrowStyle}>{L.docSetup}</div>
-              <h1 style={heroTitleStyle}>
-                {draft.meta.title || L.toolTitle}
-              </h1>
+              <h1 style={heroTitleStyle}>{draft.meta.title || L.toolTitle}</h1>
             </div>
-            <div style={heroBadgesStyle}>
-              <ExportPdfButton documentModel={documentModel} />
-            </div>
-          </header>
+            <ExportPdfButton documentModel={documentModel} />
+          </div>
+        </div>
+      </div>
 
-          <div style={editorColumnStyle}>
+      {/* ── Body ── */}
+      <div style={bodyStyle}>
+        <div style={ui.pageFrame}>
+          <div style={editorStyle}>
             <ExamMetadataSection draft={draft} updateMeta={updateMeta} />
 
             <LessonsSection
@@ -132,7 +136,11 @@ export function ExamSheetWorkspace({
             />
           </div>
 
-          <div style={previewSectionStyle}>
+          <div style={previewStyle}>
+            <div style={previewHeaderStyle}>
+              <span style={{ fontSize: 14, fontWeight: 900, color: NAVY }}>📄 معاينة الوثيقة</span>
+              <ExportPdfButton documentModel={documentModel} />
+            </div>
             <PreviewPanel documentModel={documentModel} />
           </div>
         </div>
@@ -141,171 +149,139 @@ export function ExamSheetWorkspace({
   );
 }
 
-/* ── App Bar ── */
-const appBarStyle = {
+/* ── Nav ── */
+const navStyle = {
   position: "sticky" as const,
   top: 0,
   zIndex: 40,
-  backgroundColor: "rgba(255,255,255,0.96)",
+  backgroundColor: "rgba(255,255,255,0.95)",
   backdropFilter: "blur(16px)",
-  boxShadow: "0 1px 0 rgba(124,58,237,0.06), 0 4px 16px rgba(0,0,0,0.04)",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
 };
-
-const appBarInnerStyle = {
-  maxWidth: ds.layout.maxWidth,
+const navInnerStyle = {
+  maxWidth: 1400,
   margin: "0 auto",
   padding: "0 24px",
-  height: 64,
+  height: 56,
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  gap: ds.spacing[4],
 };
-
-const brandWrapStyle = {
+const navLeftStyle = {
   display: "flex",
   alignItems: "center",
-  gap: 12,
+  gap: 10,
 };
-
-const logoMarkStyle = {
-  width: 34,
-  height: 34,
-  borderRadius: 9,
-  background: "linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: "#fff",
-  fontWeight: 900,
-  fontSize: 16,
-  boxShadow: "0 4px 10px rgba(124,58,237,0.30)",
-  flexShrink: 0,
-};
-
-const brandNameStyle = {
+const navBackStyle = {
   fontSize: 13,
-  fontWeight: 800,
-  color: ds.colors.textPrimary,
-  lineHeight: 1.2,
+  fontWeight: 600,
+  color: "#64748B",
+  textDecoration: "none",
 };
-
-const brandSubStyle = {
-  fontSize: 11,
-  fontWeight: 500,
-  color: ds.colors.textMuted,
-  lineHeight: 1,
+const navSepStyle = {
+  color: "#CBD5E1",
+  fontSize: 14,
 };
-
-const appBarMetaStyle = {
+const navTitleStyle = {
+  fontSize: 14,
+  fontWeight: 900,
+  color: NAVY,
+};
+const navBadgesStyle = {
   display: "flex",
   alignItems: "center",
-  gap: ds.spacing[2],
+  gap: 8,
 };
-
-const appBarLevelBadgeStyle = {
+const navLevelBadgeStyle = {
   fontSize: 11,
-  fontWeight: 700,
-  color: ds.colors.primary600,
-  backgroundColor: ds.colors.primary100,
-  border: `1px solid ${ds.colors.primary200}`,
-  borderRadius: 999,
+  fontWeight: 800,
+  color: NAVY,
+  backgroundColor: "#F1F5F9",
+  borderWidth: 1.5,
+  borderStyle: "solid",
+  borderColor: "#E2E8F0",
+  borderRadius: 8,
   padding: "3px 10px",
 };
-
-const appBarTrackBadgeStyle = {
+const navTrackBadgeStyle = {
   fontSize: 11,
-  fontWeight: 700,
-  color: ds.colors.textMuted,
-  backgroundColor: ds.colors.bgSubtle,
-  border: `1px solid ${ds.colors.borderSoft}`,
-  borderRadius: 999,
+  fontWeight: 800,
+  color: GOLD,
+  backgroundColor: "#FFFBEB",
+  borderWidth: 1.5,
+  borderStyle: "solid",
+  borderColor: "#FDE68A",
+  borderRadius: 8,
   padding: "3px 10px",
 };
-
-const appBarAccentLineStyle = {
-  height: 2,
-  background: "linear-gradient(90deg, #7C3AED 0%, #A78BFA 50%, transparent 100%)",
+const navLineStyle = {
+  height: 3,
+  background: `linear-gradient(90deg, ${NAVY} 0%, ${GOLD} 50%, transparent 100%)`,
 };
 
-/* ── Page body ── */
-const pageBodyStyle = {
-  padding: `${ds.spacing[6]}px`,
-};
-
-/* ── Hero header ── */
+/* ── Hero ── */
 const heroStyle = {
   position: "relative" as const,
   overflow: "hidden" as const,
-  borderRadius: ds.radius.xl,
-  padding: "28px 28px",
-  marginBottom: ds.spacing[5],
-  display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
-  gap: ds.spacing[4],
-  background: "linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 60%, #DDD6FE 100%)",
-  border: `1px solid ${ds.colors.primary200}`,
-  boxShadow: "0 2px 12px rgba(124,58,237,0.08)",
-  boxSizing: "border-box" as const,
+  background: `linear-gradient(160deg, ${NAVY_DEEP} 0%, ${NAVY} 60%, #243F63 100%)`,
+  padding: "28px 24px",
 };
-
-const heroBgStyle = {
+const heroPatternStyle = {
   position: "absolute" as const,
   inset: 0,
-  backgroundImage: "radial-gradient(rgba(124,58,237,0.06) 1px, transparent 1px)",
-  backgroundSize: "22px 22px",
   pointerEvents: "none" as const,
+  backgroundImage: "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
+  backgroundSize: "40px 40px",
 };
-
 const heroContentStyle = {
-  minWidth: 0,
-  flex: 1,
   position: "relative" as const,
   zIndex: 1,
+  maxWidth: 1400,
+  margin: "0 auto",
 };
-
+const heroInnerStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 20,
+};
 const heroEyebrowStyle = {
   fontSize: 11,
-  fontWeight: 800,
-  color: ds.colors.primary600,
-  backgroundColor: "rgba(124,58,237,0.10)",
-  borderRadius: ds.radius.pill,
-  padding: "3px 12px",
-  display: "inline-block",
-  marginBottom: ds.spacing[3],
-  letterSpacing: "0.04em",
+  fontWeight: 700,
+  color: GOLD,
+  marginBottom: 4,
 };
-
 const heroTitleStyle = {
-  ...ds.typography.h1,
-  color: ds.colors.textPrimary,
+  fontSize: 24,
+  fontWeight: 900,
+  color: "#FFFFFF",
   margin: 0,
+  lineHeight: 1.3,
 };
 
-const heroBadgesStyle = {
-  display: "flex",
-  flexWrap: "wrap" as const,
-  gap: ds.spacing[2],
-  justifyContent: "flex-end",
-  alignItems: "flex-start",
-  position: "relative" as const,
-  zIndex: 1,
+/* ── Body ── */
+const bodyStyle = {
+  padding: "24px",
 };
 
-/* ── Editor layout ── */
-const editorColumnStyle = {
+const editorStyle = {
   display: "flex",
   flexDirection: "column" as const,
-  gap: ds.spacing[4],
+  gap: 20,
   width: "100%",
   maxWidth: "100%",
   minWidth: 0,
 };
 
-const previewSectionStyle = {
-  marginTop: ds.spacing[5],
+const previewStyle = {
+  marginTop: 24,
   width: "100%",
-  maxWidth: ds.layout.previewMaxWidth,
   minWidth: 0,
+};
+
+const previewHeaderStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: 12,
 };

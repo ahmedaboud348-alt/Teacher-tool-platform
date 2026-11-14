@@ -8,16 +8,11 @@ const ExamStatsTool = dynamic(
   { ssr: false }
 );
 
-const ACCENT = "#0284C7";
-const ACCENT_LIGHT = "#E0F2FE";
-const ACCENT_BORDER = "#BAE6FD";
-
 export default function ExamStatsPage() {
   return (
     <div style={pageStyle}>
-      {/* Header */}
       <header style={headerStyle}>
-        <div style={{ height: 3, background: `linear-gradient(90deg, ${ACCENT}, ${ACCENT}99)` }} />
+        <div style={{ height: 3, background: "linear-gradient(90deg, #0F766E, #14B8A6)" }} />
         <div style={headerInnerStyle}>
           <Link href="/" style={backStyle}>← الرئيسية</Link>
           <div style={headerContentStyle}>
@@ -29,8 +24,6 @@ export default function ExamStatsPage() {
           </div>
         </div>
       </header>
-
-      {/* Body */}
       <main style={bodyStyle}>
         <ExamStatsTool />
       </main>
@@ -39,27 +32,25 @@ export default function ExamStatsPage() {
 }
 
 const pageStyle: CSSProperties = {
-  minHeight: "100vh", backgroundColor: "#F7F6FB",
+  minHeight: "100vh", backgroundColor: "#FAFAFA",
   fontFamily: "Cairo, system-ui, sans-serif", direction: "rtl",
 };
 const headerStyle: CSSProperties = {
   backgroundColor: "#fff",
-  boxShadow: "0 1px 0 rgba(2,132,199,0.08), 0 4px 16px rgba(0,0,0,0.04)",
+  boxShadow: "0 1px 0 rgba(15,118,110,0.08), 0 4px 16px rgba(0,0,0,0.04)",
   marginBottom: 28,
 };
-const headerInnerStyle: CSSProperties = {
-  maxWidth: 900, margin: "0 auto", padding: "0 24px",
-};
+const headerInnerStyle: CSSProperties = { maxWidth: 900, margin: "0 auto", padding: "0 24px" };
 const backStyle: CSSProperties = {
   display: "inline-block", fontSize: 13, color: "#64748B", fontWeight: 600,
-  textDecoration: "none", padding: "10px 0", borderBottom: "none",
+  textDecoration: "none", padding: "10px 0",
 };
 const headerContentStyle: CSSProperties = {
   display: "flex", alignItems: "center", gap: 16, padding: "16px 0 20px",
 };
 const iconBoxStyle: CSSProperties = {
   width: 52, height: 52, borderRadius: 14,
-  backgroundColor: ACCENT_LIGHT, border: `1.5px solid ${ACCENT_BORDER}`,
+  backgroundColor: "#F0FDFA", border: "1.5px solid #99F6E4",
   display: "flex", alignItems: "center", justifyContent: "center",
   fontSize: 26, flexShrink: 0,
 };

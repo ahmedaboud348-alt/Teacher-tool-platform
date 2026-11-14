@@ -2,12 +2,12 @@ import type { CSSProperties } from "react";
 
 export const ds = {
   colors: {
-    primary50: "#F5F3FF",
-    primary100: "#EDE9FE",
-    primary200: "#DDD6FE",
-    primary500: "#7C3AED",
-    primary600: "#6D28D9",
-    primary700: "#5B21B6",
+    primary50: "#F8FAFC",
+    primary100: "#F1F5F9",
+    primary200: "#E2E8F0",
+    primary500: "#1A3055",
+    primary600: "#1A3055",
+    primary700: "#0F1E35",
 
     accent50: "#FFF7ED",
     accent100: "#FFEDD5",
@@ -15,14 +15,14 @@ export const ds = {
     accent500: "#EA580C",
     accent600: "#C2410C",
 
-    bgPage: "#F7F6FB",
+    bgPage: "#FAFAFA",
     bgPanel: "#FFFFFF",
-    bgSubtle: "#FAF9FD",
-    bgMuted: "#F4F2FA",
+    bgSubtle: "#F8FAFC",
+    bgMuted: "#F1F5F9",
 
-    borderSoft: "#E5E0F5",
-    borderMuted: "#EEEBF8",
-    borderStrong: "#D4CCF0",
+    borderSoft: "#E2E8F0",
+    borderMuted: "#E2E8F0",
+    borderStrong: "#CBD5E1",
 
     textPrimary: "#0F172A",
     textSecondary: "#334155",
@@ -136,7 +136,7 @@ export const ui = {
     backdropFilter: "blur(12px)",
     borderBottom: `1px solid ${ds.colors.borderSoft}`,
     boxSizing: "border-box",
-    boxShadow: "0 2px 12px rgba(124, 58, 237, 0.06)",
+    boxShadow: "0 2px 12px rgba(26, 48, 85, 0.06)",
   } satisfies CSSProperties,
 
   appBarInner: {
@@ -216,7 +216,7 @@ export const ui = {
     cursor: "pointer",
     transition: "all 160ms ease",
     boxSizing: "border-box",
-    boxShadow: "0 8px 20px rgba(124, 58, 237, 0.22)",
+    boxShadow: "0 8px 20px rgba(26, 48, 85, 0.22)",
   } satisfies CSSProperties,
 
   buttonSecondary: {

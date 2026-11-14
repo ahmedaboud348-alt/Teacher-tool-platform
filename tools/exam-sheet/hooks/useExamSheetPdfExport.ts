@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { renderExamSheetPdf } from "../../../lib/exporters/exam-sheet/pdf/render-exam-sheet-pdf";
 import { ExamSheetDocumentModel } from "../types/exam-sheet-document";
 
 type ExportState =
@@ -23,8 +22,15 @@ export function useExamSheetPdfExport(
     setExportState({ status: "generating" });
 
     try {
-      const blob = await renderExamSheetPdf(documentModel);
+      const res = await fetch("/api/unit-plan-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tool: "exam-sheet", payload: documentModel }),
+      });
 
+      if (!res.ok) throw new Error("PDF generation failed");
+
+      const blob = await res.blob();
       const title    = documentModel.meta.title?.trim() || "جذاذة-الفرض";
       const level    = documentModel.meta.levelLabel?.trim() || "";
       const term     = documentModel.meta.term === "second" ? "الدورة-الثانية" : "الدورة-الأولى";
